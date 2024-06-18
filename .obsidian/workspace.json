@@ -1,0 +1,176 @@
+{
+  "main": {
+    "id": "6a6f47be6f339713",
+    "type": "split",
+    "children": [
+      {
+        "id": "ff28f2e562aa7041",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "e30809960f4d4f18",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Bibliographies.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          },
+          {
+            "id": "3ef353a35b3c0936",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Dataset.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ],
+        "currentTab": 1
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "42860b9aefa3ba2f",
+    "type": "split",
+    "children": [
+      {
+        "id": "24e5fef450bf565d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "46635c94b7d88e0e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "f82d452d7804d826",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "5cc69648a4d7e3db",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "48091b6010eea87a",
+    "type": "split",
+    "children": [
+      {
+        "id": "99e96ddc15004e9f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "30aa8039f7142281",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Dataset.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "a478bf85baa12fbc",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Dataset.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "d177c163259485fb",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "6122b8e4e714e3f0",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Dataset.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Ouvrir le sélecteur rapide": false,
+      "graph:Ouvrir la vue graphique": false,
+      "canvas:Créer une nouvelle toile": false,
+      "daily-notes:Ouvrir la note quotidienne": false,
+      "templates:Insérer le modèle": false,
+      "command-palette:Ouvrir la palette de commandes": false
+    }
+  },
+  "active": "3ef353a35b3c0936",
+  "lastOpenFiles": [
+    "Bibliographies.md",
+    "Dataset.md",
+    "Sans titre",
+    "Commun/Bibliographies.md",
+    "Système de Surveillance et de Réduction de la Pollution de l'Air avec l'IA.md",
+    "HETIC/Data.md",
+    "Commun/Système de Surveillance et de Réduction de la Pollution de l'Air avec l'IA.md",
+    "Commun",
+    "HETIC",
+    "Paris",
+    "Welcome.md"
+  ]
+}
