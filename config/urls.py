@@ -54,6 +54,8 @@ urlpatterns = [
 
     # Tables urls
     path("", include("apps.tables.urls")),
+    # API Data urls
+
 ]
 
 handler404 = SystemView.as_view(template_name="pages_misc_error.html", status=404)

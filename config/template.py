@@ -7,8 +7,8 @@
 THEME_VARIABLES = {
     "creator_name": "ThemeSelection",
     "creator_url": "https://themeselection.com/",
-    "template_name": "Sneat",
-    "template_suffix": "Django Free Admin Template",
+    "template_name": "CoolChateney",
+    "template_suffix": "Hello",
     "template_version": "1.0.0",
     "template_free": True,
     "template_description": "Sneat is a modern, clean and fully responsive admin template built with Bootstrap 5, Django 5, HTML, CSS, and JavaScript. It has a huge collection of reusable UI components. It can be used for all types of web applications like System Error pages, Authentication pages, admin dashboard.",
