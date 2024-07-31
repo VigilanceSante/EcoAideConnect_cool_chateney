@@ -24,6 +24,8 @@
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <style>
   /* Mobile-first approach */
   body {
@@ -112,6 +114,9 @@
           <p>
             <span class="d-block mb-1"><i class="fas fa-thermometer-three-quarters"></i> Température maximale : <span class="{{ description_class }}">{{ max_temp }}&deg;C</span></span>
             <span class="d-block"><i class="fas fa-thermometer-quarter"></i> Température minimale : <span class="{{ description_class }}">{{ min_temp }}&deg;C</span></span>
+            <span class="d-block"><i class="fas fa-tint"></i> Humidité : <span class="{{ description_class }}">{{ humidity }}%</span></span>
+            <!-- indice of pollution-->
+            <span class="d-block"><i class="fas fa-smog"></i> Indice de pollution : <span class="{{ description_class }}">{{ indice }}</span></span>
           </p>
           <div class="alert alert-info mt-3" role="alert">
             {{ advice }}
@@ -123,88 +128,33 @@
       </div>
     </div>
   </div>
-  
-  <!-- Example Cards 
+
+  <!-- OpenStreetMap -->
   <div class="row">
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
+    <div class="col-12">
       <div class="card">
-          <div class="card-body">
-              <i class="fas fa-smog text-info card-icon"></i>
-              <span class="d-block mb-2 text-muted">Indice de Pollution</span>
-              <h3 class="card-title mb-2">
-                  {% if indice %}
-                      {{ indice }}
-                  {% else %}
-                      Non disponible
-                  {% endif %}
-              </h3>
-              <p class="text-muted">Indice global de la qualité de l'air.</p>
-          </div>
+        <div class="card-body">
+          <h5 class="card-title text-primary">Découvrir les lieux frais </h5>
+          <div id="map" style="height: 400px;"></div>
+        </div>
       </div>
+    </div>
   </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-cloud-sun text-warning card-icon"></i>
-                <span class="d-block mb-2 text-muted">Ozone (O3)</span>
-                <h3 class="card-title mb-2">
-                    {% if O3 %}
-                        {{ O3 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration d'ozone (O3) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-cloud text-danger card-icon"></i>
-                <span class="d-block mb-2 text-muted">Dioxyde d'azote (NO2)</span>
-                <h3 class="card-title mb-2">
-                    {% if NO2 %}
-                        {{ NO2 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de dioxyde d'azote (NO2) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-smog text-success card-icon"></i>
-                <span class="d-block mb-2 text-muted">Particules PM10</span>
-                <h3 class="card-title mb-2">
-                    {% if PM10 %}
-                        {{ PM10 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de particules fines (PM10) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-smog text-primary card-icon"></i>
-                <span class="d-block mb-2 text-muted">Particules PM2.5</span>
-                <h3 class="card-title mb-2">
-                    {% if PM25 %}
-                        {{ PM25 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de particules fines (PM2.5) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-</div>-->
+</div>
+
+<script>
+  // Initialize the map
+  var map = L.map('map').setView([48.7596, 2.2599], 13);
+
+  // Add the OpenStreetMap tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  // Add a marker for Chatenay-Malabry
+  L.marker([48.7596, 2.2599]).addTo(map)
+    .bindPopup('Chatenay-Malabry')
+    .openPopup();
+</script>
 {% endblock %}
