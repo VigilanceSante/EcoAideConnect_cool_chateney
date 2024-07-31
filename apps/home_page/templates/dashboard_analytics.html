@@ -158,3 +158,85 @@
     .openPopup();
 </script>
 {% endblock %}
+
+
+ <!-- Example Cards 
+  <div class="row">
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+          <div class="card-body">
+              <i class="fas fa-smog text-info card-icon"></i>
+              <span class="d-block mb-2 text-muted">Indice de Pollution</span>
+              <h3 class="card-title mb-2">
+                  {% if indice %}
+                      {{ indice }}
+                  {% else %}
+                      Non disponible
+                  {% endif %}
+              </h3>
+              <p class="text-muted">Indice global de la qualité de l'air.</p>
+          </div>
+      </div>
+  </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-cloud-sun text-warning card-icon"></i>
+                <span class="d-block mb-2 text-muted">Ozone (O3)</span>
+                <h3 class="card-title mb-2">
+                    {% if O3 %}
+                        {{ O3 }}
+                    {% else %}
+                        Non disponible
+                    {% endif %}
+                </h3>
+                <p class="text-muted">Concentration d'ozone (O3) dans l'air.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-cloud text-danger card-icon"></i>
+                <span class="d-block mb-2 text-muted">Dioxyde d'azote (NO2)</span>
+                <h3 class="card-title mb-2">
+                    {% if NO2 %}
+                        {{ NO2 }}
+                    {% else %}
+                        Non disponible
+                    {% endif %}
+                </h3>
+                <p class="text-muted">Concentration de dioxyde d'azote (NO2) dans l'air.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-smog text-success card-icon"></i>
+                <span class="d-block mb-2 text-muted">Particules PM10</span>
+                <h3 class="card-title mb-2">
+                    {% if PM10 %}
+                        {{ PM10 }}
+                    {% else %}
+                        Non disponible
+                    {% endif %}
+                </h3>
+                <p class="text-muted">Concentration de particules fines (PM10) dans l'air.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <i class="fas fa-smog text-primary card-icon"></i>
+                <span class="d-block mb-2 text-muted">Particules PM2.5</span>
+                <h3 class="card-title mb-2">
+                    {% if PM25 %}
+                        {{ PM25 }}
+                    {% else %}
+                        Non disponible
+                    {% endif %}
+                </h3>
+                <p class="text-muted">Concentration de particules fines (PM2.5) dans l'air.</p>
+            </div>

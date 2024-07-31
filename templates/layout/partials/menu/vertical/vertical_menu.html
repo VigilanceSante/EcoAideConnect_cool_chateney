@@ -19,7 +19,7 @@
   <div class="menu-inner-shadow"></div>
 
   <ul class="menu-inner py-1">
-    <li class="menu-item {% if 'index' == request.resolver_match.url_name or '/dashbord/' in request.path %}active open{% endif %}">
+    <li class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}">
         <li class="menu-item {% if 'index' == request.resolver_match.url_name %}active{% endif %}">
           <a href="{% url 'index' %}" class="menu-link">
             <div class="text-truncate" data-i18n="Page d'accueil ">Page d'accueil </div>

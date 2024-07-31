@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "apps.dashboards",
+    "apps.home_page",
     "apps.layouts",
     "apps.pages",
     "apps.authentication",

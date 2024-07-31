@@ -23,7 +23,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # Dashboard urls
-    path("", include("apps.dashboards.urls")),
+    path("", include("apps.home_page.urls")),
 
     # layouts urls
     path("", include("apps.layouts.urls")),
