@@ -1,12 +1,12 @@
 from django.urls import path
-from .views import DashboardsView
+from .views import CombinedData
 
 
 
 urlpatterns = [
     path(
         "",
-        DashboardsView.as_view(template_name="dashboard_analytics.html"),
+        CombinedData.as_view(template_name="home_page.html"),
         name="index",
     )
 ]
