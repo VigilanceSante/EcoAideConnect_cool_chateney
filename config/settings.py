@@ -66,7 +66,8 @@ INSTALLED_APPS = [
     "apps.icons",
     "apps.forms",
     "apps.form_layouts",
-    "apps.tables"
+    "apps.tables",
+
 ]
 
 MIDDLEWARE = [

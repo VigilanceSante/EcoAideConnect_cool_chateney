@@ -1,0 +1,253 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}CoolChateney Dashboard{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboards-analytics.js' %}"></script>
+{% endblock page_js %}
+
+{% block content %}
+<!-- Font Awesome CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+  /* Mobile-first approach */
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    padding: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d9dee3;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 6px rgba(67, 89, 113, 0.12);
+    background-color: #fff;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    flex: 1 0 100%;
+    height: 300px; /* Ensure all cards have the same height */
+  }
+
+  .card:hover {
+    box-shadow: 0 4px 12px rgba(67, 89, 113, 0.2);
+    transform: translateY(-4px);
+  }
+
+  .card-body {
+    padding: 1rem;
+    text-align: center;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .card-title {
+    margin-bottom: 0.875rem;
+    color: #566a7f;
+    font-size: 1.25rem;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+  }
+
+  .alert {
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  /* Responsive Design */
+  @media (min-width: 576px) {
+    .col-md-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .col-lg-3 {
+      flex: 0 0 25%;
+      max-width: 25%;
+    }
+  }
+</style>
+
+<div class="container">
+  <!-- Temperature Card (Fake Data) -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Température Actuelle</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">25&deg;C</span>
+            <br>
+            <small class="text-muted">Température factice pour démonstration</small>
+          </p>
+          <p>
+            <span class="d-block mb-1"><i class="fas fa-thermometer-three-quarters"></i> Température maximale : <span>30&deg;C</span></span>
+            <span class="d-block"><i class="fas fa-thermometer-quarter"></i> Température minimale : <span>20&deg;C</span></span>
+            <span class="d-block"><i class="fas fa-tint"></i> Humidité : <span>60%</span></span>
+            <!-- indice of pollution-->
+            <span class="d-block"><i class="fas fa-smog"></i> Indice de pollution : <span>Modéré</span></span>
+          </p>
+          <div class="alert alert-info mt-3" role="alert">
+            Conseils pour la journée : Portez des vêtements légers et restez hydraté.
+          </div>
+          <p class="mt-3">
+            Profitez de votre journée !
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pollution Cards -->
+  <div class="row mb-4">
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <i class="fas fa-smog text-info card-icon"></i>
+          <span class="d-block mb-2 text-muted">Indice de Pollution</span>
+          <h3 class="card-title mb-2">Modéré</h3>
+          <p class="text-muted">Indice global de la qualité de l'air.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <i class="fas fa-cloud-sun text-warning card-icon"></i>
+          <span class="d-block mb-2 text-muted">Ozone (O3)</span>
+          <h3 class="card-title mb-2">120</h3>
+          <p class="text-muted">Concentration d'ozone (O3) dans l'air.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <i class="fas fa-cloud text-danger card-icon"></i>
+          <span class="d-block mb-2 text-muted">Dioxyde d'azote (NO2)</span>
+          <h3 class="card-title mb-2">85</h3>
+          <p class="text-muted">Concentration de dioxyde d'azote (NO2) dans l'air.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <i class="fas fa-smog text-success card-icon"></i>
+          <span class="d-block mb-2 text-muted">Particules PM10</span>
+          <h3 class="card-title mb-2">150</h3>
+          <p class="text-muted">Concentration de particules fines (PM10) dans l'air.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3 mb-4">
+      <div class="card">
+        <div class="card-body">
+          <i class="fas fa-smog text-primary card-icon"></i>
+          <span class="d-block mb-2 text-muted">Particules PM2.5</span>
+          <h3 class="card-title mb-2">90</h3>
+          <p class="text-muted">Concentration de particules fines (PM2.5) dans l'air.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weather Forecast Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Prévisions Météorologiques</h5>
+          <div class="forecast-container">
+            <div class="forecast-item">
+              <span class="forecast-date">2023-03-15</span>
+              <span class="forecast-temp">22&deg;C</span>
+              <span class="forecast-description">Température agréable pour la mi-journée</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-date">2023-03-16</span>
+              <span class="forecast-temp">20&deg;C</span>
+              <span class="forecast-description">Température fraîche en soirée</span>
+            </div>
+            <div class="forecast-item">
+              <span class="forecast-date">2023-03-17</span>
+              <span class="forecast-temp">23&deg;C</span>
+              <span class="forecast-description">Température idéale pour les activités en plein air</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pollution Forecast Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Prévisions de Pollution</h5>
+          <div class="pollution-forecast-container">
+            <div class="pollution-forecast-item">
+              <span class="pollution-forecast-date">2023-03-15</span>
+              <span class="pollution-forecast-value">120</span>
+              <span class="pollution-forecast-description">Concentration élevée d'ozone (O3) dans l'air.</span>
+            </div>
+            <div class="pollution-forecast-item">
+              <span class="pollution-forecast-date">2023-03-16</span>
+              <span class="pollution-forecast-value">85</span>
+              <span class="pollution-forecast-description">Concentration élevée de dioxyde d'azote (NO2) dans l'air.</span>
+            </div>
+            <div class="pollution-forecast-item">
+              <span class="pollution-forecast-date">2023-03-17</span>
+              <span class="pollution-forecast-value">150</span>
+              <span class="pollution-forecast-description">Concentration élevée de particules fines (PM10) dans l'air.</span>
+            </div>
+            <div class="pollution-forecast-item">
+              <span class="pollution-forecast-date">2023-03-18</span>
+              <span class="pollution-forecast-value">90</span>
+              <span class="pollution-forecast-description">Concentration élevée de particules fines (PM2.5) dans l'air.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

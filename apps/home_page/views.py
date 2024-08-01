@@ -183,6 +183,7 @@ class PollutionData:
         return mapping.get(value, 'Extrêmement mauvaise' if value not in mapping else 'Non disponible')
 
 class CombinedData(TemplateView):
+    template_name = 'home_page.html'
 
 
     def get_context_data(self, **kwargs):

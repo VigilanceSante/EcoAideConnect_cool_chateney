@@ -6,7 +6,7 @@ from .views import CardView
 urlpatterns = [
     path(
         "cards/basic/",
-      CardView.as_view(template_name="cards_basic.html"),
-        name="cards-basic",
+      CardView.as_view(template_name="dash.html"),
+        name="dash",
     )
 ]

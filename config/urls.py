@@ -54,7 +54,9 @@ urlpatterns = [
 
     # Tables urls
     path("", include("apps.tables.urls")),
-    # API Data urls
+
+    # frequentation urls
+
 
 ]
 
