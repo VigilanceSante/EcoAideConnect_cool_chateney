@@ -6,10 +6,15 @@
       <span class="app-brand-logo demo">
         {% include 'partials/logo.html' with width=25 withbg="#696cff" %}
       </span>
-      <span class="app-brand-text demo menu-text fw-bold ms-2">{% get_theme_variables 'template_name' %}</span>
+      <span class="app-brand-text demo menu-text fw-bold ms-2"
+        >{% get_theme_variables 'template_name' %}</span
+      >
     </a>
 
-    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+    <a
+      href="javascript:void(0);"
+      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none"
+    >
       <i class="bx bx-chevron-left bx-sm align-middle"></i>
     </a>
   </div>
@@ -18,10 +23,14 @@
   <div class="menu-inner-shadow"></div>
 
   <ul class="menu-inner py-1">
-    <li class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}">
+    <li
+      class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}"
+    >
       <a href="{% url 'index' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-home"></i>
-        <div class="text-truncate" data-i18n="Page d'accueil ">Page d'accueil </div>
+        <div class="text-truncate" data-i18n="Page d'accueil ">
+          Page d'accueil
+        </div>
       </a>
     </li>
 
@@ -30,7 +39,9 @@
     </li>
 
     <!-- Fréquentations des lieux frais en direct-->
-    <li class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}">
+    <li
+      class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
+    >
       <a href="{% url 'dash' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-collection"></i>
         <div class="text-truncate" data-i18n="Card">Dashboard</div>
@@ -42,30 +53,37 @@
     </li>
 
     <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
-      <a href="{% url 'form-layouts-vertical' %}" class="menu-link">
+      <a href="{% url 'contact_form' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-layout"></i>
         <div class="text-truncate" data-i18n="Vertical Form">Vertical Form</div>
       </a>
     </li>
 
-
     <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
       <a href="javascript:void(0)" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-box"></i>
-        <div class="text-truncate" data-i18n="User interface">User interface</div>
+        <div class="text-truncate" data-i18n="User interface">
+          User interface
+        </div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item {% if '/accordion/' in request.path %}active{% endif %}">
+        <li
+          class="menu-item {% if '/accordion/' in request.path %}active{% endif %}"
+        >
           <a href="{% url 'ui-accordion' %}" class="menu-link">
             <div class="text-truncate" data-i18n="Accordion">Accordion</div>
           </a>
         </li>
-        <li class="menu-item {% if '/alerts/' in request.path %}active{% endif %}">
+        <li
+          class="menu-item {% if '/alerts/' in request.path %}active{% endif %}"
+        >
           <a href="{% url 'ui-alerts' %}" class="menu-link">
             <div class="text-truncate" data-i18n="Alerts">Alerts</div>
           </a>
         </li>
-        <li class="menu-item {% if '/badges/' in request.path %}active{% endif %}">
+        <li
+          class="menu-item {% if '/badges/' in request.path %}active{% endif %}"
+        >
           <a href="{% url 'ui-badges' %}" class="menu-link">
             <div class="text-truncate" data-i18n="Badges">Badges</div>
           </a>
@@ -73,48 +91,93 @@
       </ul>
     </li>
 
-    <li class="menu-item {% if '/auth/' in request.path %}active open{% endif %}">
+    <li
+      class="menu-item {% if '/auth/' in request.path %}active open{% endif %}"
+    >
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
-        <div class="text-truncate" data-i18n="Authentications">Authentications</div>
+        <div class="text-truncate" data-i18n="Authentications">
+          Authentications
+        </div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item {% if '/login/' in request.path %}active{% endif %}">
-          <a href="{% url 'auth-login-basic' %}" class="menu-link" target="_blank">
+        <li
+          class="menu-item {% if '/login/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'auth-login-basic' %}"
+            class="menu-link"
+            target="_blank"
+          >
             <div class="text-truncate" data-i18n="Login">Login</div>
           </a>
         </li>
-        <li class="menu-item {% if '/register/' in request.path %}active{% endif %}">
-          <a href="{% url 'auth-register-basic' %}" class="menu-link" target="_blank">
+        <li
+          class="menu-item {% if '/register/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'auth-register-basic' %}"
+            class="menu-link"
+            target="_blank"
+          >
             <div class="text-truncate" data-i18n="Register">Register</div>
           </a>
         </li>
-        <li class="menu-item {% if '/forgot_password/' in request.path %}active{% endif %}">
-          <a href="{% url 'auth-forgot-password-basic' %}" class="menu-link" target="_blank">
-            <div class="text-truncate" data-i18n="Forgot Password">Forgot Password</div>
+        <li
+          class="menu-item {% if '/forgot_password/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'auth-forgot-password-basic' %}"
+            class="menu-link"
+            target="_blank"
+          >
+            <div class="text-truncate" data-i18n="Forgot Password">
+              Forgot Password
+            </div>
           </a>
         </li>
       </ul>
     </li>
 
-    <li class="menu-item {% if '/account_settings/' in request.path %}active open{% endif %}">
+    <li
+      class="menu-item {% if '/account_settings/' in request.path %}active open{% endif %}"
+    >
       <a href="javascript:void(0);" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-dock-top"></i>
-        <div class="text-truncate" data-i18n="Account Settings">Account Settings</div>
+        <div class="text-truncate" data-i18n="Account Settings">
+          Account Settings
+        </div>
       </a>
       <ul class="menu-sub">
-        <li class="menu-item {% if '/account/' in request.path %}active{% endif %}">
-          <a href="{% url 'pages-account-settings-account' %}" class="menu-link">
+        <li
+          class="menu-item {% if '/account/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'pages-account-settings-account' %}"
+            class="menu-link"
+          >
             <div class="text-truncate" data-i18n="Account">Account</div>
           </a>
         </li>
-        <li class="menu-item {% if '/notifications/' in request.path %}active{% endif %}">
-          <a href="{% url 'pages-account-settings-notifications' %}" class="menu-link">
-            <div class="text-truncate" data-i18n="Notifications">Notifications</div>
+        <li
+          class="menu-item {% if '/notifications/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'pages-account-settings-notifications' %}"
+            class="menu-link"
+          >
+            <div class="text-truncate" data-i18n="Notifications">
+              Notifications
+            </div>
           </a>
         </li>
-        <li class="menu-item {% if '/connections/' in request.path %}active{% endif %}">
-          <a href="{% url 'pages-account-settings-connections' %}" class="menu-link">
+        <li
+          class="menu-item {% if '/connections/' in request.path %}active{% endif %}"
+        >
+          <a
+            href="{% url 'pages-account-settings-connections' %}"
+            class="menu-link"
+          >
             <div class="text-truncate" data-i18n="Connections">Connections</div>
           </a>
         </li>

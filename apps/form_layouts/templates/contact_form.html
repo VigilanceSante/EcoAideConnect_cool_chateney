@@ -1,0 +1,267 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Formulaire de Contact - Aide aux Personnes Âgées et Handicapées{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+  <h4 class="text-center mb-4">
+    <span class="text-muted fw-light">Je me propose /</span> Formulaire de contact
+  </h4>
+
+  <!-- Messages de succès et d'erreur -->
+  {% if messages %}
+    <div class="alert alert-success" role="alert">
+      {% for message in messages %}
+        {{ message }}
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Basic Layout -->
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Formulaire de Contact</h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="mb-4">
+              <label class="form-label" for="first_name">Prénom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bx bx-user"></i></span>
+                <input type="text" class="form-control" id="first_name" name="first_name" required>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="last_name">Nom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bx bx-user"></i></span>
+                <input type="text" class="form-control" id="last_name" name="last_name" required>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="email">Email</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bx bx-envelope"></i></span>
+                <input type="email" class="form-control" id="email" name="email" required>
+              </div>
+              <div class="form-text">Vous pouvez utiliser des lettres, des chiffres et des points.</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="phone">Téléphone</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bx bx-phone"></i></span>
+                <input type="tel" class="form-control" id="phone" name="phone" required>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="address">Adresse</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light"><i class="bx bx-map"></i></span>
+                <input type="text" class="form-control" id="address" name="address" required>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label">Disponibilités</label>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Lundi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="monday_all_day" name="monday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="monday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="monday_morning" name="monday_morning" value="matin">
+                    <label class="form-check-label" for="monday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="monday_afternoon" name="monday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="monday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="monday_evening" name="monday_evening" value="soiree">
+                    <label class="form-check-label" for="monday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Mardi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tuesday_all_day" name="tuesday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="tuesday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tuesday_morning" name="tuesday_morning" value="matin">
+                    <label class="form-check-label" for="tuesday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tuesday_afternoon" name="tuesday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="tuesday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="tuesday_evening" name="tuesday_evening" value="soiree">
+                    <label class="form-check-label" for="tuesday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Mercredi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wednesday_all_day" name="wednesday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="wednesday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wednesday_morning" name="wednesday_morning" value="matin">
+                    <label class="form-check-label" for="wednesday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wednesday_afternoon" name="wednesday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="wednesday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wednesday_evening" name="wednesday_evening" value="soiree">
+                    <label class="form-check-label" for="wednesday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Jeudi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="thursday_all_day" name="thursday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="thursday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="thursday_morning" name="thursday_morning" value="matin">
+                    <label class="form-check-label" for="thursday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="thursday_afternoon" name="thursday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="thursday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="thursday_evening" name="thursday_evening" value="soiree">
+                    <label class="form-check-label" for="thursday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Vendredi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="friday_all_day" name="friday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="friday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="friday_morning" name="friday_morning" value="matin">
+                    <label class="form-check-label" for="friday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="friday_afternoon" name="friday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="friday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="friday_evening" name="friday_evening" value="soiree">
+                    <label class="form-check-label" for="friday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Samedi</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="saturday_all_day" name="saturday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="saturday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="saturday_morning" name="saturday_morning" value="matin">
+                    <label class="form-check-label" for="saturday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="saturday_afternoon" name="saturday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="saturday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="saturday_evening" name="saturday_evening" value="soiree">
+                    <label class="form-check-label" for="saturday_evening">Soirée</label>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Dimanche</label>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sunday_all_day" name="sunday_all_day" value="toute_la_journee">
+                    <label class="form-check-label" for="sunday_all_day">Toute la journée</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sunday_morning" name="sunday_morning" value="matin">
+                    <label class="form-check-label" for="sunday_morning">Matin</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sunday_afternoon" name="sunday_afternoon" value="apres_midi">
+                    <label class="form-check-label" for="sunday_afternoon">Après-midi</label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="sunday_evening" name="sunday_evening" value="soiree">
+                    <label class="form-check-label" for="sunday_evening">Soirée</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const day = this.id.split('_')[0];
+      const isAllDayChecked = this.checked && this.value === 'toute_la_journee';
+
+      if (isAllDayChecked) {
+        document.querySelectorAll(`input[id^="${day}_"]`).forEach(cb => {
+          if (cb.value !== 'toute_la_journee') {
+            cb.disabled = true;
+            cb.checked = false;
+          }
+        });
+      } else {
+        const morningChecked = document.querySelector(`#${day}_morning`).checked;
+        const afternoonChecked = document.querySelector(`#${day}_afternoon`).checked;
+        const eveningChecked = document.querySelector(`#${day}_evening`).checked;
+
+        if (morningChecked && afternoonChecked && eveningChecked) {
+          document.querySelector(`#${day}_all_day`).checked = true;
+          document.querySelectorAll(`input[id^="${day}_"]`).forEach(cb => {
+            if (cb.value !== 'toute_la_journee') {
+              cb.disabled = true;
+            }
+          });
+        } else {
+          document.querySelector(`#${day}_all_day`).checked = false;
+          document.querySelectorAll(`input[id^="${day}_"]`).forEach(cb => {
+            if (cb.value !== 'toute_la_journee') {
+              cb.disabled = false;
+            }
+          });
+        }
+      }
+
+      // Réactiver les cases à cocher si "toute la journée" est décochée
+      if (this.value === 'toute_la_journee' && !this.checked) {
+        document.querySelectorAll(`input[id^="${day}_"]`).forEach(cb => {
+          if (cb.value !== 'toute_la_journee') {
+            cb.disabled = false;
+            Message
+          }
+        });
+      }
+    });
+  });
+</script>
+
+
+
+
+{% endblock %}

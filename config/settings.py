@@ -119,7 +119,15 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
+    "mango": {
+        "ENGINE": "django.db.backends.mongo",
+        "NAME": "form",
+        "HOST": "your_mango_db_host",
+        "PORT": "your_mango_db_port",
+        "USER": "your_mango_db_user",
+        "PASSWORD": "your_mango_db_password",
+    },
 }
 
 

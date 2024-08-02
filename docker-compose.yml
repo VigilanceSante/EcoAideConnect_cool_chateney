@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=mongodb://db:27017/form
+
+  db:
+    image: mongo:4.4
+    volumes:
+      - mongodb_data_container:/data/db
+    ports:
+      - "27017:27017"
+
+volumes:
+  mongodb_data_container:
