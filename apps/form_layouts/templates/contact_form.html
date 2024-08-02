@@ -24,8 +24,13 @@
           <h5 class="mb-0">Formulaire de Contact</h5>
         </div>
         <div class="card-body">
-          <form method="post">
+          <form id="contactForm" method="post">
             {% csrf_token %}
+
+            <!-- Progress Bar -->
+            <div class="progress mb-4">
+              <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+            </div>
 
             <div class="mb-4">
               <label class="form-label" for="{{ form.first_name.id_for_label }}">Prénom</label>
@@ -33,6 +38,7 @@
                 <span class="input-group-text bg-light"><i class="bx bx-user"></i></span>
                 {{ form.first_name }}
               </div>
+              <div class="form-text text-danger" id="first_name_error"></div>
             </div>
             <div class="mb-4">
               <label class="form-label" for="{{ form.last_name.id_for_label }}">Nom</label>
@@ -40,6 +46,7 @@
                 <span class="input-group-text bg-light"><i class="bx bx-user"></i></span>
                 {{ form.last_name }}
               </div>
+              <div class="form-text text-danger" id="last_name_error"></div>
             </div>
             <div class="mb-4">
               <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
@@ -48,6 +55,7 @@
                 {{ form.email }}
               </div>
               <div class="form-text">Vous pouvez utiliser des lettres, des chiffres et des points.</div>
+              <div class="form-text text-danger" id="email_error"></div>
             </div>
             <div class="mb-4">
               <label class="form-label" for="{{ form.phone.id_for_label }}">Téléphone</label>
@@ -55,6 +63,7 @@
                 <span class="input-group-text bg-light"><i class="bx bx-phone"></i></span>
                 {{ form.phone }}
               </div>
+              <div class="form-text text-danger" id="phone_error"></div>
             </div>
             <div class="mb-4">
               <label class="form-label" for="{{ form.address.id_for_label }}">Adresse</label>
@@ -62,147 +71,205 @@
                 <span class="input-group-text bg-light"><i class="bx bx-map"></i></span>
                 {{ form.address }}
               </div>
+              <div class="form-text text-danger" id="address_error"></div>
             </div>
             <div class="mb-4">
               <label class="form-label">Disponibilités</label>
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Lundi</label>
-                  <div class="form-check">
-                    {{ form.monday_all_day }}
-                    <label class="form-check-label" for="{{ form.monday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.monday_morning }}
-                    <label class="form-check-label" for="{{ form.monday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.monday_afternoon }}
-                    <label class="form-check-label" for="{{ form.monday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.monday_evening }}
-                    <label class="form-check-label" for="{{ form.monday_evening.id_for_label }}">Soirée</label>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Mardi</label>
-                  <div class="form-check">
-                    {{ form.tuesday_all_day }}
-                    <label class="form-check-label" for="{{ form.tuesday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.tuesday_morning }}
-                    <label class="form-check-label" for="{{ form.tuesday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.tuesday_afternoon }}
-                    <label class="form-check-label" for="{{ form.tuesday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.tuesday_evening }}
-                    <label class="form-check-label" for="{{ form.tuesday_evening.id_for_label }}">Soirée</label>
+              <div class="accordion" id="availabilityAccordion">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingMonday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMonday" aria-expanded="false" aria-controls="collapseMonday">
+                      Lundi
+                    </button>
+                  </h2>
+                  <div id="collapseMonday" class="accordion-collapse collapse" aria-labelledby="headingMonday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.monday_all_day }}
+                        <label class="form-check-label" for="{{ form.monday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.monday_morning }}
+                        <label class="form-check-label" for="{{ form.monday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.monday_afternoon }}
+                        <label class="form-check-label" for="{{ form.monday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.monday_evening }}
+                        <label class="form-check-label" for="{{ form.monday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Mercredi</label>
-                  <div class="form-check">
-                    {{ form.wednesday_all_day }}
-                    <label class="form-check-label" for="{{ form.wednesday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.wednesday_morning }}
-                    <label class="form-check-label" for="{{ form.wednesday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.wednesday_afternoon }}
-                    <label class="form-check-label" for="{{ form.wednesday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.wednesday_evening }}
-                    <label class="form-check-label" for="{{ form.wednesday_evening.id_for_label }}">Soirée</label>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Jeudi</label>
-                  <div class="form-check">
-                    {{ form.thursday_all_day }}
-                    <label class="form-check-label" for="{{ form.thursday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.thursday_morning }}
-                    <label class="form-check-label" for="{{ form.thursday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.thursday_afternoon }}
-                    <label class="form-check-label" for="{{ form.thursday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.thursday_evening }}
-                    <label class="form-check-label" for="{{ form.thursday_evening.id_for_label }}">Soirée</label>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingTuesday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTuesday" aria-expanded="false" aria-controls="collapseTuesday">
+                      Mardi
+                    </button>
+                  </h2>
+                  <div id="collapseTuesday" class="accordion-collapse collapse" aria-labelledby="headingTuesday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.tuesday_all_day }}
+                        <label class="form-check-label" for="{{ form.tuesday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.tuesday_morning }}
+                        <label class="form-check-label" for="{{ form.tuesday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.tuesday_afternoon }}
+                        <label class="form-check-label" for="{{ form.tuesday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.tuesday_evening }}
+                        <label class="form-check-label" for="{{ form.tuesday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Vendredi</label>
-                  <div class="form-check">
-                    {{ form.friday_all_day }}
-                    <label class="form-check-label" for="{{ form.friday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.friday_morning }}
-                    <label class="form-check-label" for="{{ form.friday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.friday_afternoon }}
-                    <label class="form-check-label" for="{{ form.friday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.friday_evening }}
-                    <label class="form-check-label" for="{{ form.friday_evening.id_for_label }}">Soirée</label>
-                  </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Samedi</label>
-                  <div class="form-check">
-                    {{ form.saturday_all_day }}
-                    <label class="form-check-label" for="{{ form.saturday_all_day.id_for_label }}">Toute la journée</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.saturday_morning }}
-                    <label class="form-check-label" for="{{ form.saturday_morning.id_for_label }}">Matin</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.saturday_afternoon }}
-                    <label class="form-check-label" for="{{ form.saturday_afternoon.id_for_label }}">Après-midi</label>
-                  </div>
-                  <div class="form-check">
-                    {{ form.saturday_evening }}
-                    <label class="form-check-label" for="{{ form.saturday_evening.id_for_label }}">Soirée</label>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingWednesday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWednesday" aria-expanded="false" aria-controls="collapseWednesday">
+                      Mercredi
+                    </button>
+                  </h2>
+                  <div id="collapseWednesday" class="accordion-collapse collapse" aria-labelledby="headingWednesday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.wednesday_all_day }}
+                        <label class="form-check-label" for="{{ form.wednesday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.wednesday_morning }}
+                        <label class="form-check-label" for="{{ form.wednesday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.wednesday_afternoon }}
+                        <label class="form-check-label" for="{{ form.wednesday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.wednesday_evening }}
+                        <label class="form-check-label" for="{{ form.wednesday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                  <label class="form-label">Dimanche</label>
-                  <div class="form-check">
-                    {{ form.sunday_all_day }}
-                    <label class="form-check-label" for="{{ form.sunday_all_day.id_for_label }}">Toute la journée</label>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingThursday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThursday" aria-expanded="false" aria-controls="collapseThursday">
+                      Jeudi
+                    </button>
+                  </h2>
+                  <div id="collapseThursday" class="accordion-collapse collapse" aria-labelledby="headingThursday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.thursday_all_day }}
+                        <label class="form-check-label" for="{{ form.thursday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.thursday_morning }}
+                        <label class="form-check-label" for="{{ form.thursday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.thursday_afternoon }}
+                        <label class="form-check-label" for="{{ form.thursday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.thursday_evening }}
+                        <label class="form-check-label" for="{{ form.thursday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
-                  <div class="form-check">
-                    {{ form.sunday_morning }}
-                    <label class="form-check-label" for="{{ form.sunday_morning.id_for_label }}">Matin</label>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingFriday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFriday" aria-expanded="false" aria-controls="collapseFriday">
+                      Vendredi
+                    </button>
+                  </h2>
+                  <div id="collapseFriday" class="accordion-collapse collapse" aria-labelledby="headingFriday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.friday_all_day }}
+                        <label class="form-check-label" for="{{ form.friday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.friday_morning }}
+                        <label class="form-check-label" for="{{ form.friday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.friday_afternoon }}
+                        <label class="form-check-label" for="{{ form.friday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.friday_evening }}
+                        <label class="form-check-label" for="{{ form.friday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
-                  <div class="form-check">
-                    {{ form.sunday_afternoon }}
-                    <label class="form-check-label" for="{{ form.sunday_afternoon.id_for_label }}">Après-midi</label>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingSaturday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaturday" aria-expanded="false" aria-controls="collapseSaturday">
+                      Samedi
+                    </button>
+                  </h2>
+                  <div id="collapseSaturday" class="accordion-collapse collapse" aria-labelledby="headingSaturday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.saturday_all_day }}
+                        <label class="form-check-label" for="{{ form.saturday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.saturday_morning }}
+                        <label class="form-check-label" for="{{ form.saturday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.saturday_afternoon }}
+                        <label class="form-check-label" for="{{ form.saturday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.saturday_evening }}
+                        <label class="form-check-label" for="{{ form.saturday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
-                  <div class="form-check">
-                    {{ form.sunday_evening }}
-                    <label class="form-check-label" for="{{ form.sunday_evening.id_for_label }}">Soirée</label>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingSunday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSunday" aria-expanded="false" aria-controls="collapseSunday">
+                      Dimanche
+                    </button>
+                  </h2>
+                  <div id="collapseSunday" class="accordion-collapse collapse" aria-labelledby="headingSunday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        {{ form.sunday_all_day }}
+                        <label class="form-check-label" for="{{ form.sunday_all_day.id_for_label }}">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.sunday_morning }}
+                        <label class="form-check-label" for="{{ form.sunday_morning.id_for_label }}">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.sunday_afternoon }}
+                        <label class="form-check-label" for="{{ form.sunday_afternoon.id_for_label }}">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        {{ form.sunday_evening }}
+                        <label class="form-check-label" for="{{ form.sunday_evening.id_for_label }}">Soirée</label>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Envoyer</button>
+            <button type="submit" class="btn btn-primary w-100" id="submitButton">Envoyer</button>
+            <button type="button" class="btn btn-secondary w-100 mt-2" id="saveDraftButton">Enregistrer le brouillon</button>
           </form>
         </div>
       </div>
@@ -213,67 +280,134 @@
 <style>
   .input-group-text,
   .form-control {
-    border: none;
+    border: none ;
     box-shadow: none;
   }
 </style>
 
 <script>
-  document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const day = this.id.split('_')[0];
-      const isAllDayChecked = this.checked && this.value === 'toute_la_journee';
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contactForm');
+    const submitButton = document.getElementById('submitButton');
+    const saveDraftButton = document.getElementById('saveDraftButton');
+    const progressBar = document.querySelector('.progress-bar');
 
-      const checkboxes = document.querySelectorAll(`input[id^="${day}_"]`);
-      const allDayCheckbox = document.querySelector(`#${day}_all_day`);
-      const morningCheckbox = document.querySelector(`#${day}_morning`);
-      const afternoonCheckbox = document.querySelector(`#${day}_afternoon`);
-      const eveningCheckbox = document.querySelector(`#${day}_evening`);
+    // Load draft from localStorage if available
+    const draft = JSON.parse(localStorage.getItem('contactFormDraft'));
+    if (draft) {
+      Object.keys(draft).forEach(key => {
+        const field = form.querySelector(`[name="${key}"]`);
+        if (field) {
+          field.value = draft[key];
+        }
+      });
+    }
 
-      if (isAllDayChecked) {
-        checkboxes.forEach(cb => {
-          if (cb.value !== 'toute_la_journee') {
-            cb.disabled = true;
-            cb.checked = false;
-          }
-        });
+    // Real-time validation
+    form.querySelectorAll('input, textarea').forEach(field => {
+      field.addEventListener('blur', function() {
+        validateField(field);
+      });
+    });
+
+    // Form submission
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Envoi en cours...';
+
+
+
+    // Save draft
+    saveDraftButton.addEventListener('click', function() {
+      const formData = new FormData(form);
+      const draft = {};
+      formData.forEach((value, key) => {
+        draft[key] = value;
+      });
+      localStorage.setItem('contactFormDraft', JSON.stringify(draft));
+      alert('Brouillon enregistré!');
+    });
+
+    // Validate field
+    function validateField(field) {
+      const errorElement = document.getElementById(`${field.name}_error`);
+      if (field.value.trim() === '') {
+        errorElement.textContent = 'Ce champ est requis.';
+        field.classList.add('is-invalid');
       } else {
-        const allChecked = morningCheckbox.checked && afternoonCheckbox.checked && eveningCheckbox.checked;
-        allDayCheckbox.checked = allChecked;
-        checkboxes.forEach(cb => {
-          if (cb.value !== 'toute_la_journee') {
-            cb.disabled = allChecked;
-          }
-        });
+        errorElement.textContent = '';
+        field.classList.remove('is-invalid');
       }
+      updateProgress();
+    }
 
-      if (this.value === 'toute_la_journee' && !this.checked) {
-        checkboxes.forEach(cb => {
-          if (cb.value !== 'toute_la_journee') {
-            cb.disabled = false;
+    // Update progress bar
+    function updateProgress() {
+      const fields = form.querySelectorAll('input, textarea');
+      const validFields = Array.from(fields).filter(field => field.value.trim() !== '');
+      const progress = (validFields.length / fields.length) * 100;
+      progressBar.style.width = `${progress}%`;
+      progressBar.setAttribute('aria-valuenow', progress);
+      progressBar.textContent = `${progress}%`;
+    }
+
+    // Smooth checkbox behavior
+    document.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', function() {
+        const day = this.name.split('_')[0];
+        const isAllDayChecked = this.checked && this.value === 'toute_la_journee';
+
+        const radios = document.querySelectorAll(`input[name^="${day}_"]`);
+        const allDayRadio = document.querySelector(`input[name="${day}_all_day"]`);
+        const morningRadio = document.querySelector(`input[name="${day}_morning"]`);
+        const afternoonRadio = document.querySelector(`input[name="${day}_afternoon"]`);
+        const eveningRadio = document.querySelector(`input[name="${day}_evening"]`);
+
+        if (isAllDayChecked) {
+          radios.forEach(rb => {
+            if (rb.value !== 'toute_la_journee') {
+              rb.disabled = true;
+              rb.checked = false;
+            }
+          });
+        } else {
+          const allChecked = morningRadio.checked && afternoonRadio.checked && eveningRadio.checked;
+          allDayRadio.checked = allChecked;
+          radios.forEach(rb => {
+            if (rb.value !== 'toute_la_journee') {
+              rb.disabled = allChecked;
+            }
+          });
+        }
+
+        if (this.value === 'toute_la_journee' && !this.checked) {
+          radios.forEach(rb => {
+            if (rb.value !== 'toute_la_journee') {
+              rb.disabled = false;
+            }
+          });
+        }
+      });
+    });
+
+    // Ensure "Toute la journée" is checked if all periods are checked on page load
+    document.querySelectorAll('.form-check-label').forEach(label => {
+      const day = label.htmlFor.split('_')[0];
+      const allDayRadio = document.querySelector(`input[name="${day}_all_day"]`);
+      const morningRadio = document.querySelector(`input[name="${day}_morning"]`);
+      const afternoonRadio = document.querySelector(`input[name="${day}_afternoon"]`);
+      const eveningRadio = document.querySelector(`input[name="${day}_evening"]`);
+
+      if (morningRadio.checked && afternoonRadio.checked && eveningRadio.checked) {
+        allDayRadio.checked = true;
+        document.querySelectorAll(`input[name^="${day}_"]`).forEach(rb => {
+          if (rb.value !== 'toute_la_journee') {
+            rb.disabled = true;
           }
         });
       }
     });
   });
-
-  // Ensure "Toute la journée" is checked if all periods are checked on page load
-  document.querySelectorAll('.form-check-label').forEach(label => {
-    const day = label.htmlFor.split('_')[0];
-    const allDayCheckbox = document.querySelector(`#${day}_all_day`);
-    const morningCheckbox = document.querySelector(`#${day}_morning`);
-    const afternoonCheckbox = document.querySelector(`#${day}_afternoon`);
-    const eveningCheckbox = document.querySelector(`#${day}_evening`);
-
-    if (morningCheckbox.checked && afternoonCheckbox.checked && eveningCheckbox.checked) {
-      allDayCheckbox.checked = true;
-      document.querySelectorAll(`input[id^="${day}_"]`).forEach(cb => {
-        if (cb.value !== 'toute_la_journee') {
-          cb.disabled = true;
-        }
-      });
-    }
-  });
 </script>
-
 {% endblock %}
