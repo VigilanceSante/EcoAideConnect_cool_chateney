@@ -1,6 +1,15 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: volonteer
+      POSTGRES_USER: mysql_volonteer
+      POSTGRES_PASSWORD: veryPriv@ate
+
   web:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
@@ -11,14 +20,11 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=mongodb://db:27017/form
-
-  db:
-    image: mongo:4.4
-    volumes:
-      - mongodb_data_container:/data/db
-    ports:
-      - "27017:27017"
+      - DB_NAME=volonteer
+      - DB_USER=mysql_volonteer
+      - DB_PASSWORD=veryPriv@ate
+      - DB_HOST=db
+      - DB_PORT=5432
 
 volumes:
-  mongodb_data_container:
+  postgres_data:
