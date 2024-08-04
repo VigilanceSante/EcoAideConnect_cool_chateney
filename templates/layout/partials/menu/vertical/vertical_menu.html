@@ -27,7 +27,7 @@
       class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}"
     >
       <a href="{% url 'index' %}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-home"></i>
+        <i class="menu-icon tf-icons bx bxs-home"></i>
         <div class="text-truncate" data-i18n="Page d'accueil ">
           Page d'accueil
         </div>
@@ -43,7 +43,7 @@
       class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
     >
       <a href="{% url 'dash' %}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-collection"></i>
+        <i class="menu-icon tf-icons bx bxs-dashboard"></i>
         <div class="text-truncate" data-i18n="Card">Dashboard</div>
       </a>
     </li>
@@ -54,7 +54,7 @@
 
     <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
       <a href="{% url 'contact_form' %}" class="menu-link">
-        <i class="menu-icon tf-icons bx bx-face"></i>
+        <i class="menu-icon tf-icons bx bxs-face"></i>
         <div class="text-truncate" data-i18n="Je veux aider">Je veux aider</div>
       </a>
     </li>
@@ -184,4 +184,73 @@
       </ul>
     </li>
   </ul>
+  <li class="menu-header small text-uppercase">
+    <span class="menu-header-text">Accés mairie</span>
+  </li>
+  <!-- backoffce mairie-->
+  <li
+  class="menu-item {% if '/auth/' in request.path %}active open{% endif %}"
+>
+  <a href="javascript:void(0);" class="menu-link menu-toggle">
+    <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
+    <div class="text-truncate" data-i18n="Authentications">
+      Authentications
+    </div>
+  </a>
+  <ul class="menu-sub">
+    <li
+      class="menu-item {% if '/login/' in request.path %}active{% endif %}"
+    >
+      <a
+        href="{% url 'auth-login-basic' %}"
+        class="menu-link"
+        target="_blank"
+      >
+        <div class="text-truncate" data-i18n="Login">Login</div>
+      </a>
+    </li>
+    <li
+      class="menu-item {% if '/register/' in request.path %}active{% endif %}"
+    >
+      <a
+        href="{% url 'auth-register-basic' %}"
+        class="menu-link"
+        target="_blank"
+      >
+        <div class="text-truncate" data-i18n="Register">Register</div>
+      </a>
+    </li>
+    <li
+      class="menu-item {% if '/forgot_password/' in request.path %}active{% endif %}"
+    >
+      <a
+        href="{% url 'auth-forgot-password-basic' %}"
+        class="menu-link"
+        target="_blank"
+      >
+        <div class="text-truncate" data-i18n="Forgot Password">
+          Forgot Password
+        </div>
+      </a>
+    </li>
+  </ul>
+</li>
+
+  <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
+    <a href="javascript:void(0)" class="menu-link menu-toggle">
+      <i class="menu-icon tf-icons bx bx-box"></i>
+      <div class="text-truncate" data-i18n="User interface">
+        Volontaires
+      </div>
+    </a>
+    <ul class="menu-sub">
+      <li
+        class="menu-item {% if '/accordion/' in request.path %}active{% endif %}"
+      >
+      <li class="menu-item {% if '/tables/basic/' in request.path %}active{% endif %}">
+        <a href="{% url 'tables-basic' %}" class="menu-link">
+          <i class="menu-icon tf-icons bx bx-table"></i>
+          <div class="text-truncate" data-i18n="Tables">Tables</div>
+        </a>
+      </li>
 </aside>

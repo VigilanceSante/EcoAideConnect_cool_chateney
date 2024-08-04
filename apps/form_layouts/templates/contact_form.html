@@ -1,9 +1,6 @@
 {% extends layout_path %}
 
 {% load static %}
-{% load i18n %}
-
-{% block title %}Formulaire de Contact - Aide aux Personnes Âgées et Handicapées{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-5">
@@ -11,12 +8,17 @@
     <span class="text-muted fw-light">Je me propose /</span> Formulaire de contact
   </h4>
   <h5 class="text-center mb-4">Aide aux personnes âgées et/ou porteuses de handicaps</h5>
-  <p class="text-center mb-4">Vous souhaitez aider les personnes âgées et/ou porteuses de handicaps ?<br>Remplissez le formulaire ci-dessous pour vous proposer.</p>
+  <p class="text-center mb-4">
+    Vous souhaitez aider les personnes âgées et/ou porteuses de handicaps ?<br>Remplissez le formulaire ci-dessous pour vous proposer.
+  </p>
+  
   {% if success_message %}
-  <div class="alert alert-success" role="alert">
-    {{ success_message }}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Merci!</strong> {{ success_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   {% endif %}
+
 
   <!-- Basic Layout -->
   <div class="row justify-content-center">
@@ -27,12 +29,6 @@
         <div class="card-body">
           <form id="contactForm" method="post">
             {% csrf_token %}
-
-            <!-- Progress Bar -->
-            <div class="progress mb-4">
-              <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
-            </div>
-
             <div class="mb-4">
               <label class="form-label" for="{{ form.first_name.id_for_label }}">Prénom</label>
               <div class="input-group">
@@ -284,7 +280,6 @@
             </div>
 
             <button type="submit" class="btn btn-primary w-100" id="submitButton">Envoyer</button>
-            <button type="button" class="btn btn-secondary w-100 mt-2" id="saveDraftButton">Enregistrer le brouillon</button>
           </form>
         </div>
       </div>
@@ -339,8 +334,6 @@
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('contactForm');
     const submitButton = document.getElementById('submitButton');
-    const saveDraftButton = document.getElementById('saveDraftButton');
-    const progressBar = document.querySelector('.progress-bar');
 
     // Load draft from localStorage if available
     const draft = JSON.parse(localStorage.getItem('contactFormDraft'));
@@ -367,16 +360,7 @@
       submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Envoi en cours...';
     });
 
-    // Save draft
-    saveDraftButton.addEventListener('click', function() {
-      const formData = new FormData(form);
-      const draft = {};
-      formData.forEach((value, key) => {
-        draft[key] = value;
-      });
-      localStorage.setItem('contactFormDraft', JSON.stringify(draft));
-      alert('Brouillon enregistré!');
-    });
+
 
     // Validate field
     function validateField(field) {
@@ -388,18 +372,9 @@
         errorElement.textContent = '';
         field.classList.remove('is-invalid');
       }
-      updateProgress();
     }
 
-    // Update progress bar
-    function updateProgress() {
-      const fields = form.querySelectorAll('input, textarea');
-      const validFields = Array.from(fields).filter(field => field.value.trim() !== '');
-      const progress = (validFields.length / fields.length) * 100;
-      progressBar.style.width = `${progress}%`;
-      progressBar.setAttribute('aria-valuenow', progress);
-      progressBar.textContent = `${progress}%`;
-    }
+
 
     // Smooth checkbox behavior
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
