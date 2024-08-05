@@ -123,7 +123,7 @@ DATABASES = {
     'volonteer': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'volonteer',            # Database name
-        'USER': 'mysql_volonteer',     # Database user
+        'USER': 'coolchateney',     # Database user
         'PASSWORD': 'veryPriv@ate',    # Database password
         'HOST': 'localhost',           # Database host
         'PORT': '5432',                # Database port

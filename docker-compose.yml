@@ -7,7 +7,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
     environment:
       POSTGRES_DB: volonteer
-      POSTGRES_USER: mysql_volonteer
+      POSTGRES_USER: coolchateney
       POSTGRES_PASSWORD: veryPriv@ate
 
   web:
@@ -21,7 +21,7 @@ services:
       - db
     environment:
       - DB_NAME=volonteer
-      - DB_USER=mysql_volonteer
+      - DB_USER=coolchateney
       - DB_PASSWORD=veryPriv@ate
       - DB_HOST=db
       - DB_PORT=5432
