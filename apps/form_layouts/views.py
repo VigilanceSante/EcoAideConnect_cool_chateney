@@ -1,18 +1,25 @@
 from django.views.generic import TemplateView
+from django.shortcuts import redirect
 from web_project import TemplateLayout
-
-
-"""
-This file is a view controller for multiple pages as a module.
-Here you can override the page view layout.
-Refer to form_layouts/urls.py file for more pages.
-"""
-
+from .forms import ContactFormForm
 
 class FormLayoutsView(TemplateView):
-    # Predefined function
-    def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+    template_name = 'contact_form.html'
 
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        context['form'] = ContactFormForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = ContactFormForm(request.POST)
+        if form.is_valid():
+            form.save()
+            context = self.get_context_data(**kwargs)
+            context['form'] = ContactFormForm()  # Réinitialiser le formulaire
+            context['success_message'] = 'Votre formulaire a été soumis avec succès.'
+            return self.render_to_response(context)
+        else:
+            context = self.get_context_data(**kwargs)
+            context['form'] = form
+            return self.render_to_response(context)
