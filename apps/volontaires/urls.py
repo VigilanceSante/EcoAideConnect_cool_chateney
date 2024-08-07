@@ -11,7 +11,7 @@ urlpatterns = [
     ),
     path(
         "form/layouts_horizontal/",
-        FormLayoutsView.as_view(template_name="form_layouts_horizontal.html"),
-        name="form-layouts-horizontal",
+        FormLayoutsView.as_view(template_name="help.html"),
+        name="help",
     )
 ]

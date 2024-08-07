@@ -1,6 +1,7 @@
 {% extends layout_path %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block title %}Tableaux - Tableaux de Base{% endblock %}
 
@@ -15,12 +16,42 @@
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th>Prénom</th>
-          <th>Nom</th>
+          <th>
+            <a href="?sort=first_name&order={% toggle_order current_order %}">
+              Prénom
+              {% if current_sort == 'first_name' %}
+                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?sort=last_name&order={% toggle_order current_order %}">
+              Nom
+              {% if current_sort == 'last_name' %}
+                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+              {% endif %}
+            </a>
+          </th>
           <th>Email</th>
+          <th>Téléphone</th>
           <th>Adresse</th>
+          <th>
+            <a href="?sort=start_date&order={% toggle_order current_order %}">
+              Date de début
+              {% if current_sort == 'start_date' %}
+                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+              {% endif %}
+            </a>
+          </th>
+          <th>
+            <a href="?sort=end_date&order={% toggle_order current_order %}">
+              Date de fin
+              {% if current_sort == 'end_date' %}
+                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
+              {% endif %}
+            </a>
+          </th>
           <th>Disponibilités</th>
-          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -29,7 +60,10 @@
           <td>{{ contact.first_name }}</td>
           <td>{{ contact.last_name }}</td>
           <td>{{ contact.email }}</td>
+          <td>{{ contact.phone }}</td>
           <td>{{ contact.address }}</td>
+          <td> {{ contact.start_date }}</td>
+          <td> {{ contact.end_date }}</td>
           <td>
             {% if contact.monday_all_day %} Lundi Toute la Journée <br> {% endif %}
             {% if contact.monday_morning %} Lundi Matin <br> {% endif %}
@@ -59,10 +93,6 @@
             {% if contact.sunday_morning %} Dimanche Matin <br> {% endif %}
             {% if contact.sunday_afternoon %} Dimanche Après-midi <br> {% endif %}
             {% if contact.sunday_evening %} Dimanche Soir <br> {% endif %}
-          </td>
-          <td>
-            <button class="btn btn-primary btn-sm" onclick="editContact({{ contact.id }})">Éditer</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteContact({{ contact.id }})">Supprimer</button>
           </td>
         </tr>
         {% endfor %}

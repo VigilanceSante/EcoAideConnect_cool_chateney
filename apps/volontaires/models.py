@@ -4,6 +4,8 @@ from django.db import models
 class ContactForm(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    start_date = models.DateField(verbose_name="Heure de début")
+    end_date = models.DateField(verbose_name="Heure de fin")
     email = models.EmailField()
     phone = models.CharField(max_length=20)
     address = models.CharField(max_length=255)

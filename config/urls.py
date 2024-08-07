@@ -50,12 +50,13 @@ urlpatterns = [
     path("", include("apps.forms.urls")),
 
     # FormLayouts urls
-    path("", include("apps.form_layouts.urls")),
+    path("", include("apps.volontaires.urls")),
 
     # Tables urls
     path("", include("apps.tables.urls")),
 
-    # frequentation urls
+    # Dashboard urls
+    path("", include("apps.dashboard_volonteers.urls")),
 
 
 ]
