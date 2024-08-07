@@ -1,6 +1,5 @@
-# forms.py
 from django import forms
-from .models import ContactForm
+from .models import ContactForm  # Importez le modèle AidRequest
 
 class ContactFormForm(forms.ModelForm):
     class Meta:

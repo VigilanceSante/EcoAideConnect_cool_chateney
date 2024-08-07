@@ -58,6 +58,9 @@ urlpatterns = [
     # Dashboard urls
     path("", include("apps.dashboard_volonteers.urls")),
 
+    # NeedHelp urls
+    path("", include("apps.need_help.urls")),
+
 
 ]
 

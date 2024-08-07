@@ -14,10 +14,12 @@ class DashboardView(TemplateView):
         context['total_contacts'] = ContactForm.objects.count()
 
         # Contacts par date de début
-        context['contacts_by_start_date'] = ContactForm.objects.values('start_date').annotate(count=Count('id')).order_by('-count')
+        contacts_by_start_date = ContactForm.objects.values('start_date').annotate(count=Count('id')).order_by('start_date')
+        context['contacts_by_start_date'] = list(contacts_by_start_date)
 
         # Contacts par date de fin
-        context['contacts_by_end_date'] = ContactForm.objects.values('end_date').annotate(count=Count('id')).order_by('-count')
+        contacts_by_end_date = ContactForm.objects.values('end_date').annotate(count=Count('id')).order_by('end_date')
+        context['contacts_by_end_date'] = list(contacts_by_end_date)
 
         # Contacts par disponibilité
         availability_fields = [
@@ -35,5 +37,9 @@ class DashboardView(TemplateView):
             availability_counts[field] = ContactForm.objects.filter(**{field: True}).count()
 
         context['availability_counts'] = availability_counts
+
+        # Meilleurs contributeurs
+        top_contributors = ContactForm.objects.values('first_name', 'last_name').annotate(contributions=Count('id')).order_by('-contributions')[:5]
+        context['top_contributors'] = top_contributors
 
         return context

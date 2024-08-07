@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "apps.volontaires",
     "apps.tables",
     "apps.dashboard_volonteers",
+    "apps.need_help",
 
 
 ]
@@ -122,7 +123,12 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+}, 
+"need_help": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
 }
+
 }
 
 
@@ -149,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "fr"
+LANGUAGE_CODE = "fr-fr"
 
 TIME_ZONE = "UTC"
 

@@ -19,95 +19,157 @@
 {% block page_js %}
 {{ block.super }}
 <script src="{% static 'js/dashboards-analytics.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Contacts par Date de Début
+  var optionsStartDate = {
+    chart: {
+      type: 'bar',
+      height: 350
+    },
+    series: [{
+      name: 'Contacts',
+      data: [
+        {% for item in contacts_by_start_date %}
+          { x: '{{ item.start_date }}', y: {{ item.count }} },
+        {% endfor %}
+      ]
+    }],
+    xaxis: {
+      type: 'datetime'
+    },
+    title: {
+      text: 'Contacts par Date de Début'
+    }
+  };
+  var chartStartDate = new ApexCharts(document.querySelector("#chart-start-date"), optionsStartDate);
+  chartStartDate.render();
+
+  // Contacts par Date de Fin
+  var optionsEndDate = {
+    chart: {
+      type: 'bar',
+      height: 350
+    },
+    series: [{
+      name: 'Contacts',
+      data: [
+        {% for item in contacts_by_end_date %}
+          { x: '{{ item.end_date }}', y: {{ item.count }} },
+        {% endfor %}
+      ]
+    }],
+    xaxis: {
+      type: 'datetime'
+    },
+    title: {
+      text: 'Contacts par Date de Fin'
+    }
+  };
+  var chartEndDate = new ApexCharts(document.querySelector("#chart-end-date"), optionsEndDate);
+  chartEndDate.render();
+
+  // Contacts par Disponibilité
+  var optionsAvailability = {
+    chart: {
+      type: 'bar',
+      height: 350
+    },
+    series: [{
+      name: 'Contacts',
+      data: [
+        {% for field, count in availability_counts.items %}
+          { x: '{{ field|replace_underscore }}', y: {{ count }} },
+        {% endfor %}
+      ]
+    }],
+    xaxis: {
+      categories: [
+        {% for field in availability_counts.keys %}
+          '{{ field|replace_underscore }}',
+        {% endfor %}
+      ]
+    },
+    title: {
+      text: 'Contacts par Disponibilité'
+    }
+  };
+  var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
+  chartAvailability.render();
+
+  // Meilleurs contributeurs
+  var optionsTopContributors = {
+    chart: {
+      type: 'bar',
+      height: 350
+    },
+    series: [{
+      name: 'Contributions',
+      data: [
+        {% for contributor in top_contributors %}
+          { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.contributions }} },
+        {% endfor %}
+      ]
+    }],
+    xaxis: {
+      categories: [
+        {% for contributor in top_contributors %}
+          '{{ contributor.first_name }} {{ contributor.last_name }}',
+        {% endfor %}
+      ]
+    },
+    title: {
+      text: 'Meilleurs Contributeurs'
+    }
+  };
+  var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
+  chartTopContributors.render();
+});
+</script>
 {% endblock page_js %}
 
 {% block content %}
-<!-- Font Awesome CDN -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<style>
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
-  }
-
-  .container {
-    padding: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .card {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid #d9dee3;
-    border-radius: 0.5rem;
-    box-shadow: 0 2px 6px rgba(67, 89, 113, 0.12);
-    background-color: #fff;
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
-    flex: 1 0 100%;
-    height: 300px;
-  }
-
-  .card:hover {
-    box-shadow: 0 4px 12px rgba(67, 89, 113, 0.2);
-    transform: translateY(-4px);
-  }
-
-  .card-body {
-    padding: 1rem;
-    text-align: center;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-
-  .card-title {
-    margin-bottom: 0.875rem;
-    color: #566a7f;
-    font-size: 1.25rem;
-  }
-
-  .card-icon {
-    font-size: 2rem;
-  }
-
-  .alert {
-    border-radius: 0.25rem;
-    font-size: 0.875rem;
-  }
-
-  @media (min-width: 576px) {
-    .col-md-6 {
-      flex: 0 0 50%;
-      max-width: 50%;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .col-lg-3 {
-      flex: 0 0 25%;
-      max-width: 25%;
-    }
-  }
-</style>
-
 <div class="container">
-  <!-- Total Contacts Card -->
+  <!-- Filtres -->
   <div class="row mb-4">
     <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Filtres</h5>
+          <form method="GET">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="start-date-filter">Date de Début</label>
+                <input type="date" id="start-date-filter" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+              </div>
+              <div class="col-md-4">
+                <label for="end-date-filter">Date de Fin</label>
+                <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+              </div>
+              <div class="col-md-4">
+                <label for="availability-filter">Disponibilité</label>
+                <select id="availability-filter" name="availability" class="form-control">
+                  <option value="">Toutes</option>
+                  {% for field in availability_counts.keys %}
+                    <option value="{{ field }}" {% if request.GET.availability == field %}selected{% endif %}>{{ field|replace_underscore }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary">Appliquer</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Total Contacts Card -->
+  <div class="row mb-4">
+    <div class="col-12 col-md-6 col-lg-3">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Total Contacts</h5>
@@ -117,84 +179,74 @@
         </div>
       </div>
     </div>
+
+    <!-- Tuiles de statistiques -->
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nouveaux Contacts (Dernière Semaine)</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ new_contacts_last_week }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-3">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nouveaux Contacts (Dernier Mois)</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ new_contacts_last_month }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Contacts par Date de Début -->
+  <!-- Chart for Contacts by Start Date -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Contacts par Date de Début</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Date de Début</th>
-                <th>Nombre de Contacts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in contacts_by_start_date %}
-              <tr>
-                <td>{{ item.start_date }}</td>
-                <td>{{ item.count }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div id="chart-start-date"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Contacts par Date de Fin -->
+  <!-- Chart for Contacts by End Date -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Contacts par Date de Fin</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Date de Fin</th>
-                <th>Nombre de Contacts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in contacts_by_end_date %}
-              <tr>
-                <td>{{ item.end_date }}</td>
-                <td>{{ item.count }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div id="chart-end-date"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Contacts par Disponibilité -->
+  <!-- Chart for Contacts by Availability -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Contacts par Disponibilité</h5>
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th>Disponibilité</th>
-                <th>Nombre de Contacts</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for field, count in availability_counts.items %}
-              <tr>
-                <td>{{ field|replace_underscore }}</td>
-                <td>{{ count }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div id="chart-availability"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart for Top Contributors -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Meilleurs Contributeurs</h5>
+          <div id="chart-top-contributors"></div>
         </div>
       </div>
     </div>

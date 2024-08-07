@@ -1,4 +1,3 @@
-# models.py
 from django.db import models
 
 class ContactForm(models.Model):
@@ -40,3 +39,4 @@ class ContactForm(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+
