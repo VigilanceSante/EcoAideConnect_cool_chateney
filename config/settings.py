@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     "apps.volontaires",
     "apps.tables",
     "apps.dashboard_volonteers",
-    "apps.need_help",
+
 
 
 ]

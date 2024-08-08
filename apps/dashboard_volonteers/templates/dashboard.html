@@ -2,13 +2,40 @@
 
 {% load static %}
 {% load i18n %}
-{% load availability_tags %}
 
 {% block title %}CoolChateney Dashboard{% endblock %}
 
 {% block vendor_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+<style>
+  /* Assurez-vous que les cartes ont la même hauteur */
+  .card.equal-height {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .card {
+    height : flex ; /* Hauteur fixe des cartes, ajustez selon vos besoins */
+  }
+
+  /* Assurez-vous que les colonnes sont bien alignées */
+  .col-lg-4 {
+    padding: 2; /* Éliminer le padding par défaut pour les colonnes */
+  }
+</style>
 {% endblock vendor_css %}
 
 {% block vendor_js %}
@@ -21,78 +48,32 @@
 <script src="{% static 'js/dashboards-analytics.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Contacts par Date de Début
-  var optionsStartDate = {
-    chart: {
-      type: 'bar',
-      height: 350
-    },
-    series: [{
-      name: 'Contacts',
-      data: [
-        {% for item in contacts_by_start_date %}
-          { x: '{{ item.start_date }}', y: {{ item.count }} },
-        {% endfor %}
-      ]
-    }],
-    xaxis: {
-      type: 'datetime'
-    },
-    title: {
-      text: 'Contacts par Date de Début'
-    }
-  };
-  var chartStartDate = new ApexCharts(document.querySelector("#chart-start-date"), optionsStartDate);
-  chartStartDate.render();
-
-  // Contacts par Date de Fin
-  var optionsEndDate = {
-    chart: {
-      type: 'bar',
-      height: 350
-    },
-    series: [{
-      name: 'Contacts',
-      data: [
-        {% for item in contacts_by_end_date %}
-          { x: '{{ item.end_date }}', y: {{ item.count }} },
-        {% endfor %}
-      ]
-    }],
-    xaxis: {
-      type: 'datetime'
-    },
-    title: {
-      text: 'Contacts par Date de Fin'
-    }
-  };
-  var chartEndDate = new ApexCharts(document.querySelector("#chart-end-date"), optionsEndDate);
-  chartEndDate.render();
-
-  // Contacts par Disponibilité
+  // Contacts par Disponibilité pour une fenêtre de 28 jours
+  var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
+  var dates = {{ dates|safe }};
   var optionsAvailability = {
     chart: {
       type: 'bar',
+      stacked: true,
       height: 350
     },
     series: [{
-      name: 'Contacts',
-      data: [
-        {% for field, count in availability_counts.items %}
-          { x: '{{ field|replace_underscore }}', y: {{ count }} },
-        {% endfor %}
-      ]
+      name: 'Toute la journée',
+      data: dates.map(date => contactsByDatesSlots[date]['all_day'])
+    }, {
+      name: 'Matin',
+      data: dates.map(date => contactsByDatesSlots[date]['morning'])
+    }, {
+      name: 'Après-midi',
+      data: dates.map(date => contactsByDatesSlots[date]['afternoon'])
+    }, {
+      name: 'Soirée',
+      data: dates.map(date => contactsByDatesSlots[date]['evening'])
     }],
     xaxis: {
-      categories: [
-        {% for field in availability_counts.keys %}
-          '{{ field|replace_underscore }}',
-        {% endfor %}
-      ]
+      categories: dates
     },
-    title: {
-      text: 'Contacts par Disponibilité'
-    }
+
   };
   var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
   chartAvailability.render();
@@ -104,10 +85,10 @@ document.addEventListener('DOMContentLoaded', function () {
       height: 350
     },
     series: [{
-      name: 'Contributions',
+      name: 'Total Days',
       data: [
         {% for contributor in top_contributors %}
-          { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.contributions }} },
+          { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.total_days.days }} },
         {% endfor %}
       ]
     }],
@@ -150,8 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="availability-filter">Disponibilité</label>
                 <select id="availability-filter" name="availability" class="form-control">
                   <option value="">Toutes</option>
-                  {% for field in availability_counts.keys %}
-                    <option value="{{ field }}" {% if request.GET.availability == field %}selected{% endif %}>{{ field|replace_underscore }}</option>
+                  {% for field in availability_options %}
+                    <option value="{{ field.field }}" {% if request.GET.availability == field.field %}selected{% endif %}>{{ field.translation }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -167,12 +148,12 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
-  <!-- Total Contacts Card -->
   <div class="row mb-4">
-    <div class="col-12 col-md-6 col-lg-3">
-      <div class="card">
+    <!-- Total Contacts Card -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Total Contacts</h5>
+          <h5 class="card-title text-primary">Nombre total de personnes disponibles</h5>
           <p class="mb-3">
             <span class="h1 font-weight-bold">{{ total_contacts }}</span>
           </p>
@@ -180,11 +161,11 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
 
-    <!-- Tuiles de statistiques -->
-    <div class="col-12 col-md-6 col-lg-3">
-      <div class="card">
+    <!-- Nouveaux volontaires (Dernière Semaine) -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Nouveaux Contacts (Dernière Semaine)</h5>
+          <h5 class="card-title text-primary">Nouveaux volontaires (Dernière Semaine)</h5>
           <p class="mb-3">
             <span class="h1 font-weight-bold">{{ new_contacts_last_week }}</span>
           </p>
@@ -192,10 +173,11 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
 
-    <div class="col-12 col-md-6 col-lg-3">
-      <div class="card">
+    <!-- Nouveaux volontaires (Dernier Mois) -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Nouveaux Contacts (Dernier Mois)</h5>
+          <h5 class="card-title text-primary">Nouveaux volontaires (Dernier Mois)</h5>
           <p class="mb-3">
             <span class="h1 font-weight-bold">{{ new_contacts_last_month }}</span>
           </p>
@@ -204,36 +186,12 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
-  <!-- Chart for Contacts by Start Date -->
+  <!-- Chart for Contacts by Availability per 14-day window -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-primary">Contacts par Date de Début</h5>
-          <div id="chart-start-date"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chart for Contacts by End Date -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Contacts par Date de Fin</h5>
-          <div id="chart-end-date"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Chart for Contacts by Availability -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Contacts par Disponibilité</h5>
+          <h5 class="card-title text-primary">Volontaires disponibles pour les 14 prochains jours</h5>
           <div id="chart-availability"></div>
         </div>
       </div>
@@ -246,7 +204,26 @@ document.addEventListener('DOMContentLoaded', function () {
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Meilleurs Contributeurs</h5>
-          <div id="chart-top-contributors"></div>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Prénom</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Jours Totaux</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for contributor in top_contributors %}
+                <tr>
+                  <th scope="row">{{ forloop.counter }}</th>
+                  <td>{{ contributor.first_name }}</td>
+                  <td>{{ contributor.last_name }}</td>
+                  <td>{{ contributor.total_days.days }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
