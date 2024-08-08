@@ -68,9 +68,11 @@
               <label class="form-label" for="{{ form.address.id_for_label }}">Adresse</label>
               <div class="input-group">
                 <span class="input-group-text bg-transparent border-0"><i class="bx bx-map"></i></span>
-                <input type="text" name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" class="form-control form-control-lg" value="{{ form.address.value|default_if_none:'' }}">
+                <input type="text" name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" class="form-control form-control-lg" value="{{ form.address.value|default_if_none:'' }}" oninput="searchAddress()">
               </div>
               <div class="form-text text-danger" id="address_error"></div>
+              <!-- Element to display API results -->
+              <div id="addressResults" class="mt-2"></div>
             </div>
             <div class="mb-4">
               <label for="{{ form.start_date.id_for_label }}" class="form-label">Date de début</label>
@@ -306,79 +308,6 @@
     </div>
   </div>
 </div>
-
-<style>
-  .input-group-text,
-  .form-control {
-    border: 1px solid #ced4da;
-    box-shadow: none;
-  }
-  .card-header {
-    background-color: #007bff;
-    color: white;
-  }
-  .accordion-button {
-    background-color: #f8f9fa;
-    color: #007bff;
-  }
-  .accordion-button:focus {
-    box-shadow: none;
-  }
-  .form-control:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-  .form-text.text-danger {
-    color: #dc3545;
-    font-weight: bold;
-  }
-  .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-  }
-  .btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-  }
-  .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-  }
-  .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #5a6268;
-  }
-  .form-date-input {
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 0.375rem 0.75rem;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #495057;
-  }
-
-  .form-date-input:focus {
-    border-color: #80bdff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-
-  .form-label {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-  }
-
-  .form-text {
-    display: block;
-    margin-top: 0.25rem;
-    color: #6c757d;
-  }
-
-  .form-text.text-danger {
-    color: #dc3545;
-  }
-</style>
 <script>
   function validateForm() {
       // Validation du numéro de téléphone français
@@ -448,8 +377,65 @@
       }
     }
   }
+function searchAddress() {
+  var input = document.getElementById('{{ form.address.id_for_label }}').value;
+  if (input.length < 3) { // Ensure at least 3 characters are typed
+    return;
+  }
+  var apiUrl = 'https://api-adresse.data.gouv.fr/search/?q=' + encodeURI(input) + '&postcode=92290';
+
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      var resultsContainer = document.getElementById('addressResults');
+      resultsContainer.innerHTML = ''; // Clear previous results
+      if (data.features) {
+        data.features.forEach(feature => {
+          var resultDiv = document.createElement('div');
+          resultDiv.innerHTML = feature.properties.label; // Display the address
+          resultDiv.classList.add('address-result'); // Add class for styling
+          resultDiv.onclick = function() { // Add click event
+            document.getElementById('{{ form.address.id_for_label }}').value = feature.properties.label; // Set address input value
+            resultsContainer.innerHTML = ''; // Clear results after selection
+          };
+          resultsContainer.appendChild(resultDiv);
+        });
+      }
+    })
+    .catch(error => console.error('Error fetching address:', error));
+}
 </script>
+<style>
+  .address-result {
+    padding: 12px 15px; /* More generous padding for a premium feel */
+    cursor: pointer;
+    border: 1px solid #d6d6d6; /* Lighter border for a softer look */
+    border-radius: 6px; /* Slightly larger radius for a more modern, pill-like appearance */
+    margin-top: 5px;
+    background-color: #fff; /* Clean, white background */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth and snappy transition */
+    display: block;
+    color: #2a2a2a; /* Slightly darker for contrast yet easy on the eyes */
+    text-decoration: none; /* Consistency in non-underlined links */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); /* Subtle shadow for depth */
+    font-size: 16px; /* Larger font-size for better readability */
+    line-height: 1.5; /* Increased line height for better text flow */
+  }
+
+  .address-result:hover, .address-result:focus {
+    background-color: #f8f9fa; /* Even lighter background on hover/focus for a soft visual cue */
+    color: #0056b3; /* Highlight text to blue on hover/focus for better accessibility */
+    border-color: #0056b3; /* Matching border color on hover/focus for a cohesive look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Larger shadow for more prominent lift effect */
+  }
+
+  /* Enhanced focus state to ensure accessibility */
+  .address-result:focus {
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.5); /* A more noticeable focus ring */
+    outline: none; /* Removing default outline to rely on custom shadow */
+  }
+</style>
+
 
 {% endblock %}
-
 </html>
