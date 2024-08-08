@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Formulaire de Contact - Aide aux Personnes Âgées et Handicapées{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+  <h4 class="text-center mb-4">
+    <span class="text-muted fw-light">Je me propose /</span> Formulaire de contact
+  </h4>
+  <h5 class="text-center mb-4">Aide aux personnes âgées et/ou porteuses de handicaps</h5>
+  <p class="text-center mb-4">Vous souhaitez aider les personnes âgées et/ou porteuses de handicaps ?<br>Remplissez le formulaire ci-dessous pour vous proposer.</p>
+  {% if success_message %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Merci!</strong> {{ success_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <!-- Basic Layout -->
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+        </div>
+        <div class="card-body">
+          <form id="contactForm" method="post" action="." onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">Prénom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-user"></i></span>
+                <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control form-control-lg" value="{{ form.first_name.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="first_name_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.last_name.id_for_label }}">Nom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-user"></i></span>
+                <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control form-control-lg" value="{{ form.last_name.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="last_name_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-envelope"></i></span>
+                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control form-control-lg" value="{{ form.email.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text">Vous pouvez utiliser des lettres, des chiffres et des points.</div>
+              <div class="form-text text-danger" id="email_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.phone.id_for_label }}">Téléphone</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-phone"></i></span>
+                <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="form-control form-control-lg" value="{{ form.phone.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="phone_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.address.id_for_label }}">Adresse</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-map"></i></span>
+                <input type="text" name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" class="form-control form-control-lg" value="{{ form.address.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="address_error"></div>
+            </div>
+            <div class="mb-4">
+              <label for="{{ form.start_date.id_for_label }}" class="form-label">Date de début</label>
+              <div class="input-group">
+                  <span class="input-group-text bg-transparent border-0">
+                      <i class="bx bx-calendar"></i>
+                  </span>
+                  <input type="date" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}" class="form-control form-control-lg form-date-input" value="{{ form.start_date.value|default_if_none:'' }}" onchange="updateAvailability()">
+              </div>
+          </div>
+          <div class="mb-4">
+            <label for="{{ form.end_date.id_for_label }}" class="form-label">Date de fin</label>
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-0">
+                    <i class="bx bx-calendar"></i>
+                </span>
+                <input type="date" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}" class="form-control form-control-lg form-date-input" value="{{ form.end_date.value|default_if_none:'' }}" onchange="updateAvailability()">
+            </div>
+        </div>        
+
+            <div class="mb-4" id="availabilitySection" style="display: none;">
+              <label class="form-label">Disponibilités</label>
+              <div class="accordion" id="availabilityAccordion">
+                <!-- Lundi -->
+                <div class="accordion-item" id="accordionMonday" style="display: none;">
+                  <h2 class="accordion-header" id="headingMonday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMonday" aria-expanded="false" aria-controls="collapseMonday">
+                      Lundi
+                    </button>
+                  </h2>
+                  <div id="collapseMonday" class="accordion-collapse collapse" aria-labelledby="headingMonday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="monday_all_day" id="monday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="monday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="monday_morning" id="monday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="monday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="monday_afternoon" id="monday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="monday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="monday_evening" id="monday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="monday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mardi -->
+                <div class="accordion-item" id="accordionTuesday" style="display: none;">
+                  <h2 class="accordion-header" id="headingTuesday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTuesday" aria-expanded="false" aria-controls="collapseTuesday">
+                      Mardi
+                    </button>
+                  </h2>
+                  <div id="collapseTuesday" class="accordion-collapse collapse" aria-labelledby="headingTuesday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="tuesday_all_day" id="tuesday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="tuesday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="tuesday_morning" id="tuesday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="tuesday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="tuesday_afternoon" id="tuesday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="tuesday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="tuesday_evening" id="tuesday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="tuesday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mercredi -->
+                <div class="accordion-item" id="accordionWednesday" style="display: none;">
+                  <h2 class="accordion-header" id="headingWednesday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseWednesday" aria-expanded="false" aria-controls="collapseWednesday">
+                      Mercredi
+                    </button>
+                  </h2>
+                  <div id="collapseWednesday" class="accordion-collapse collapse" aria-labelledby="headingWednesday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="wednesday_all_day" id="wednesday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="wednesday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="wednesday_morning" id="wednesday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="wednesday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="wednesday_afternoon" id="wednesday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="wednesday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="wednesday_evening" id="wednesday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="wednesday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Jeudi -->
+                <div class="accordion-item" id="accordionThursday" style="display: none;">
+                  <h2 class="accordion-header" id="headingThursday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThursday" aria-expanded="false" aria-controls="collapseThursday">
+                      Jeudi
+                    </button>
+                  </h2>
+                  <div id="collapseThursday" class="accordion-collapse collapse" aria-labelledby="headingThursday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="thursday_all_day" id="thursday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="thursday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="thursday_morning" id="thursday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="thursday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="thursday_afternoon" id="thursday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="thursday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="thursday_evening" id="thursday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="thursday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Vendredi -->
+                <div class="accordion-item" id="accordionFriday" style="display: none;">
+                  <h2 class="accordion-header" id="headingFriday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFriday" aria-expanded="false" aria-controls="collapseFriday">
+                      Vendredi
+                    </button>
+                  </h2>
+                  <div id="collapseFriday" class="accordion-collapse collapse" aria-labelledby="headingFriday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="friday_all_day" id="friday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="friday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="friday_morning" id="friday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="friday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="friday_afternoon" id="friday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="friday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="friday_evening" id="friday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="friday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Samedi -->
+                <div class="accordion-item" id="accordionSaturday" style="display: none;">
+                  <h2 class="accordion-header" id="headingSaturday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSaturday" aria-expanded="false" aria-controls="collapseSaturday">
+                      Samedi
+                    </button>
+                  </h2>
+                  <div id="collapseSaturday" class="accordion-collapse collapse" aria-labelledby="headingSaturday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="saturday_all_day" id="saturday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="saturday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="saturday_morning" id="saturday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="saturday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="saturday_afternoon" id="saturday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="saturday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="saturday_evening" id="saturday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="saturday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dimanche -->
+                <div class="accordion-item" id="accordionSunday" style="display: none;">
+                  <h2 class="accordion-header" id="headingSunday">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSunday" aria-expanded="false" aria-controls="collapseSunday">
+                      Dimanche
+                    </button>
+                  </h2>
+                  <div id="collapseSunday" class="accordion-collapse collapse" aria-labelledby="headingSunday" data-bs-parent="#availabilityAccordion">
+                    <div class="accordion-body">
+                      <div class="form-check">
+                        <input type="checkbox" name="sunday_all_day" id="sunday_all_day" class="form-check-input" value="all_day">
+                        <label class="form-check-label" for="sunday_all_day">Toute la journée</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="sunday_morning" id="sunday_morning" class="form-check-input" value="morning">
+                        <label class="form-check-label" for="sunday_morning">Matin</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="sunday_afternoon" id="sunday_afternoon" class="form-check-input" value="afternoon">
+                        <label class="form-check-label" for="sunday_afternoon">Après-midi</label>
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" name="sunday_evening" id="sunday_evening" class="form-check-input" value="evening">
+                        <label class="form-check-label" for="sunday_evening">Soirée</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100" id="submitButton">Envoyer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .input-group-text,
+  .form-control {
+    border: 1px solid #ced4da;
+    box-shadow: none;
+  }
+  .card-header {
+    background-color: #007bff;
+    color: white;
+  }
+  .accordion-button {
+    background-color: #f8f9fa;
+    color: #007bff;
+  }
+  .accordion-button:focus {
+    box-shadow: none;
+  }
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  .form-text.text-danger {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+  }
+  .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+  .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+  }
+  .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #5a6268;
+  }
+  .form-date-input {
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+  }
+
+  .form-date-input:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .form-label {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+  }
+
+  .form-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #6c757d;
+  }
+
+  .form-text.text-danger {
+    color: #dc3545;
+  }
+</style>
+<script>
+  function validateForm() {
+      // Validation du numéro de téléphone français
+      const phoneNumber = document.getElementById('{{ form.phone.id_for_label }}').value;
+      const phonePattern = /^(?:\+33|0)[1-9](?:[ .]?\d{2}){4}$/;
+      if (!phonePattern.test(phoneNumber)) {
+          alert("Veuillez entrer un numéro de téléphone français valide.");
+          return false;
+      }
+  
+      // Vérification de l'adresse de Châtenay-Malabry
+      const address = document.getElementById('{{ form.address.id_for_label }}').value.toLowerCase();
+      if (!address.includes('châtenay-malabry')) {
+          alert("L'adresse doit être à Châtenay-Malabry.");
+          return false;
+      }
+  
+      // Vérification que la date de fin est supérieure à la date de début
+      const startDate = document.getElementById('{{ form.start_date.id_for_label }}').value;
+      const endDate = document.getElementById('{{ form.end_date.id_for_label }}').value;
+      if (!startDate || !endDate || new Date(endDate) <= new Date(startDate)) {
+          alert("La date de fin doit être supérieure à la date de début.");
+          return false;
+      }
+  
+      // Vérification qu'au moins une case est cochée
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      let isChecked = false;
+      checkboxes.forEach(checkbox => {
+          if (checkbox.checked) isChecked = true;
+      });
+      if (!isChecked) {
+          alert("Veuillez cocher au moins une case.");
+          return false;
+      }
+  
+      return true;
+  }
+
+  function updateAvailability() {
+    const startDateValue = document.getElementById('{{ form.start_date.id_for_label }}').value;
+    const endDateValue = document.getElementById('{{ form.end_date.id_for_label }}').value;
+
+    if (!startDateValue || !endDateValue) {
+      return;
+    }
+
+    const startDate = new Date(startDateValue);
+    const endDate = new Date(endDateValue);
+
+    if (endDate <= startDate) {
+      return;
+    }
+
+    // Hide all accordion items
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    days.forEach(day => {
+      document.getElementById(`accordion${day}`).style.display = 'none';
+    });
+
+    // Show relevant accordion items
+    document.getElementById('availabilitySection').style.display = 'block';
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const day = days[d.getDay()];
+      if (day) {
+        document.getElementById(`accordion${day}`).style.display = 'block';
+      }
+    }
+  }
+</script>
+
+{% endblock %}
+
+</html>

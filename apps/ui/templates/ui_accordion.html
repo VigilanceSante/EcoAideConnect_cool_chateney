@@ -8,7 +8,15 @@
 {% block content %}
 <h4 class="py-3 mb-4"><span class="text-muted fw-light">UI elements /</span> Accordion</h4>
 
-
+{% if user.is_authenticated %}
+  <div class="alert alert-success" role="alert">
+    Welcome, {{ user.username }}! You are logged in.
+  </div>
+{% else %}
+  <div class="alert alert-warning" role="alert">
+    You are not logged in. Please <a href="{% url 'auth-login-basic' %}">log in</a> to access more features.
+  </div>
+{% endif %}
 <!-- Accordion -->
 <h5 class="mt-4">Accordion</h5>
 <div class="row">

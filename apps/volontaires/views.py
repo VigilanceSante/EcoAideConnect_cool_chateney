@@ -16,10 +16,10 @@ class FormLayoutsView(TemplateView):
         if form.is_valid():
             form.save()
             context = self.get_context_data(**kwargs)
-            context['form'] = ContactFormForm()  # Réinitialiser le formulaire
+            context['form'] = ContactFormForm()  # Reset the form
             context['success_message'] = 'Votre formulaire a été soumis avec succès.'
-            return self.render_to_response(context)
         else:
             context = self.get_context_data(**kwargs)
             context['form'] = form
-            return self.render_to_response(context)
+        return self.render_to_response(context)
+
