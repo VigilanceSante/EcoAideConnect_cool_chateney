@@ -50,12 +50,7 @@
       </a>
     </li>
 
-    <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
-      <a href="{% url 'help' %}" class="menu-link">
-        <i class="menu-icon tf-icons bx bxs-help-circle"></i>
-        <div class="text-truncate" data-i18n="J'ai besoin d'aide">J'ai besoin d'aide</div>
-      </a>
-    </li>
+
 
     <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
       <a href="javascript:void(0)" class="menu-link menu-toggle">
