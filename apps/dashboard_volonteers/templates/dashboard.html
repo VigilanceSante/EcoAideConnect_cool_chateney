@@ -28,7 +28,7 @@
   }
 
   .card {
-    height : flex ; /* Hauteur fixe des cartes, ajustez selon vos besoins */
+    height: 100%; /* Hauteur fixe des cartes, ajustez selon vos besoins */
   }
 
   /* Assurez-vous que les colonnes sont bien alignées */
@@ -48,7 +48,7 @@
 <script src="{% static 'js/dashboards-analytics.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Contacts par Disponibilité pour une fenêtre de 28 jours
+  // Contacts par Disponibilité pour une fenêtre de 14 jours
   var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
   var dates = {{ dates|safe }};
   var optionsAvailability = {
@@ -121,12 +121,13 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="row">
               <div class="col-md-4">
                 <label for="start-date-filter">Date de Début</label>
-                <input type="date" id="start-date-filter" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
-              </div>
-              <div class="col-md-4">
+                <input type="date" id="start-date-filter" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
                 <label for="end-date-filter">Date de Fin</label>
-                <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
-              </div>
+                <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            
               <div class="col-md-4">
                 <label for="availability-filter">Disponibilité</label>
                 <select id="availability-filter" name="availability" class="form-control">
