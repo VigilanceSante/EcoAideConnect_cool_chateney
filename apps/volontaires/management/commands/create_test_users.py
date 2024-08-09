@@ -1,5 +1,6 @@
+import requests
 from django.core.management.base import BaseCommand
-from apps.from.models import ContactForm
+from apps.volontaires.models import ContactForm
 from faker import Faker
 import random
 from datetime import timedelta
@@ -12,27 +13,39 @@ class Command(BaseCommand):
         fake = Faker('fr_FR')
 
         def generate_phone_number():
-            # Génère un numéro de portable français commençant par 06 ou 07
+            # Generate a French mobile number starting with 06 or 07
             return f"06{random.randint(10000000, 99999999)}"
 
-        def generate_address():
-            # Génère une adresse contenant "Châtenay-Malabry" avec le code postal 92290
-            return f"{fake.street_address()}, 92290 Châtenay-Malabry"
+        def fetch_real_address():
+            # Make the API call to get real addresses from Châtenay-Malabry
+            response = requests.get("https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
+            data = response.json()
+
+            # Generate a random street number between 1 and 10
+            street_number = random.randint(1, 10)
+            
+            if data['features']:
+                # Randomly select an address from the API data
+                selected_address = random.choice(data['features'])
+                # Prepend the random street number to the selected address
+                return f"{street_number} {selected_address['properties']['label']}"
+            else:
+                raise Exception("No addresses found in the API response")
 
         def get_day_of_week(date):
             days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
             return days[date.weekday()]
 
-        for _ in range(20):  # Ajustez la plage pour le nombre d'utilisateurs de test que vous souhaitez (ici 20)
+        for _ in range(20):  # Adjust the range for the number of test users you want (here 20)
             first_name = fake.first_name()
             last_name = fake.last_name()
             normalized_first_name = unidecode.unidecode(first_name.lower().replace(' ', '_'))
             normalized_last_name = unidecode.unidecode(last_name.lower().replace(' ', '_'))
             email = f"{normalized_first_name}.{normalized_last_name}@example.com"
             start_date = fake.date_between(start_date='-30d', end_date='today')
-            end_date = start_date + timedelta(days=random.randint(2, 6))  # Ajustez la plage pour inclure au moins 2 jours et au plus 6 jours
+            end_date = start_date + timedelta(days=random.randint(2, 6))  # Adjust the range for at least 2 days and at most 6 days
             
-            # Initialiser les disponibilités à False
+            # Initialize availability to False
             availability = {
                 'monday_all_day': False, 'monday_morning': False, 'monday_afternoon': False, 'monday_evening': False,
                 'tuesday_all_day': False, 'tuesday_morning': False, 'tuesday_afternoon': False, 'tuesday_evening': False,
@@ -47,16 +60,16 @@ class Command(BaseCommand):
             while current_date <= end_date:
                 day_of_week = get_day_of_week(current_date)
                 if fake.boolean():
-                    # Marquer le jour comme "all_day" disponible
+                    # Mark the day as "all_day" available
                     availability[f"{day_of_week}_all_day"] = True
                 else:
-                    # Marquer les créneaux comme disponibles aléatoirement pour les jours compris entre start_date et end_date
+                    # Randomly mark the slots as available for the days between start_date and end_date
                     availability[f"{day_of_week}_morning"] = fake.boolean()
                     availability[f"{day_of_week}_afternoon"] = fake.boolean()
                     availability[f"{day_of_week}_evening"] = fake.boolean()
                 current_date += timedelta(days=1)
             
-            # Créer l'objet ContactForm avec les disponibilités définies
+            # Create the ContactForm object with defined availability
             ContactForm.objects.create(
                 first_name=first_name,
                 last_name=last_name,
@@ -64,7 +77,7 @@ class Command(BaseCommand):
                 end_date=end_date,
                 email=email,
                 phone=generate_phone_number(),
-                address=generate_address(),
+                address=fetch_real_address(),
                 monday_all_day=availability['monday_all_day'],
                 monday_morning=availability['monday_morning'] if not availability['monday_all_day'] else False,
                 monday_afternoon=availability['monday_afternoon'] if not availability['monday_all_day'] else False,
