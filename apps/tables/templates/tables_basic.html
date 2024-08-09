@@ -10,7 +10,9 @@
   <span class="text-muted fw-light">Liste des volontaires</span>
 </h4>
 
-<div  
+<!-- Total Occurrences -->
+<p><strong>Nombre total de contacts : {{ total_contacts }}</strong></p>
+
 <!-- Filter Container -->
 <div class="card mb-4" style="background-color: #ffffff;">
   <div class="card-body">
@@ -154,20 +156,47 @@
     </table>
   </div>
 </div>
-<!--/ Tableau Bootstrap de Base -->
+<br>
+<!-- Pagination Controls -->
+<div class="pagination-wrapper">
+  <nav aria-label="Page navigation">
+    <ul class="pagination">
+      {% if contacts.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1&sort={{ current_sort }}&order={{ current_order }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:',' }}" aria-label="First">
+            <span aria-hidden="true">&laquo;&laquo;</span>
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ contacts.previous_page_number }}&sort={{ current_sort }}&order={{ current_order }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:',' }}" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+      {% endif %}
+      
+      {% for num in contacts.paginator.page_range %}
+        {% if contacts.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > contacts.number|add:'-5' and num < contacts.number|add:'5' %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}&sort={{ current_sort }}&order={{ current_order }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:',' }}">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+      
+      {% if contacts.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ contacts.next_page_number }}&sort={{ current_sort }}&order={{ current_order }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:',' }}" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="?page={{ contacts.paginator.num_pages }}&sort={{ current_sort }}&order={{ current_order }}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:',' }}" aria-label="Last">
+            <span aria-hidden="true">&raquo;&raquo;</span>
+          </a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
 {% endblock %}
 
-<script>
-  function editContact(id) {
-    // Implement your edit logic here, e.g., redirect to an edit page
-    window.location.href = '/edit/' + id;
-  }
 
-  function deleteContact(id) {
-    // Implement your delete logic here, e.g., show a confirmation dialog and then delete
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce contact?')) {
-      // Perform the delete action, e.g., send an AJAX request to the server
-      window.location.href = '/delete/' + id;
-    }
-  }
-</script>
