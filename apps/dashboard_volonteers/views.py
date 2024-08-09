@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from django.db.models import Count, F, ExpressionWrapper, fields, Sum
 from django.utils.timezone import now, timedelta
+from datetime import date
 from web_project import TemplateLayout
 from apps.volontaires.models import ContactForm
 import json
@@ -11,7 +12,7 @@ class DashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
-        # Extraction des disponibilités uniques depuis les champs
+        # Disponibilités et leurs traductions
         availability_fields = [
             'monday_all_day', 'monday_morning', 'monday_afternoon', 'monday_evening',
             'tuesday_all_day', 'tuesday_morning', 'tuesday_afternoon', 'tuesday_evening',
@@ -22,7 +23,6 @@ class DashboardView(TemplateView):
             'sunday_all_day', 'sunday_morning', 'sunday_afternoon', 'sunday_evening'
         ]
 
-        # Traductions des disponibilités en français
         availability_translations = {
             'monday_all_day': 'Lundi - Toute la journée',
             'monday_morning': 'Lundi - Matin',
@@ -60,44 +60,41 @@ class DashboardView(TemplateView):
             for field in availability_fields
         ]
 
-        # Filtrage des contacts en fonction des critères de l'utilisateur
+        # Dates par défaut: début et fin du mois en cours
         today = now().date()
-        start_date = today.replace(day=1)
-        end_date = today.replace(day=1) + timedelta(days=31)
-        end_date = end_date.replace(day=1) - timedelta(days=1)
+        default_start_date = today.replace(day=1)
+        default_end_date = (today.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+
+        # Récupération des dates depuis les paramètres GET ou utilisation des valeurs par défaut
+        start_date_str = self.request.GET.get('start_date')
+        end_date_str = self.request.GET.get('end_date')
+
+        start_date = date.fromisoformat(start_date_str) if start_date_str else default_start_date
+        end_date = date.fromisoformat(end_date_str) if end_date_str else default_end_date
+
+        # Convert dates to string in ISO format for use in the template
+        context['start_date'] = start_date.isoformat()
+        context['end_date'] = end_date.isoformat()
+
+        # Filtrage des contacts
+        contacts = ContactForm.objects.filter(start_date__gte=start_date, end_date__lte=end_date)
+
         availability = self.request.GET.get('availability')
-
-        contacts = ContactForm.objects.all()
-
-        if start_date:
-            contacts = contacts.filter(start_date__gte=start_date)
-        if end_date:
-            contacts = contacts.filter(end_date__lte=end_date)
         if availability:
             contacts = contacts.filter(**{availability: True})
 
-        # Total contacts
+        # Statistiques mises à jour
         context['total_contacts'] = contacts.count()
 
-        # New contacts in the last week and last month
-        last_week = now() - timedelta(days=7)
-        last_month = now() - timedelta(days=30)
+        last_week = today - timedelta(days=7)
+        last_month = today - timedelta(days=30)
         context['new_contacts_last_week'] = contacts.filter(start_date__gte=last_week).count()
         context['new_contacts_last_month'] = contacts.filter(start_date__gte=last_month).count()
 
-        # Contacts by start date
-        contacts_by_start_date = contacts.values('start_date').annotate(count=Count('id')).order_by('start_date')
-        context['contacts_by_start_date'] = list(contacts_by_start_date)
-
-        # Contacts by duration
-        date_diff = ExpressionWrapper(F('end_date') - F('start_date'), output_field=fields.DurationField())
-        contacts_by_duration = contacts.values('first_name', 'last_name').annotate(duration=date_diff).order_by('duration')
-        context['contacts_by_duration'] = list(contacts_by_duration)
-
-        # Contacts by availability for a 14-day window
-        start_date = now()
-        end_date = start_date + timedelta(days=13)  # 14 days range
-        dates = [start_date + timedelta(days=i) for i in range(14)]
+        # Contacts par disponibilité pour une fenêtre de 14 jours
+        start_date_window = now()
+        end_date_window = start_date_window + timedelta(days=13)
+        dates = [start_date_window + timedelta(days=i) for i in range(14)]
         contacts_by_dates_slots = {
             date.strftime('%Y-%m-%d'): {
                 slot: contacts.filter(**{f'{date.strftime("%A").lower()}_{slot}': True}).count()
@@ -108,19 +105,9 @@ class DashboardView(TemplateView):
         context['contacts_by_dates_slots'] = json.dumps(contacts_by_dates_slots)
         context['dates'] = [date.strftime('%Y-%m-%d') for date in dates]
 
-        # Days without contact
-        days_without_contact = [
-            date.strftime('%Y-%m-%d') for date in dates
-            if all(contacts_by_dates_slots[date.strftime('%Y-%m-%d')][slot] == 0 for slot in ['all_day', 'morning', 'afternoon', 'evening'])
-        ]
-        context['days_without_contact'] = len(days_without_contact)
-        context['days_without_contact_list'] = days_without_contact
-
-        # Top contributors
-        top_contributors = (contacts
-                            .values('first_name', 'last_name')
-                            .annotate(total_days=Sum(date_diff))
-                            .order_by('-total_days')[:5])
+        # Meilleurs contributeurs
+        date_diff = ExpressionWrapper(F('end_date') - F('start_date'), output_field=fields.DurationField())
+        top_contributors = contacts.values('first_name', 'last_name').annotate(total_days=Sum(date_diff)).order_by('-total_days')[:5]
         context['top_contributors'] = list(top_contributors)
 
         return context
