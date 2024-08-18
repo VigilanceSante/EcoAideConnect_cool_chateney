@@ -1,5 +1,5 @@
 from django.urls import path
-"""from .views import CardView
+from .views import CardView
 
 
 urlpatterns = [
@@ -9,4 +9,3 @@ urlpatterns = [
         name="dash",
     )
 ]
-"""apps / authentication / urls.py
