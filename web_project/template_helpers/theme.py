@@ -1,21 +1,20 @@
-from django.conf import settings
-from pprint import pprint
 import os
+from pprint import pprint
 from importlib import import_module, util
+from django.conf import settings
 
 
-# Core TemplateHelper class
 class TemplateHelper:
 
-    # ? Map context variables to template class/value/variables names
-    def map_context(context):
+    # Map context variables to template class/value/variables names
+    def map_context(self, context):
+        if not isinstance(context, dict):
+            raise TypeError("context must be a dictionary")
 
-        #! Menu Fixed (vertical support only)
+        # Menu Fixed (vertical support only)
         if context.get("layout") == "vertical":
-            if context.get("menu_fixed") is True:
-                context["menu_fixed_class"] = "layout-menu-fixed"
-            else:
-                context["menu_fixed_class"] = ""
+            context["menu_fixed_class"] = "layout-menu-fixed" if context.get(
+                "menu_fixed") else ""
 
         # Content Layout
         if context.get("content_layout") == "wide":
@@ -25,38 +24,42 @@ class TemplateHelper:
             context["container_class"] = "container-xxl"
             context["content_layout_class"] = "layout-compact"
 
-
     # Get theme variables by scope
-    def get_theme_variables(scope):
+    def get_theme_variables(self, scope):
         return settings.THEME_VARIABLES[scope]
 
     # Set the current page layout and init the layout bootstrap file
-    def set_layout(view, context={}):
+    def set_layout(self, view, context=None):
+        if context is None:
+            context = {}
+
         # Extract layout from the view path
         layout = os.path.splitext(view)[0].split("/")[0]
 
         # Get module path
-        module = f"templates.{settings.THEME_LAYOUT_DIR.replace('/', '.')}.bootstrap.{layout}"
+        module = f"templates.{
+            settings.THEME_LAYOUT_DIR.replace(
+                '/', '.')}.bootstrap.{layout}"
 
-        # Check if the bootstrap file is exist
+        # Check if the bootstrap file exists
         if util.find_spec(module) is not None:
             # Auto import and init the default bootstrap.py file from the theme
-            TemplateBootstrap = TemplateHelper.import_class(
+            template_bootstrap = self.import_class(
                 module, f"TemplateBootstrap{layout.title().replace('_', '')}"
             )
-            TemplateBootstrap.init(context)
+            template_bootstrap.init(context)
         else:
-            module = f"templates.{settings.THEME_LAYOUT_DIR.replace('/', '.')}.bootstrap.default"
-
-            TemplateBootstrap = TemplateHelper.import_class(
-                module, "TemplateBootstrapDefault"
-            )
-            TemplateBootstrap.init(context)
+            module = f"templates.{
+                settings.THEME_LAYOUT_DIR.replace(
+                    '/', '.')}.bootstrap.default"
+            template_bootstrap = self.import_class(
+                module, "TemplateBootstrapDefault")
+            template_bootstrap.init(context)
 
         return f"{settings.THEME_LAYOUT_DIR}/{view}"
 
     # Import a module by string
-    def import_class(fromModule, import_className):
-        pprint(f"Loading {import_className} from {fromModule}")
-        module = import_module(fromModule)
-        return getattr(module, import_className)
+    def import_class(self, from_module, import_class_name):
+        pprint(f"Loading {import_class_name} from {from_module}")
+        module = import_module(from_module)
+        return getattr(module, import_class_name)

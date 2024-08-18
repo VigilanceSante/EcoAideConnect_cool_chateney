@@ -2,7 +2,6 @@ from django.urls import path
 from .views import FormsView
 
 
-
 urlpatterns = [
     path(
         "forms/basic_inputs/",

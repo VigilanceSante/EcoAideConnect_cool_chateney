@@ -2,7 +2,6 @@ from django.urls import path
 from .views import FormLayoutsView
 
 
-
 urlpatterns = [
     path(
         "form/layouts_vertical/",

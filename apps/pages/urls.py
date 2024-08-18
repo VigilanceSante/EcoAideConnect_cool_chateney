@@ -3,7 +3,6 @@ from .views import PagesView
 from .views_misc import MiscPagesView
 
 
-
 urlpatterns = [
     path(
         "pages/account_settings/account/",

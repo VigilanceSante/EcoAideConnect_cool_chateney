@@ -2,7 +2,6 @@ from django.urls import path
 from .views import UIView
 
 
-
 urlpatterns = [
     path(
         "ui/accordion/",

@@ -6,6 +6,7 @@ import random
 from datetime import timedelta
 import unidecode
 
+
 class Command(BaseCommand):
     help = 'Create test users'
 
@@ -18,42 +19,76 @@ class Command(BaseCommand):
 
         def fetch_real_address():
             # Make the API call to get real addresses from Châtenay-Malabry
-            response = requests.get("https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
+            response = requests.get(
+                "https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
             data = response.json()
 
             # Generate a random street number between 1 and 10
             street_number = random.randint(1, 10)
-            
+
             if data['features']:
                 # Randomly select an address from the API data
                 selected_address = random.choice(data['features'])
                 # Prepend the random street number to the selected address
-                return f"{street_number} {selected_address['properties']['label']}"
+                return f"{street_number} {
+                    selected_address['properties']['label']}"
             else:
                 raise Exception("No addresses found in the API response")
 
         def get_day_of_week(date):
-            days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+            days = [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday",
+                "sunday"]
             return days[date.weekday()]
 
-        for _ in range(20):  # Adjust the range for the number of test users you want (here 20)
+        for _ in range(
+                20):  # Adjust the range for the number of test users you want (here 20)
             first_name = fake.first_name()
             last_name = fake.last_name()
-            normalized_first_name = unidecode.unidecode(first_name.lower().replace(' ', '_'))
-            normalized_last_name = unidecode.unidecode(last_name.lower().replace(' ', '_'))
+            normalized_first_name = unidecode.unidecode(
+                first_name.lower().replace(' ', '_'))
+            normalized_last_name = unidecode.unidecode(
+                last_name.lower().replace(' ', '_'))
             email = f"{normalized_first_name}.{normalized_last_name}@example.com"
             start_date = fake.date_between(start_date='-30d', end_date='today')
-            end_date = start_date + timedelta(days=random.randint(2, 6))  # Adjust the range for at least 2 days and at most 6 days
-            
+            # Adjust the range for at least 2 days and at most 6 days
+            end_date = start_date + timedelta(days=random.randint(2, 6))
+
             # Initialize availability to False
             availability = {
-                'monday_all_day': False, 'monday_morning': False, 'monday_afternoon': False, 'monday_evening': False,
-                'tuesday_all_day': False, 'tuesday_morning': False, 'tuesday_afternoon': False, 'tuesday_evening': False,
-                'wednesday_all_day': False, 'wednesday_morning': False, 'wednesday_afternoon': False, 'wednesday_evening': False,
-                'thursday_all_day': False, 'thursday_morning': False, 'thursday_afternoon': False, 'thursday_evening': False,
-                'friday_all_day': False, 'friday_morning': False, 'friday_afternoon': False, 'friday_evening': False,
-                'saturday_all_day': False, 'saturday_morning': False, 'saturday_afternoon': False, 'saturday_evening': False,
-                'sunday_all_day': False, 'sunday_morning': False, 'sunday_afternoon': False, 'sunday_evening': False,
+                'monday_all_day': False,
+                'monday_morning': False,
+                'monday_afternoon': False,
+                'monday_evening': False,
+                'tuesday_all_day': False,
+                'tuesday_morning': False,
+                'tuesday_afternoon': False,
+                'tuesday_evening': False,
+                'wednesday_all_day': False,
+                'wednesday_morning': False,
+                'wednesday_afternoon': False,
+                'wednesday_evening': False,
+                'thursday_all_day': False,
+                'thursday_morning': False,
+                'thursday_afternoon': False,
+                'thursday_evening': False,
+                'friday_all_day': False,
+                'friday_morning': False,
+                'friday_afternoon': False,
+                'friday_evening': False,
+                'saturday_all_day': False,
+                'saturday_morning': False,
+                'saturday_afternoon': False,
+                'saturday_evening': False,
+                'sunday_all_day': False,
+                'sunday_morning': False,
+                'sunday_afternoon': False,
+                'sunday_evening': False,
             }
 
             current_date = start_date
@@ -63,12 +98,13 @@ class Command(BaseCommand):
                     # Mark the day as "all_day" available
                     availability[f"{day_of_week}_all_day"] = True
                 else:
-                    # Randomly mark the slots as available for the days between start_date and end_date
+                    # Randomly mark the slots as available for the days between
+                    # start_date and end_date
                     availability[f"{day_of_week}_morning"] = fake.boolean()
                     availability[f"{day_of_week}_afternoon"] = fake.boolean()
                     availability[f"{day_of_week}_evening"] = fake.boolean()
                 current_date += timedelta(days=1)
-            
+
             # Create the ContactForm object with defined availability
             ContactForm.objects.create(
                 first_name=first_name,
@@ -107,4 +143,5 @@ class Command(BaseCommand):
                 sunday_afternoon=availability['sunday_afternoon'] if not availability['sunday_all_day'] else False,
                 sunday_evening=availability['sunday_evening'] if not availability['sunday_all_day'] else False,
             )
-        self.stdout.write(self.style.SUCCESS('Successfully created 20 test users'))
+        self.stdout.write(self.style.SUCCESS(
+            'Successfully created 20 test users'))

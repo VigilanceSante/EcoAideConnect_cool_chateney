@@ -13,7 +13,8 @@ Refer to layouts/urls.py file for more pages.
 class WithoutMenuView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
+        # A function to init the global layout. It is defined in
+        # web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         # Update the context
@@ -31,7 +32,8 @@ class WithoutMenuView(TemplateView):
 class WithoutNavView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
+        # A function to init the global layout. It is defined in
+        # web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         # Update the context
@@ -50,7 +52,8 @@ class WithoutNavView(TemplateView):
 class FluidView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
+        # A function to init the global layout. It is defined in
+        # web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         # Update the context
@@ -68,7 +71,8 @@ class FluidView(TemplateView):
 class ContainerView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
+        # A function to init the global layout. It is defined in
+        # web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         # Update the context
@@ -86,15 +90,13 @@ class ContainerView(TemplateView):
 class BlankView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
-        # A function to init the global layout. It is defined in web_project/__init__.py file
+        # A function to init the global layout. It is defined in
+        # web_project/__init__.py file
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
         # Update the context
-        context.update(
-            {
-                "layout_path": TemplateHelper.set_layout("layout_blank.html", context),
-            }
-        )
+        context.update({"layout_path": TemplateHelper.set_layout(
+            "layout_blank.html", context), })
 
         TemplateHelper.map_context(context)
 

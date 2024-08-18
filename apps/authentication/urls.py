@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import AuthView
 
+# This module defines the URL patterns for the authentication app.
+
 
 urlpatterns = [
     path(

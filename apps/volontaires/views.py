@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from web_project import TemplateLayout
 from .forms import ContactFormForm
 
+
 class FormLayoutsView(TemplateView):
     template_name = 'contact_form.html'
 
@@ -22,4 +23,3 @@ class FormLayoutsView(TemplateView):
             context = self.get_context_data(**kwargs)
             context['form'] = form
         return self.render_to_response(context)
-

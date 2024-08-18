@@ -16,7 +16,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from .template import  THEME_LAYOUT_DIR, THEME_VARIABLES
+from .template import THEME_LAYOUT_DIR, THEME_VARIABLES
 
 load_dotenv()  # take environment variables from .env.
 
@@ -30,10 +30,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECRET_KEY = os.environ.get("SECRET_KEY", default='')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# If using the .env file for SECRET_KEY then comment below random SECRET_KEY generation code.
+# If using the .env file for SECRET_KEY then comment below random
+# SECRET_KEY generation code.
 SECRET_KEY = os.environ.get("SECRET_KEY")
 if not SECRET_KEY:
-    SECRET_KEY = "".join(random.choice(string.ascii_lowercase) for i in range(32))
+    SECRET_KEY = "".join(random.choice(string.ascii_lowercase)
+                         for i in range(32))
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -123,14 +125,13 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-}, 
-"need_help": {
+    },
+    "need_help": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-}
+    }
 
 }
-
 
 
 # Password validation
@@ -188,7 +189,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 THEME_VARIABLES = THEME_VARIABLES
-
 
 
 # Your stuff...
