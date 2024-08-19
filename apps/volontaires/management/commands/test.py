@@ -1,11 +1,16 @@
 import requests
+from django.core.management.base import BaseCommand
 
-# Make the API call
-response = requests.get("https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
+class Command(BaseCommand):
+    help = 'Fetch data from the API and display it'
 
-# Convert the response to JSON
-data = response.json()
+    def handle(self, *args, **kwargs):
+        # Make the API call
+        response = requests.get("https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
 
-# Display the data
-data
-print(data)
+        # Convert the response to JSON
+        data = response.json()
+
+        # Print the data
+        self.stdout.write(self.style.SUCCESS('Data fetched successfully'))
+        print(data)
