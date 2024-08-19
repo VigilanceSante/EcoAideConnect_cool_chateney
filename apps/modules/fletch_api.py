@@ -183,13 +183,36 @@ class PollutionData:
         return mapping.get(value, 'Extrêmement mauvaise' if value not in mapping else 'Non disponible')
 
 class CombinedData(TemplateView):
-    template_name = 'home_page.html'
-
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         weather_data = WeatherData().get_weather()
         pollution_data = PollutionData.get_pollution_data()
+
+        # Fonction pour définir la classe CSS en fonction de la qualité de l'air
+        def get_class_for_quality(quality):
+            if quality == 'Bonne':
+                return 'bonne'
+            elif quality == 'Moyenne':
+                return 'moyenne'
+            elif quality == 'Dégradée':
+                return 'degradee'
+            elif quality == 'Mauvaise':
+                return 'mauvaise'
+            elif quality == 'Très mauvaise':
+                return 'tres-mauvaise'
+            else:
+                return ''  # Si aucune correspondance
+
+        # Ajout de la classe CSS à chaque polluant
+        pollution_data['pm10_class'] = get_class_for_quality(pollution_data['PM10'])
+        pollution_data['pm25_class'] = get_class_for_quality(pollution_data['PM25'])
+        pollution_data['o3_class'] = get_class_for_quality(pollution_data['O3'])
+        pollution_data['no2_class'] = get_class_for_quality(pollution_data['NO2'])
+        pollution_data['so2_class'] = get_class_for_quality(pollution_data['SO2'])
+        pollution_data['indice_class'] = get_class_for_quality(pollution_data['indice'])
+
+        # Mise à jour du contexte avec les données météorologiques et de pollution
         context.update(weather_data)
         context.update(pollution_data)
         return context
