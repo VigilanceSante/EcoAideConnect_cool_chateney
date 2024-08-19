@@ -116,19 +116,7 @@
     text-align: center;
   }
 
-  .legend span {
-    display: inline-block;
-    margin-right: 10px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: 500;
-  }
 
-  .legend .bonne { background-color: #34c759; color: #fff; }
-  .legend .moyenne { background-color: #ffcc00; color: #fff; }
-  .legend .degradee { background-color: #ff9500; color: #fff; }
-  .legend .mauvaise { background-color: #ff3b30; color: #fff; }
-  .legend .tres-mauvaise { background-color: #c40000; color: #fff; }
 
 </style>
 
@@ -146,60 +134,62 @@
 
   <!-- Cartes des polluants -->
   <div class="dashboard-body">
+            <!-- Carte polnen -->
+            <div class="score-card">
+              <h6><i class="pollutant-icon fas fa-industry"></i>Pollen</h6>
+              <div class="score-value {{ so2_class }}"> Pollen</div>
+              <div class="description">
+                Provient des industries et des centrales à charbon.
+              </div>
+            </div>
     <!-- Carte PM10 -->
     <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-wind"></i>PM10</h6>
+      <h6><i class="pollutant-icon fas fa-wind"></i>PM 10</h6>
       <div class="score-value {{ pm10_class }}">{{ PM10 }}</div>
       <div class="description">
-        Particules de 10 µm ou moins. Affecte les voies respiratoires. Qualité : <strong>{{ pm10_label }}</strong>
+        Particules de 10 µm ou moins. Affecte les voies respiratoires. 
       </div>
     </div>
 
     <!-- Carte PM2.5 -->
     <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-smog"></i>PM2.5</h6>
+      <h6><i class="pollutant-icon fas fa-smog"></i>PM 2.5</h6>
       <div class="score-value {{ pm25_class }}">{{ PM25 }}</div>
       <div class="description">
-        Particules fines de 2.5 µm ou moins. Pénètrent plus profondément dans les poumons. Qualité : <strong>{{ pm25_label }}</strong>
+        Particules fines de 2.5 µm ou moins. Pénètrent plus profondément dans les poumons.
       </div>
     </div>
 
+
+    
+
     <!-- Carte Ozone -->
     <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-cloud"></i>Ozone (O3)</h6>
+      <h6><i class="pollutant-icon fas fa-cloud"></i>Ozone (O<sub>3</sub>)</h6>
       <div class="score-value {{ o3_class }}">{{ O3 }}</div>
       <div class="description">
-        Gaz irritant pour les voies respiratoires. Qualité : <strong>{{ o3_label }}</strong>
+        Gaz irritant pour les voies respiratoires.
       </div>
     </div>
 
     <!-- Carte NO2 -->
     <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-car"></i>Dioxyde d'azote (NO2)</h6>
+      <h6><i class="pollutant-icon fas fa-car"></i>Dioxyde d'azote (NO<sub>2</sub>)</h6>
       <div class="score-value {{ no2_class }}">{{ NO2 }}</div>
       <div class="description">
-        Irrite les voies respiratoires, provient des émissions de véhicules. Qualité : <strong>{{ no2_label }}</strong>
+        Irrite les voies respiratoires, provient des émissions de véhicules. 
       </div>
     </div>
 
     <!-- Carte SO2 -->
     <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-industry"></i>Dioxyde de soufre (SO2)</h6>
+      <h6><i class="pollutant-icon fas fa-industry"></i>Dioxyde de soufre (SO<sub>2</sub>)</h6>
       <div class="score-value {{ so2_class }}">{{ SO2 }}</div>
       <div class="description">
-        Provient des industries et des centrales à charbon. Qualité : <strong>{{ so2_label }}</strong>
+        Provient des industries et des centrales à charbon.
       </div>
     </div>
   </div>
 
-  <!-- Légende des niveaux de qualité -->
-  <div class="legend">
-    <span class="bonne">Bonne</span>
-    <span class="moyenne">Moyenne</span>
-    <span class="degradee">Dégradée</span>
-    <span class="mauvaise">Mauvaise</span>
-    <span class="tres-mauvaise">Très Mauvaise</span>
-  </div>
-</div>
 
 {% endblock %}
