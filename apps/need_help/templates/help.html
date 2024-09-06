@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Formulaire de Contact - Aide aux Personnes Âgées et Handicapées{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+  <h4 class="text-center mb-4">
+    <span class="text-muted fw-light">Je me propose /</span> Formulaire de contact
+  </h4>
+  <h5 class="text-center mb-4">Aide aux personnes âgées et/ou porteuses de handicaps</h5>
+  <p class="text-center mb-4">Vous souhaitez aider les personnes âgées et/ou porteuses de handicaps ?<br>Remplissez le formulaire ci-dessous pour vous proposer.</p>
+  {% if success_message %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Merci!</strong> {{ success_message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endif %}
+
+  <!-- Basic Layout -->
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+        </div>
+        <div class="card-body">
+          <form id="contactForm" method="post" action="." onsubmit="return validateForm()">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.first_name.id_for_label }}">Prénom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-user"></i></span>
+                <input type="text" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" class="form-control form-control-lg" value="{{ form.first_name.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="first_name_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.last_name.id_for_label }}">Nom</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-user"></i></span>
+                <input type="text" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" class="form-control form-control-lg" value="{{ form.last_name.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="last_name_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.email.id_for_label }}">Email</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-envelope"></i></span>
+                <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}" class="form-control form-control-lg" value="{{ form.email.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text">Vous pouvez utiliser des lettres, des chiffres et des points.</div>
+              <div class="form-text text-danger" id="email_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.phone.id_for_label }}">Téléphone</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-phone"></i></span>
+                <input type="text" name="{{ form.phone.name }}" id="{{ form.phone.id_for_label }}" class="form-control form-control-lg" value="{{ form.phone.value|default_if_none:'' }}">
+              </div>
+              <div class="form-text text-danger" id="phone_error"></div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label" for="{{ form.address.id_for_label }}">Adresse</label>
+              <div class="input-group">
+                <span class="input-group-text bg-transparent border-0"><i class="bx bx-map"></i></span>
+                <input type="text" name="{{ form.address.name }}" id="{{ form.address.id_for_label }}" class="form-control form-control-lg" value="{{ form.address.value|default_if_none:'' }}" oninput="searchAddress()">
+              </div>
+              <div class="form-text text-danger" id="address_error"></div>
+              <!-- Element to display API results -->
+              <div id="addressResults" class="mt-2"></div>
+            </div>
+
+
+            <button type="submit" class="btn btn-primary w-100" id="submitButton">Envoyer</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  function validateForm() {
+      // Validation du numéro de téléphone français
+      const phoneNumber = document.getElementById('{{ form.phone.id_for_label }}').value;
+      const phonePattern = /^(?:\+33|0)[1-9](?:[ .]?\d{2}){4}$/;
+      if (!phonePattern.test(phoneNumber)) {
+          alert("Veuillez entrer un numéro de téléphone français valide.");
+          return false;
+      }
+  
+      // Vérification de l'adresse de Châtenay-Malabry
+      const address = document.getElementById('{{ form.address.id_for_label }}').value.toLowerCase();
+      if (!address.includes('châtenay-malabry')) {
+          alert("L'adresse doit être à Châtenay-Malabry.");
+          return false;
+      }
+  
+      // Vérification que la date de fin est supérieure à la date de début
+      const startDate = document.getElementById('{{ form.start_date.id_for_label }}').value;
+      const endDate = document.getElementById('{{ form.end_date.id_for_label }}').value;
+      if (!startDate || !endDate || new Date(endDate) <= new Date(startDate)) {
+          alert("La date de fin doit être supérieure à la date de début.");
+          return false;
+      }
+  
+      // Vérification qu'au moins une case est cochée
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      let isChecked = false;
+      checkboxes.forEach(checkbox => {
+          if (checkbox.checked) isChecked = true;
+      });
+      if (!isChecked) {
+          alert("Veuillez cocher au moins une case.");
+          return false;
+      }
+  
+      return true;
+  }
+
+  function updateAvailability() {
+    const startDateValue = document.getElementById('{{ form.start_date.id_for_label }}').value;
+    const endDateValue = document.getElementById('{{ form.end_date.id_for_label }}').value;
+
+    if (!startDateValue || !endDateValue) {
+      return;
+    }
+
+    const startDate = new Date(startDateValue);
+    const endDate = new Date(endDateValue);
+
+    if (endDate <= startDate) {
+      return;
+    }
+
+    // Hide all accordion items
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    days.forEach(day => {
+      document.getElementById(`accordion${day}`).style.display = 'none';
+    });
+
+    // Show relevant accordion items
+    document.getElementById('availabilitySection').style.display = 'block';
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const day = days[d.getDay()];
+      if (day) {
+        document.getElementById(`accordion${day}`).style.display = 'block';
+      }
+    }
+  }
+function searchAddress() {
+  var input = document.getElementById('{{ form.address.id_for_label }}').value;
+  if (input.length < 3) { // Ensure at least 3 characters are typed
+    return;
+  }
+  var apiUrl = 'https://api-adresse.data.gouv.fr/search/?q=' + encodeURI(input) + '&postcode=92290';
+
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      var resultsContainer = document.getElementById('addressResults');
+      resultsContainer.innerHTML = ''; // Clear previous results
+      if (data.features) {
+        data.features.forEach(feature => {
+          var resultDiv = document.createElement('div');
+          resultDiv.innerHTML = feature.properties.label; // Display the address
+          resultDiv.classList.add('address-result'); // Add class for styling
+          resultDiv.onclick = function() { // Add click event
+            document.getElementById('{{ form.address.id_for_label }}').value = feature.properties.label; // Set address input value
+            resultsContainer.innerHTML = ''; // Clear results after selection
+          };
+          resultsContainer.appendChild(resultDiv);
+        });
+      }
+    })
+    .catch(error => console.error('Error fetching address:', error));
+}
+</script>
+<style>
+  .address-result {
+    padding: 12px 15px; /* More generous padding for a premium feel */
+    cursor: pointer;
+    border: 1px solid #d6d6d6; /* Lighter border for a softer look */
+    border-radius: 6px; /* Slightly larger radius for a more modern, pill-like appearance */
+    margin-top: 5px;
+    background-color: #fff; /* Clean, white background */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smooth and snappy transition */
+    display: block;
+    color: #2a2a2a; /* Slightly darker for contrast yet easy on the eyes */
+    text-decoration: none; /* Consistency in non-underlined links */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12); /* Subtle shadow for depth */
+    font-size: 16px; /* Larger font-size for better readability */
+    line-height: 1.5; /* Increased line height for better text flow */
+  }
+
+  .address-result:hover, .address-result:focus {
+    background-color: #f8f9fa; /* Even lighter background on hover/focus for a soft visual cue */
+    color: #0056b3; /* Highlight text to blue on hover/focus for better accessibility */
+    border-color: #0056b3; /* Matching border color on hover/focus for a cohesive look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Larger shadow for more prominent lift effect */
+  }
+
+  /* Enhanced focus state to ensure accessibility */
+  .address-result:focus {
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.5); /* A more noticeable focus ring */
+    outline: none; /* Removing default outline to rely on custom shadow */
+  }
+</style>
+
+
+{% endblock %}
+</html>
