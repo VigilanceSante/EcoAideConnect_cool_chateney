@@ -1,11 +1,7 @@
 from django import forms
-from .models import ContactForm  # Importez le modèle AidRequest
+from .models import HelpRequest
 
-class ContactFormForm(forms.ModelForm):
+class HelpForm(forms.ModelForm):  # This is the actual form class
     class Meta:
-        model = ContactForm
-        fields = '__all__'
-        widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-lg'}),
-            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control form-control-lg'}),
-        }
+        model = HelpRequest
+        fields = ['first_name', 'last_name', 'phone']

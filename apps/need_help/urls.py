@@ -1,12 +1,12 @@
 from django.urls import path
-from .views import FormLayoutsView
+from .views import FormLayoutsHelp
 
 
 
 urlpatterns = [
     path(
-        "form/layouts_vertical/",
-        FormLayoutsView.as_view(template_name="help.html"),
+        "need_help/",
+        FormLayoutsHelp.as_view(template_name="help.html"),
         name="help",
     )
 ]
