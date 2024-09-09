@@ -11,7 +11,7 @@ class FormLayoutsView(TemplateView):
         context['form'] = ContactFormForm()
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
         form = ContactFormForm(request.POST)
         if form.is_valid():
             form.save()

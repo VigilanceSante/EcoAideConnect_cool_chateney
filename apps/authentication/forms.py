@@ -1,46 +1,17 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 
-class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Enter your email'
-    }))
+class RegisterForm(forms.ModelForm):
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)  # Add password input
 
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password1']
-        widgets = {
-            'username': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter your username',
-                'autofocus': True
-            }),
-            'password1': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Enter your password'
-            }),
-        }
+        model = User  # Specify that this form is for the User model
+        fields = ['username', 'email']  # Only include fields that exist in the User model
 
     def save(self, commit=True):
-        user = super(RegisterForm, self).save(commit=False)
-        user.email = self.cleaned_data['email']
+        user = super().save(commit=False)
+        user.password = make_password(self.cleaned_data['password'])  # Hash the password manually
         if commit:
             user.save()
         return user
-    
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(widget=forms.TextInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Enter your email or username',
-        'autofocus': True
-    }))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={
-        'class': 'form-control',
-        'placeholder': 'Enter your password'
-    }))
-    remember_me = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={
-        'class': 'form-check-input'
-    }))
