@@ -1,10 +1,11 @@
 from django.views.generic import TemplateView
-from web_project import TemplateLayout
-from web_project.template_helpers.theme import TemplateHelper
-from .forms import RegisterForm, LoginForm
 from django.contrib.auth import login
 from django.shortcuts import redirect
 from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+from web_project import TemplateLayout
+from web_project.template_helpers.theme import TemplateHelper
+from .forms import RegisterForm, LoginForm
 
 """
 This file is a view controller for multiple pages as a module.
@@ -32,7 +33,6 @@ class RegisterView(TemplateView):
         if request.method == 'POST':
             form = RegisterForm(request.POST)
             if form.is_valid():
-                from django.contrib.auth.models import Group
                 user = form.save()
                 if User.objects.count() == 1:
                     # First user becomes an Admin
@@ -49,9 +49,8 @@ class RegisterView(TemplateView):
                 user.save()
                 context = self.get_context_data(**kwargs)
                 return redirect('index')
-            else:
-                context['form'] = form
-                return self.render_to_response(context)
+            context['form'] = form
+            return self.render_to_response(context)
 
 
 class LoginView(TemplateView):   
@@ -78,7 +77,6 @@ class LoginView(TemplateView):
                 if not form.cleaned_data.get('remember_me'):
                     request.session.set_expiry(0)
                 return redirect('index')
-            else:
-                context['form'] = form
-                return self.render_to_response(context)
+            context['form'] = form
+            return self.render_to_response(context)
             
