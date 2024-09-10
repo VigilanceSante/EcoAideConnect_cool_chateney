@@ -7,13 +7,6 @@ from web_project import TemplateLayout
 from web_project.template_helpers.theme import TemplateHelper
 from .forms import RegisterForm, LoginForm
 
-"""
-This file is a view controller for multiple pages as a module.
-Here you can override the page view layout.
-Refer to auth/urls.py file for more pages.
-"""
-
-
 class RegisterView(TemplateView):
     # Predefined function
     def get_context_data(self, **kwargs):
