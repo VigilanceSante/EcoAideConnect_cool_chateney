@@ -34,8 +34,8 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
             <div class="mb-3">
-                <label for="email" class="form-label">Email or Username</label>
-                {{ form.username }}
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="{{form.username.id_for_label}}" name="username" class="form-control form-control-lg" value="{{ form.username.value|default_if_none:'' }}">
                 {{ form.username.errors }}
             </div>
             <div class="mb-3 form-password-toggle">
@@ -46,18 +46,16 @@
                     </a>
                 </div>
                 <div class="input-group input-group-merge">
-                    {{ form.password }}
+                  <input type="password" id="{{form.password.id_for_label}}" name="password" class="form-control form-control-lg" value="{{ form.username.value|default_if_none:'' }}">
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                 </div>
                 {{ form.password.errors }}
             </div>
             <div class="mb-3">
-                <div class="form-check">
-                    {{ form.remember_me }}
-                    <label class="form-check-label" for="remember-me">
-                        Remember Me
-                    </label>
-                </div>
+              <div class="form-check">
+                <input type="checkbox" id="remember_me" name="remember_me" class="form-check-input">
+                <label class="form-check-label" for="remember_me">Remember me</label>
+            </div>
             </div>
             <div class="mb-3">
                 <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
