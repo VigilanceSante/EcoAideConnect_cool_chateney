@@ -4,6 +4,7 @@ from web_project.template_helpers.theme import TemplateHelper
 from .forms import RegisterForm, LoginForm
 from django.contrib.auth import login
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
 
 """
 This file is a view controller for multiple pages as a module.
@@ -31,15 +32,26 @@ class RegisterView(TemplateView):
         if request.method == 'POST':
             form = RegisterForm(request.POST)
             if form.is_valid():
-                form.save()
-                print('User created')
+                from django.contrib.auth.models import Group
+                user = form.save()
+                if User.objects.count() == 1:
+                    # First user becomes an Admin
+                    admin_group = Group.objects.get(name='admins')
+                    admin_group.user_set.add(user)
+                    user.is_staff = True
+                    user.is_superuser = True
+                else:
+                    # Other users become Standard Users
+                    standard_group = Group.objects.get(name='town_hall_employee_group')
+                    standard_group.user_set.add(user)
+                    user.is_staff = False
+                    user.is_superuser = False
+                user.save()
                 context = self.get_context_data(**kwargs)
                 return redirect('index')
             else:
-                print(form.errors)
-                print('User not created')
-                form = RegisterForm()
-            return self.render_to_response(context)
+                context['form'] = form
+                return self.render_to_response(context)
 
 
 class LoginView(TemplateView):   
@@ -56,7 +68,7 @@ class LoginView(TemplateView):
         return context
     
     def post(self, request, **kwargs):
-        
+        context = self.get_context_data(**kwargs)
         if request.method == 'POST':
             form = LoginForm(request.POST)
             if form.is_valid():
@@ -67,5 +79,5 @@ class LoginView(TemplateView):
                     request.session.set_expiry(0)
                 return redirect('index')
             else:
-                form = LoginForm()
+                context['form'] = form
                 return self.render_to_response(context)

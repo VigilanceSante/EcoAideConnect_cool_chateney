@@ -1,5 +1,9 @@
 from django.db import migrations
 
+# Il faut je pense retirer le startup user admin il sert a rien
+# Peut être que le admin user et standard user built in de django peut etre suffisant
+# Réfléchir aux potentiels rôles des employés de mairie
+
 def create_default_groups(apps, schema_editor):
     Group = apps.get_model('auth', 'Group')
     Permission = apps.get_model('auth', 'Permission')

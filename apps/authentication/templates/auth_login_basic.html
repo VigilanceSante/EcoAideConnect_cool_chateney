@@ -32,7 +32,7 @@
 
           <form id="formAuthentication" class="mb-3" action="{% url 'login' %}" method="post">
             {% csrf_token %}
-            {{ form.non_field_errors }}
+            <div class="text-danger">{{ form.non_field_errors }}</div>
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" id="{{form.username.id_for_label}}" name="username" class="form-control form-control-lg" value="{{ form.username.value|default_if_none:'' }}">
