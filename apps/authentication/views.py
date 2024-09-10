@@ -81,3 +81,4 @@ class LoginView(TemplateView):
             else:
                 context['form'] = form
                 return self.render_to_response(context)
+            
