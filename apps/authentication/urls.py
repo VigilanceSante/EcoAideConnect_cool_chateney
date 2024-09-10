@@ -1,3 +1,6 @@
+"""
+This module contains the URL configuration for the authentication app.
+"""
 from django.urls import path
 from .views import RegisterView, LoginView
 
