@@ -26,12 +26,11 @@ class RegisterView(TemplateView):
         )
 
         return context
-    
+
     def post(self, request, **kwargs):
         """
         Handle the POST request to register a new user.
         """
-        context = self.get_context_data(**kwargs)
         if request.method == 'POST':
             form = RegisterForm(request.POST)
             if form.is_valid():
@@ -51,11 +50,12 @@ class RegisterView(TemplateView):
                 user.save()
                 context = self.get_context_data(**kwargs)
                 return redirect('index')
+            context = self.get_context_data(**kwargs)
             context['form'] = form
             return self.render_to_response(context)
+        return self.render_to_response(self.get_context_data(**kwargs))
 
-
-class LoginView(TemplateView):   
+class LoginView(TemplateView):
     """
     A view to login a user.
     """
@@ -70,12 +70,11 @@ class LoginView(TemplateView):
         )
 
         return context
-    
+
     def post(self, request, **kwargs):
         """
         Handle the POST request to login a user.
         """
-        context = self.get_context_data(**kwargs)
         if request.method == 'POST':
             form = LoginForm(request.POST)
             if form.is_valid():
@@ -85,6 +84,8 @@ class LoginView(TemplateView):
                 if not form.cleaned_data.get('remember_me'):
                     request.session.set_expiry(0)
                 return redirect('index')
+            context = self.get_context_data(**kwargs)
             context['form'] = form
-            return self.render_to_response(context)
+        
+        return self.render_to_response(self.get_context_data(**kwargs))
             
