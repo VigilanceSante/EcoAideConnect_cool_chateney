@@ -16,7 +16,6 @@ class RegisterForm(forms.ModelForm):
             user.save()
         return user
     
-from django import forms
 from django.contrib.auth import authenticate
 
 class LoginForm(forms.Form):
