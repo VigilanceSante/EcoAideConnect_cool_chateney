@@ -1,7 +1,7 @@
 # apps/dashboard_volonteers/templatetags/availability_tags.py
 from django import template
 from django.utils.dateparse import parse_date
-from apps.volontaires.models import ContactForm
+from apps.volonteers.models import ContactForm
 
 register = template.Library()
 

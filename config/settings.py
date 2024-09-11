@@ -65,10 +65,11 @@ INSTALLED_APPS = [
     "apps.extended_ui",
     "apps.icons",
     "apps.forms",
-    "apps.volontaires",
+    "apps.volonteers",
     "apps.tables",
     "apps.dashboard_volonteers",
     "apps.need_help",
+    "apps.db_users",
 
 
 

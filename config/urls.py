@@ -50,7 +50,7 @@ urlpatterns = [
     path("", include("apps.forms.urls")),
 
     # FormLayouts urls
-    path("", include("apps.volontaires.urls")),
+    path("", include("apps.volonteers.urls")),
 
     # Tables urls
     path("", include("apps.tables.urls")),

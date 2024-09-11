@@ -3,7 +3,7 @@ from django.db.models import Count, F, ExpressionWrapper, fields, Sum
 from django.utils.timezone import now, timedelta
 from datetime import date
 from web_project import TemplateLayout
-from apps.volontaires.models import ContactForm
+from apps.volonteers.models import ContactForm
 import json
 
 class DashboardView(TemplateView):
