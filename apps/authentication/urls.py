@@ -1,21 +1,24 @@
+"""
+This module contains the URL configuration for the authentication app.
+"""
 from django.urls import path
-from .views import AuthView
+from .views import RegisterView, LoginView
 
 
 urlpatterns = [
     path(
         "auth/login/",
-        AuthView.as_view(template_name="auth_login_basic.html"),
-        name="auth-login-basic",
+        LoginView.as_view(template_name="auth_login_basic.html"),
+        name="login",
     ),
     path(
         "auth/register/",
-        AuthView.as_view(template_name="auth_register_basic.html"),
-        name="auth-register-basic",
+        RegisterView.as_view(template_name="auth_register_basic.html"),
+        name="register",
     ),
     path(
         "auth/forgot_password/",
-        AuthView.as_view(template_name="auth_forgot_password_basic.html"),
-        name="auth-forgot-password-basic",
+        RegisterView.as_view(template_name="auth_forgot_password_basic.html"),
+        name="password-reset",
     ),
 ]
