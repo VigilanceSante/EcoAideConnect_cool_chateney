@@ -35,10 +35,8 @@ def create_default_groups(apps, schema_editor):
     # Add permissions to the groups
     admins_group.permissions.add(add_user_permission, change_user_permission,
     delete_user_permission, view_user_permission)
-    admin_town_hall_employee_group.permissions.add(add_user_permission, 
+    admin_town_hall_employee_group.permissions.add(add_user_permission,
     change_user_permission, delete_user_permission, view_user_permission)
-    admin_startup_group.permissions.add(add_user_permission, change_user_permission,
-    delete_user_permission, view_user_permission)
     town_hall_employee_group.permissions.add(view_user_permission)
 
 class Migration(migrations.Migration):
