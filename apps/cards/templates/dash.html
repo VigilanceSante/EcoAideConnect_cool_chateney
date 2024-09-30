@@ -7,6 +7,7 @@
 
 {% block content %}
 <style>
+  /* Body Styles */
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background-color: #f9f9f9;
@@ -15,8 +16,9 @@
     padding: 0;
   }
 
+  /* Dashboard Container */
   .dashboard-container {
-    max-width: 1000px;
+    max-width: 1200px; /* Increased width for better layout */
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
@@ -24,172 +26,362 @@
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
   }
 
+  /* Dashboard Header */
   .dashboard-header {
     text-align: center;
     font-weight: 600;
-    font-size: 28px;
+    font-size: 32px;
     padding: 20px;
     color: #007aff;
   }
 
-  .dashboard-body {
+  /* Pollen and Pollution Sections */
+  .info-sections {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
     justify-content: space-between;
   }
 
-  .score-global {
+  /* Info Card Styles */
+  .info-card {
     background-color: #f1f1f1;
     border-radius: 15px;
-    padding: 20px;
+    padding: 15px; /* Reduced padding */
     text-align: center;
-    width: 100%;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-  }
-
-  .score-global h6 {
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #333;
-  }
-
-  .score-global .score-value {
-    font-size: 40px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #007aff;
-  }
-
-  .score-card {
-    background-color: #f1f1f1;
-    border-radius: 15px;
-    padding: 20px;
-    text-align: center;
-    width: 30%;
+    width: 48%; /* Two tiles per row */
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative; /* For tooltip positioning */
   }
 
-  .score-card:hover {
-    transform: translateY(-10px);
+  .info-card:hover {
+    transform: translateY(-5px);
     background-color: #fafafa;
   }
 
-  .score-card h6 {
-    font-size: 18px;
-    margin-bottom: 15px;
+  .info-card h6 {
+    font-size: 20px;
+    margin-bottom: 10px;
     color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For tooltip */
   }
 
-  .score-card .score-value {
+  .info-card h6 .icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+
+  /* Info Icon Styles */
+  .info-icon {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007aff;
+    font-size: 16px;
+    border: 1px solid #007aff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  /* Tooltip Styles */
+  .tooltip {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position above the icon */
+    left: 50%;
+    margin-left: -110px; /* Center the tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 14px;
+  }
+
+  /* Tooltip Arrow */
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  /* Show Tooltip on Hover */
+  .info-icon:hover .tooltip,
+  .info-icon:focus .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .info-card .info-value {
     font-size: 28px;
     font-weight: bold;
+    color: #007aff;
     margin-bottom: 5px;
-    transition: color 0.3s ease;
   }
 
-  .score-card .description {
+  .info-card .info-description {
     font-size: 14px;
     color: #666;
   }
 
-  /* Icônes pour chaque polluant */
-  .pollutant-icon {
-    font-size: 24px;
-    margin-right: 5px;
-    vertical-align: middle;
+  /* Pollutant Categories */
+  .pollution-category {
+    margin-top: 10px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
   }
 
-  /* Couleurs associées aux niveaux de qualité */
+  .pollution-category ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pollution-category li {
+    margin-bottom: 5px;
+  }
+
+  .pollution-category li::before {
+    content: "•";
+    color: #007aff;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+  }
+
+  /* Recommendations for Vulnerable Individuals */
+  .recommendations {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #ffe5e5;
+    border-left: 5px solid #ff3b30;
+    font-size: 14px;
+    color: #c40000;
+  }
+
+  /* Colors Associated with Quality Levels */
   .bonne { color: #34c759 !important; }
   .moyenne { color: #ffcc00 !important; }
   .degradee { color: #ff9500 !important; }
   .mauvaise { color: #ff3b30 !important; }
   .tres-mauvaise { color: #c40000 !important; }
 
-  /* Légende des niveaux de qualité */
+  /* Legend for Air Quality Levels */
   .legend {
-    margin-top: 20px;
-    font-size: 14px;
+    margin-top: 30px;
+    font-size: 16px;
     text-align: center;
   }
 
+  .legend div {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: #fff;
+  }
 
+  .legend h6 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
 
+  /* Specific Styles for Pollution Categories */
+
+  /* Weather Card Specific Styles */
+  .weather-card {
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 15px; /* Reduced padding */
+    text-align: center;
+    width: 48%; /* Same as other info-cards */
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative; /* For tooltip positioning */
+  }
+
+  .weather-card:hover {
+    transform: translateY(-5px);
+    background-color: #fafafa;
+  }
+
+  .weather-card h6 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative; /* For tooltip */
+  }
+
+  .weather-card h6 .icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+
+  /* Tooltip for Weather Card */
+  .weather-card .info-icon .tooltip {
+    width: 220px;
+    /* Tooltip styles inherited from general .tooltip */
+  }
+
+  .weather-card .weather-info {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007aff;
+    margin-bottom: 5px;
+  }
+
+  .weather-card .weather-details {
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .info-card, .weather-card {
+      width: 100%; /* Stack tiles on smaller screens */
+    }
+  }
 </style>
 
 <div class="dashboard-container">
   <div class="dashboard-header">Qualité de l'air à Châtenay-Malabry</div>
 
-  <!-- Tuile pour le Score Global -->
-  <div class="score-global">
-    <h6>Score Global de la Qualité de l'air</h6>
-    <div class="score-value {{ indice_class }}">{{ indice }}</div>
-    <div class="description">
-      Ce score est basé sur l'indice global de la qualité de l'air, prenant en compte tous les polluants principaux.
-    </div>
-  </div>
-
-  <!-- Cartes des polluants -->
-  <div class="dashboard-body">
-        <!-- Carte polnen -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-industry"></i>Pollen</h6>
-      <div class="score-value {{ so2_class }}"> Pollen</div>
-      <div class="description">
-        Provient des industries et des centrales à charbon.
-      </div>
-    </div>
-    <!-- Carte PM10 -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-wind"></i>PM 10</h6>
-      <div class="score-value {{ pm10_class }}">{{ PM10 }}</div>
-      <div class="description">
-        Particules de 10 µm ou moins, proviennent du chauffage au bois, du trafic routier et des épandages et labours agricoles. 
-      </div>
-    </div>
-
-    <!-- Carte PM2.5 -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-smog"></i>PM 2.5</h6>
-      <div class="score-value {{ pm25_class }}">{{ PM25 }}</div>
-      <div class="description">
-        Particules ultra-fines de 2,5 µm ou moins, proviennent du chauffage au bois, du trafic routier et des activités de chantier
-      </div>
-    </div>
-
-
+  <!-- Pollen and Pollution Sections -->
+  <div class="info-sections">
     
+    <!-- Weather Section -->
+    <div class="weather-card">
+      <h6>
+        <i class="fas fa-sun icon"></i>
+        Météo Actuelle
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-weather">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-weather">Informations sur les conditions météorologiques actuelles.</span>
+        </span>
+      </h6>
+      <div class="weather-info">{{ temperature }}°C - {{ weather_condition }}</div>
+      <div class="weather-details">Vent : {{ wind_speed }} km/h | Humidité : {{ humidity }}%</div>
+    </div>
 
-    <!-- Carte Ozone -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-cloud"></i>Ozone (O<sub>3</sub>)</h6>
-      <div class="score-value {{ o3_class }}">{{ O3 }}</div>
-      <div class="description">
-        L'ozone résulte de la transformation chimique de l'oxygène au contact d'oxydes d'azote et d'hydrocarbures, en présence de rayonnement ultra-violet solaire et d'une température élevée.
+    <!-- Particulate Matter Pollution Tile -->
+    <div class="info-card">
+      <h6>
+        <i class="fas fa-cloud icon"></i>
+        Particules en Suspension
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-pm">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-pm">
+            Effets sur la santé :
+            <br>PM10 : Irritation des voies respiratoires.
+            <br>PM2.5 : Risques cardiovasculaires et respiratoires.
+          </span>
+        </span>
+      </h6>
+      <div class="info-value">
+        <div class="pollution-category pollution-particules">
+          <strong>Particules en Suspension :</strong><br>
+          PM10 : <span class="{{ pm10_class }}">{{ PM10 }}</span><br>
+          PM2.5 : <span class="{{ pm25_class }}">{{ PM25 }}</span>
+        </div>
+      </div>
+
+      <!-- Recommendations for Vulnerable Individuals -->
+      <div class="recommendations">
+        <strong>Recommandations :</strong>
+        {% if indice >= 150 %}
+          <p>Évitez les activités physiques en extérieur. Restez à l'intérieur et utilisez un purificateur d'air si possible.</p>
+        {% elif indice >= 100 %}
+          <p>Limitez les activités physiques intenses à l'extérieur. Gardez les fenêtres fermées.</p>
+        {% else %}
+          <p>Les niveaux de pollution sont modérés. Faites attention si vous avez des problèmes respiratoires.</p>
+        {% endif %}
       </div>
     </div>
 
-    <!-- Carte NO2 -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-car"></i>Dioxyde d'azote (NO<sub>2</sub>)</h6>
-      <div class="score-value {{ no2_class }}">{{ NO2 }}</div>
-      <div class="description">
-        Irrite les voies respiratoires, provient des émissions de véhicules. 
+    <!-- Gaseous Pollutants Pollution Tile -->
+    <div class="info-card">
+      <h6>
+        <i class="fas fa-smog icon"></i>
+        Gaz Polluants
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-gaz">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-gaz">
+            Effets sur la santé :
+            <br>Ozone (O₃) : Aggravation de l'asthme et des allergies.
+            <br>NO₂ : Inflammation des poumons.
+            <br>SO₂ : Irritation des yeux et des voies respiratoires.
+          </span>
+        </span>
+      </h6>
+      <div class="info-value">
+        <div class="pollution-category pollution-gaz">
+          <strong>Gaz Polluants :</strong><br>
+          Ozone (O<sub>3</sub>) : <span class="{{ o3_class }}">{{ O3 }}</span><br>
+          NO<sub>2</sub> : <span class="{{ no2_class }}">{{ NO2 }}</span><br>
+          SO<sub>2</sub> : <span class="{{ so2_class }}">{{ SO2 }}</span>
+        </div>
+      </div>
+
+      <!-- Recommendations for Vulnerable Individuals -->
+      <div class="recommendations">
+        <strong>Recommandations :</strong>
+        {% if indice >= 150 %}
+          <p>Évitez les activités physiques en extérieur. Restez à l'intérieur et utilisez un purificateur d'air si possible.</p>
+        {% elif indice >= 100 %}
+          <p>Limitez les activités physiques intenses à l'extérieur. Gardez les fenêtres fermées.</p>
+        {% else %}
+          <p>Les niveaux de pollution sont modérés. Faites attention si vous avez des problèmes respiratoires.</p>
+        {% endif %}
       </div>
     </div>
 
-    <!-- Carte SO2 -->
-    <div class="score-card">
-      <h6><i class="pollutant-icon fas fa-industry"></i>Dioxyde de soufre (SO<sub>2</sub>)</h6>
-      <div class="score-value {{ so2_class }}">{{ SO2 }}</div>
-      <div class="description">
-        Provient des industries et des centrales à charbon.
-      </div>
+    <!-- Pollen Section -->
+    <div class="info-card">
+      <h6>
+        <i class="fas fa-leaf icon"></i>
+        Pollen Général
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-pollen">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-pollen">Niveau de pollen provenant des plantes et arbres.</span>
+        </span>
+      </h6>
+      <div class="info-value {{ pollen_class }}">{{ pollen_level }}</div>
+      <div class="info-description">Niveau de pollen provenant des plantes et arbres.</div>
     </div>
+
   </div>
 
-
+  <!-- Legend for Air Quality Levels -->
+  <div class="legend">
+    <h6>Légende de la Qualité de l'air :</h6>
+    <div class="bonne">Bonne</div>
+    <div class="moyenne">Moyenne</div>
+    <div class="degradee">Dégradée</div>
+    <div class="mauvaise">Mauvaise</div>
+    <div class="tres-mauvaise">Très Mauvaise</div>
+  </div>
+</div>
 {% endblock %}
