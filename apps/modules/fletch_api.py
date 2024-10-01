@@ -4,6 +4,7 @@ import requests
 import json
 from typing import Dict, Any
 
+
 class WeatherData:
     def __init__(self, lat: float = 48.7651, lon: float = 2.2666):
         self.lat = lat
@@ -24,24 +25,26 @@ class WeatherData:
             temp = round(weather_data['main']['temp'], 1)
             location = weather_data['name']
             description = weather_data['weather'][0]['description'].capitalize()
-            humidity = weather_data['main']['humidity']
-            wind_speed = round(weather_data['wind']['speed'] * 3.6, 1)
-            wind_direction = weather_data['wind']['deg']
             max_temp = round(weather_data['main']['temp_max'], 1)
             min_temp = round(weather_data['main']['temp_min'], 1)
             feel_like = round(weather_data['main']['feels_like'], 1)
 
             # Conversion de la direction du vent en cardinal
+            wind_speed = round(weather_data['wind']['speed'] * 3.6, 1)
+            wind_direction = weather_data['wind']['deg']
             wind_direction_cardinal = WeatherData.deg_to_cardinal(wind_direction)
 
+            # Récupération des données de pollution
+            pollution_data = PollutionData.get_pollution_data()
+            pollution_index = pollution_data.get('indice', 'Non disponible')
+
             # Génération des conseils
-            advice = WeatherData.get_advice(temp, description, humidity, wind_speed)
+            advice = WeatherData.get_advice(temp, pollution_index)
 
             return {
                 'temperature': temp,
                 'location': location,
                 'description': description,
-                'humidity': humidity,
                 'wind_speed': wind_speed,
                 'wind_direction': wind_direction_cardinal,
                 'max_temp': max_temp,
@@ -56,7 +59,6 @@ class WeatherData:
                 'temperature': 'N/A',
                 'location': 'Inconnue',
                 'description': 'Aucune donnée disponible',
-                'humidity': 'N/A',
                 'wind_speed': 'N/A',
                 'wind_direction': 'N/A',
                 'max_temp': 'N/A',
@@ -73,7 +75,7 @@ class WeatherData:
         return directions[ix]
 
     @staticmethod
-    def get_advice(temp: float, description: str, humidity: int, wind_speed: float) -> str:
+    def get_advice(temp: float, pollution_index: str) -> str:
         advice = []
 
         # Conseils basés sur la température
@@ -92,33 +94,20 @@ class WeatherData:
         else:
             advice.append("Il fait extrêmement chaud. Prenez des mesures pour vous protéger de la chaleur excessive.")
 
-        # Conseils basés sur la description météo
-        description_advice = {
-            'Ciel dégagé': "Le ciel est dégagé. Protégez-vous avec de la crème solaire et des lunettes de soleil.",
-            'Peu nuageux': "Il y a quelques nuages. Profitez de la journée avec des vêtements appropriés.",
-            'Nuages épars': "Il y a des nuages épars. Vérifiez la météo régulièrement pour les changements.",
-            'Nuages fragmentés': "Il y a des nuages fragmentés. Aucun changement majeur attendu.",
-            'Averse de pluie': "Il y a une averse de pluie. Prenez un parapluie ou un imperméable.",
-            'Orage': "Il y a un orage. Restez à l'intérieur et évitez les activités extérieures.",
-            'Neige': "Il neige. Conduisez prudemment et restez au chaud.",
-            'Brume': "Il y a de la brume. Conduisez prudemment et maintenez une bonne visibilité."
+        # Conseils basés sur l'indice de pollution
+        pollution_advice = {
+            'Bonne': "L'air est de bonne qualité. Profitez de votre journée à l'extérieur.",
+            'Moyenne': "L'air est de qualité moyenne. Faites attention si vous êtes sensible aux allergies.",
+            'Dégradée': "L'air est dégradé. Limitez les activités physiques en extérieur, surtout pour les personnes sensibles.",
+            'Mauvaise': "L'air est de mauvaise qualité. Évitez les activités physiques à l'extérieur et restez à l'intérieur si possible.",
+            'Très mauvaise': "L'air est très mauvais. Restez à l'intérieur et utilisez un purificateur d'air si disponible.",
+            "Extrêmement mauvaise" : "L'air est extrêmement mauvais. Évitez de sortir et portez un masque si vous devez absolument sortir."
         }
 
-        advice.append(description_advice.get(description, "Des conditions météorologiques variées."))
-
-        # Conseils basés sur l'humidité
-        if int(humidity) > 80:
-            advice.append("L'humidité est élevée. Vous pourriez vous sentir collant et il pourrait y avoir un risque de moisissure.")
-        elif int(humidity) < 30:
-            advice.append("L'humidité est basse. Utilisez une crème hydratante pour éviter la sécheresse de la peau.")
-
-        # Conseils basés sur la vitesse du vent
-        if wind_speed > 50:
-            advice.append("Le vent est très fort. Évitez les activités en extérieur et sécurisez les objets légers.")
-        elif wind_speed > 20:
-            advice.append("Il y a du vent. Faites attention aux rafales et sécurisez vos affaires.")
+        advice.append(pollution_advice.get(pollution_index, "État de l'air non précisé, restez vigilant."))
 
         return " ".join(advice)
+
 
 class PollutionData:
     @staticmethod
@@ -178,9 +167,11 @@ class PollutionData:
             2: 'Moyenne',
             3: 'Dégradée',
             4: 'Mauvaise',
-            5: 'Très mauvaise'
+            5: 'Très mauvaise',
+            6: 'Extrêmement mauvaise'
         }
         return mapping.get(value, 'Extrêmement mauvaise' if value not in mapping else 'Non disponible')
+
 
 class CombinedData(TemplateView):
 
