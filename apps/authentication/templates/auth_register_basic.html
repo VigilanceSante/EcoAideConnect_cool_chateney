@@ -24,66 +24,52 @@
           <h4 class="mb-2">Adventure starts here 🚀</h4>
           <p class="mb-4">Make your app management easy and fun!</p>
 
-          <form id="formAuthentication" class="mb-3" action="{% url 'index' %}">
+          <form id="formAuthentication" class="mb-3" action="{% url 'register' %}" method="post">
             {% csrf_token %}
+            {{ form.non_field_errors }}
+        
             <div class="mb-3">
-              <label for="username" class="form-label">Username</label>
-              <input
-                type="text"
-                class="form-control"
-                id="username"
-                name="username"
-                placeholder="Enter your username"
-                autofocus
-              />
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="{{form.username.id_for_label}}" name="username" class="form-control form-control-lg" value="{{ form.username.value|default_if_none:'' }}">
+                <div>{{ form.username.errors }}</div>
             </div>
+        
             <div class="mb-3">
-              <label for="email" class="form-label">Email</label>
-              <input
-                type="text"
-                class="form-control"
-                id="email"
-                name="email"
-                placeholder="Enter your email"
-              />
+                <label for="email" class="form-label">Email</label>
+                <input type="text" id="{{form.email.id_for_label}}" name="email" class="form-control form-control-lg" value="{{ form.email.value|default_if_none:'' }}">
+                {% if form.email.errors %}
+                    <div class="text-danger">
+                        {{ form.email.errors }}
+                    </div>
+                {% endif %}
             </div>
+        
             <div class="mb-3 form-password-toggle">
-              <label class="form-label" for="password">Password</label>
-              <div class="input-group input-group-merge">
-                <input
-                  type="password"
-                  id="password"
-                  class="form-control"
-                  name="password"
-                  placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                  aria-describedby="password"
-                />
-                <span class="input-group-text cursor-pointer"
-                  ><i class="bx bx-hide"></i
-                ></span>
-              </div>
+                <label class="form-label" for="password">Password</label>
+                <div class="input-group input-group-merge">
+                  <input type="password" id="{{form.password.id_for_label}}" name="password" class="form-control form-control-lg" value="{{ form.password.value|default_if_none:'' }}">
+                    <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
+                </div>
+                {{ form.password.errors }}
             </div>
-
+        
             <div class="mb-3">
-              <div class="form-check">
-                <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="terms-conditions"
-                  name="terms"
-                />
-                <label class="form-check-label" for="terms-conditions">
-                  I agree to
-                  <a href="javascript:void(0);">privacy policy & terms</a>
-                </label>
-              </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
+                    <label class="form-check-label" for="terms-conditions">
+                        I agree to
+                        <a href="javascript:void(0);">privacy policy & terms</a>
+                    </label>
+                </div>
             </div>
+        
             <button class="btn btn-primary d-grid w-100">Sign up</button>
-          </form>
+        </form>
+        
 
           <p class="text-center">
             <span>Already have an account?</span>
-            <a href="{% url 'auth-login-basic' %}">
+            <a href="{% url 'login' %}">
               <span>Sign in instead</span>
             </a>
           </p>
