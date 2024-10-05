@@ -3,190 +3,378 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Tableau de Bord CoolChateney{% endblock %}
-
-{% block vendor_css %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
-{% endblock %}
-
-{% block vendor_js %}
-{{ block.super }}
-<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
-{% endblock %}
-
-{% block page_js %}
-{{ block.super }}
-<script src="{% static 'js/dashboards-analytics.js' %}"></script>
-{% endblock %}
+{% block title %}Tableau de Bord Qualité de l'air{% endblock %}
 
 {% block content %}
-<!-- Feuilles de style externes pour les icônes et les cartes -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
+  /* Body Styles */
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f7f9;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f9f9f9;
     color: #333;
     margin: 0;
     padding: 0;
   }
 
-  .container {
-    padding: 20px;
-    max-width: 1200px;
+  /* Dashboard Container */
+  .dashboard-container {
+    max-width: 1400px;
     margin: auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
   }
 
-  .row {
+  /* Dashboard Header */
+  .dashboard-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 32px;
+    padding: 10px;
+    color: #007aff;
+  }
+
+  /* Pollen and Pollution Sections */
+  .info-sections {
     display: flex;
     flex-wrap: wrap;
     gap: 20px;
+    justify-content: space-between;
   }
 
-  .card {
-    position: relative;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    background-color: #fff;
-    transition: all 0.3s ease;
-    flex: 1 0 21%; /* Ajustez selon les points de rupture réactifs */
-    padding: 20px;
+  /* Info Card Styles */
+  .info-card,
+  .weather-card {
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 15px;
     text-align: center;
+    width: 48%;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
   }
 
-  .card:hover {
-    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  .info-card:hover,
+  .weather-card:hover {
     transform: translateY(-5px);
+    background-color: #fafafa;
   }
 
-  .card-icon {
-    font-size: 3rem;
+  .info-card h6,
+  .weather-card h6 {
+    font-size: 20px;
     margin-bottom: 10px;
-  }
-
-  /* Infobulle améliorée */
-  .tooltip-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    color: #333;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #888;
-    font-size: 0.875rem;
-    font-weight: bold;
-    background-color: #e9ecef;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
+  }
+
+  .info-card h6 .icon,
+  .weather-card h6 .icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+
+  /* Info Icon Styles */
+  .info-icon {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #007aff;
+    font-size: 16px;
+    border: 1px solid #007aff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: bold;
   }
 
-  .tooltip-icon:hover {
-    background-color: #007bff;
-    color: #fff;
-  }
-
-  .tooltip-icon[data-toggle="tooltip"]::after {
-    content: attr(title);
-    display: none;
-    position: absolute;
-    top: -35px;
-    right: 0;
+  /* Tooltip Styles */
+  .tooltip {
+    visibility: hidden;
+    width: 220px;
     background-color: #333;
     color: #fff;
-    padding: 5px 10px;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Tooltip Arrow */
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  /* Show Tooltip on Hover */
+  .info-icon:hover .tooltip,
+  .info-icon:focus .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .info-card .info-value,
+  .weather-card .weather-info {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007aff;
+    margin-bottom: 5px;
+  }
+
+  .info-card .pollution-category,
+  .info-card .pollen-levels,
+  .weather-card .weather-details {
+    margin-top: 10px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+  }
+
+  /* Recommendations for Vulnerable Individuals */
+  .recommendations {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #ffe5e5;
+    border-left: 5px solid #ff3b30;
+    font-size: 14px;
+    color: #c40000;
+  }
+
+  /* Air Quality Levels and Pollens */
+  .faible {
+    color: #34c759 !important;
+  }
+
+  .moyen {
+    color: #ffcc00 !important;
+  }
+
+  .degrade {
+    color: #ff9500 !important;
+  }
+
+  .mauvais {
+    color: #ff3b30 !important;
+  }
+
+  .tres-mauvais {
+    color: #c40000 !important;
+  }
+
+  /* Legend for Air Quality Levels */
+  .legend {
+    margin-top: 30px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .legend div {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 8px 12px;
     border-radius: 5px;
-    font-size: 0.75rem;
-    font-weight: normal;
-    white-space: nowrap;
-    z-index: 10;
+    color: #fff;
   }
 
-  .tooltip-icon:hover::after {
-    display: block;
+  .legend h6 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
   }
 
-  @media (min-width: 576px) {
-    .col-md-6 {
-      flex: 0 0 50%;
-    }
-  }
+  /* Responsive Design */
+  @media (max-width: 768px) {
 
-  @media (min-width: 768px) {
-    .col-lg-3 {
-      flex: 0 0 25%;
+    .info-card,
+    .weather-card {
+      width: 100%;
+      /* Stack tiles on smaller screens */
     }
   }
 </style>
 
-<div class="container">
-  <!-- Grille de 4 tuiles -->
-  <div class="row">
-    <!-- Tuile 1 : Température Actuelle -->
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-      <div class="card">
-        <i class="fas fa-thermometer-half card-icon text-primary"></i>
-        <div class="tooltip-icon" data-toggle="tooltip" title="Indique la température actuelle">?</div>
-        <h5 class="card-title">Température Actuelle</h5>
-        <p class="card-text">
-          <span class="h1">25&deg;C</span><br>
-          <small class="text-muted">Données factices pour démonstration</small>
-        </p>
-        <p>
-          Max : 30&deg;C, Min : 20&deg;C<br>
-          Humidité : 60%
-        </p>
-        <div class="alert alert-info">
-          Portez des vêtements légers et restez hydraté.
-        </div>
+<div class="dashboard-container">
+  <div class="dashboard-header">Châtenay-Malabry</div>
+
+  <!-- Pollen and Pollution Sections -->
+  <div class="info-sections">
+
+    <!-- Weather Section -->
+    <div class="weather-card">
+      <h6>
+        <i class="fas fa-sun icon"></i>
+        Météo Actuelle
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-weather">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-weather">
+            Informations sur les conditions météorologiques actuelles. Une chaleur excessive peut entraîner des coups de
+            chaleur, tandis qu'un froid extrême peut provoquer l'hypothermie.
+          </span>
+        </span>
+      </h6>
+      <div class="weather-info">{{ temperature }}°C - {{ description }}</div>
+      <div class="weather-details">Vent : {{ wind_speed }} km/h </div>
+
+      {% if temperature >= 25 or temperature < 5 %} <div class="recommendations">
+        <strong>Recommandations Météo :</strong>
+        {% if temperature >= 35 %}
+        <p>Il fait extrêmement chaud. Buvez beaucoup d'eau, évitez les activités physiques et restez dans un endroit
+          frais.</p>
+        {% elif temperature >= 25 %}
+        <p>Il fait chaud. Portez des vêtements légers et buvez régulièrement de l'eau.</p>
+        {% elif temperature < 5 %} <p>Il fait froid. Habillez-vous chaudement et évitez les sorties prolongées sans
+          protection appropriée.</p>
+          {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Particulate Matter Pollution Tile -->
+  <div class="info-card">
+    <h6>
+      <i class="fas fa-cloud icon"></i>
+      Particules en suspension
+      <span class="info-icon" tabindex="0" aria-describedby="tooltip-pm">
+        i
+        <span class="tooltip" role="tooltip" id="tooltip-pm">
+          Effets sur la santé :
+          <br>PM10 : Peut irriter les voies respiratoires, surtout chez les personnes souffrant d'asthme.
+          <br>PM2.5 : Risque accru de maladies cardiovasculaires et respiratoires.
+        </span>
+      </span>
+    </h6>
+    <div class="info-value">
+      <div class="pollution-category">
+        PM10 : <span class="{{ pm10_class }}">{{ PM10 }}</span><br>
+        PM2.5 : <span class="{{ pm25_class }}">{{ PM25 }}</span>
       </div>
     </div>
 
-    <!-- Tuile 2 : Indice de Pollution -->
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-      <div class="card">
-        <i class="fas fa-smog card-icon text-info"></i>
-        <div class="tooltip-icon" data-toggle="tooltip" title="Qualité globale de l'air actuellement">?</div>
-        <h5 class="card-title">Indice de Pollution</h5>
-        <p class="card-text">
-          <span class="h1">Modéré</span><br>
-          <small class="text-muted">Qualité de l'air globale</small>
-        </p>
+    {% if PM10 != 'Faible' and PM10 != 'Moyen' or PM25 != 'Faible' and PM25 != 'Moyen' %}
+    <div class="recommendations">
+      <strong>Recommandations :</strong>
+      {% if PM10 == 'Dégradée' or PM25 == 'Dégradée' %}
+      <p>Les niveaux de particules sont modérés. Les personnes sensibles devraient limiter les efforts prolongés à
+        l'extérieur.</p>
+      {% elif PM10 == 'Mauvaise' or PM25 == 'Mauvaise' %}
+      <p>Limitez les activités physiques intenses en extérieur, surtout pour les personnes sensibles.</p>
+      {% elif PM10 == 'Très mauvaise' or PM25 == 'Très mauvaise' %}
+      <p>Les niveaux de particules en suspension sont extrêmement élevés. Les personnes vulnérables (enfants, personnes
+        âgées, personnes atteintes de maladies respiratoires) devraient éviter toute activité en extérieur.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Gaseous Pollutants Pollution Tile -->
+  <div class="info-card">
+    <h6>
+      <i class="fas fa-smog icon"></i>
+      Gaz polluants
+      <span class="info-icon" tabindex="0" aria-describedby="tooltip-gaz">
+        i
+        <span class="tooltip" role="tooltip" id="tooltip-gaz">
+          Effets sur la santé :
+          <br>Ozone (O₃) : Peut aggraver l'asthme et augmenter les réactions allergiques.
+          <br>NO₂ : Contribue à l'inflammation pulmonaire.
+          <br>SO₂ : Peut irriter les yeux et les voies respiratoires.
+        </span>
+      </span>
+    </h6>
+    <div class="info-value">
+      <div class="pollution-category">
+        Ozone (O<sub>3</sub>) : <span class="{{ o3_class }}">{{ O3 }}</span><br>
+        NO<sub>2</sub> : <span class="{{ no2_class }}">{{ NO2 }}</span><br>
+        SO<sub>2</sub> : <span class="{{ so2_class }}">{{ SO2 }}</span>
       </div>
     </div>
 
-    <!-- Tuile 3 : Niveau d'Ozone (O3) -->
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-      <div class="card">
-        <i class="fas fa-cloud-sun card-icon text-warning"></i>
-        <div class="tooltip-icon" data-toggle="tooltip" title="Concentration d'ozone (O3) dans l'air">?</div>
-        <h5 class="card-title">Niveau d'Ozone (O3)</h5>
-        <p class="card-text">
-          <span class="h1">120</span><br>
-          <small class="text-muted">Concentration dans l'air</small>
-        </p>
+    {% if O3 != 'Faible' or NO2 != 'Faible' or SO2 != 'Faible' %}
+    <div class="recommendations">
+      <strong>Recommandations :</strong>
+      {% if O3 == 'Moyen' or NO2 == 'Moyen' or SO2 == 'Moyen' %}
+      <p>Les niveaux des gaz polluants sont modérés. Si vous avez des problèmes respiratoires, prenez des précautions en
+        limitant les efforts prolongés.</p>
+      {% elif O3 == 'Dégradée' or NO2 == 'Dégradée' or SO2 == 'Dégradée' %}
+      <p>Les niveaux de gaz sont dégradés. Si vous avez des problèmes respiratoires, évitez les efforts prolongés à
+        l'extérieur.</p>
+      {% elif O3 == 'Mauvaise' or NO2 == 'Mauvaise' or SO2 == 'Mauvaise' %}
+      <p>Les personnes vulnérables devraient limiter leurs activités extérieures, particulièrement pendant les heures de
+        pointe de pollution.</p>
+      {% elif O3 == 'Très mauvaise' or NO2 == 'Très mauvaise' or SO2 == 'Très mauvaise' %}
+      <p>Les niveaux de gaz polluants sont extrêmement élevés. Restez à l'intérieur, fermez les fenêtres, et évitez
+        toute activité en extérieur.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Pollen Section -->
+  <!-- Section des Pollens -->
+  <div class="info-card">
+    <h6>
+      <i class="fas fa-leaf icon"></i>
+      Pollens
+      <span class="info-icon" tabindex="0" aria-describedby="tooltip-pollen">
+        i
+        <span class="tooltip" role="tooltip" id="tooltip-pollen">
+          Effets sur la santé :
+          <br>Un niveau élevé de pollen peut provoquer des réactions allergiques, notamment pour les personnes sensibles
+          (asthmatiques, allergiques saisonniers).
+        </span>
+      </span>
+    </h6>
+    <div class="info-value">
+      <div class="pollen-levels">
+        Arbres : <span class="{{ tree_pollen_class|lower }}">{{ tree_pollen_risk }}</span><br>
+        Herbacés : <span class="{{ grass_pollen_class|lower }}">{{ grass_pollen_risk }}</span>
       </div>
     </div>
 
-    <!-- Tuile 4 : Particules PM10 -->
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-      <div class="card">
-        <i class="fas fa-smog card-icon text-success"></i>
-        <div class="tooltip-icon" data-toggle="tooltip" title="Niveau de particules fines PM10">?</div>
-        <h5 class="card-title">Particules PM10</h5>
-        <p class="card-text">
-          <span class="h1">150</span><br>
-          <small class="text-muted">Matières particulaires dans l'air</small>
-        </p>
-      </div>
+    <!-- Recommandations pour les personnes vulnérables -->
+    {% if tree_pollen_risk != 'Faible' or grass_pollen_risk != 'Faible' %}
+    <div class="recommendations">
+      <strong>Recommandations :</strong>
+      {% if tree_pollen_risk == 'Modérée' or grass_pollen_risk == 'Modérée' %}
+      <p>Les niveaux de pollen sont modérés. Les personnes allergiques devraient être vigilantes, surtout lorsqu'elles
+        passent du temps à l'extérieur.</p>
+      {% elif tree_pollen_risk == 'Élevée' or grass_pollen_risk == 'Élevée' %}
+      <p>Le niveau de pollen est élevé. Limitez les activités extérieures, en particulier pendant les heures de pointe,
+        et envisagez de prendre des antihistaminiques.</p>
+      {% elif tree_pollen_risk == 'Très élevée' or grass_pollen_risk == 'Très élevée' %}
+      <p>Le niveau de pollen est très élevé. Les personnes souffrant d'allergies devraient éviter de sortir, garder les
+        fenêtres fermées, et prendre des traitements antiallergiques si nécessaire.</p>
+      {% endif %}
     </div>
+    {% endif %}
+  </div>
+
+  <!-- Legend for Air Quality Levels -->
+  <div class="legend">
+    <h6>Légende :</h6>
+    <div class="faible">Faible</div>
+    <div class="moyen">Moyen</div>
+    <div class="degrade">Dégradée</div>
+    <div class="mauvais">Mauvaise</div>
+    <div class="tres-mauvais">Très Mauvaise</div>
   </div>
 </div>
 {% endblock %}

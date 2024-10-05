@@ -1,21 +1,10 @@
-{% extends layout_path %}
-
-{% load static %}
-{% load i18n %}
-
-{% block title %}Register - Pages{% endblock %}
-
-{% block page_css %}
-{{ block.super }}
-<link rel="stylesheet" href="{% static  'vendor/css/pages/page-auth.css' %}">
-{% endblock page_css %}
-
-
-{% block content %}
+{% extends layout_path %} {% load static %} {% load i18n %} {% block title
+%}Register - Pages{% endblock %} {% block page_css %} {{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/page-auth.css' %}" />
+{% endblock page_css %} {% block content %}
 <div class="container-xxl">
   <div class="authentication-wrapper authentication-basic container-p-y">
     <div class="authentication-inner">
-
       <!-- Register Card -->
       <div class="card">
         <div class="card-body">
@@ -23,9 +12,12 @@
           <div class="app-brand justify-content-center">
             <a href="{% url 'index' %}" class="app-brand-link gap-2">
               <span class="app-brand-logo demo">
-                {% include 'partials/logo.html' with width=25 withbg="#696cff" %}
+                {% include 'partials/logo.html' with width=25 withbg="#2A422B"
+                %}
               </span>
-              <span class="app-brand-text demo text-body fw-bold">{% get_theme_variables 'template_name' %}</span>
+              <span class="app-brand-text demo text-body fw-bold"
+                >{% get_theme_variables 'template_name' %}</span
+              >
             </a>
           </div>
           <!-- /Logo -->
