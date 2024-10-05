@@ -125,9 +125,16 @@ class WeatherData:
         }
 
 
+
 class PollutionData:
     @staticmethod
     def get_pollution_data() -> Dict[str, str]:
+        """
+        Fetches pollution data from the Airparif API and converts numeric indices to textual descriptions.
+        
+        Returns:
+            Dict[str, str]: A dictionary containing pollution metrics with textual descriptions.
+        """
         auth_key = os.getenv('AIRPARIF_API_KEY')
         if not auth_key:
             logger.error("Airparif API key is not set.")
@@ -141,48 +148,81 @@ class PollutionData:
             f"BBOX=595114.0466738944%2C2419223.466502076%2C595214.0466738944%2C2419323.466502076&AUTHKEY={auth_key}"
         )
 
+        # Initialize pollution_data with default values to prevent UnboundLocalError
+        pollution_data = PollutionData._default_pollution_response()
+        logger.debug("Initialized pollution_data with default values.")
+
         try:
             response = requests.get(url)
             response.raise_for_status()
             data = response.json()
+            logger.debug(f"Received pollution data response: {data}")
 
-            # Extract values and populate the dictionary
-            for feature in data.get("features", []):
-                properties = feature.get("properties", {})
-                pollution_data = {
+            features = data.get("features", [])
+            if not features:
+                logger.warning("No features found in pollution data response.")
+                # pollution_data remains as default
+            else:
+                # Extract values from the first feature
+                properties = features[0].get("properties", {})
+                logger.debug(f"Extracted properties from first feature: {properties}")
+
+                # Update pollution_data with actual values if available
+                pollution_data.update({
                     'indice': properties.get('indice', 'Non disponible'),
                     'O3': properties.get('o3', 'Non disponible'),
                     'NO2': properties.get('no2', 'Non disponible'),
                     'PM10': properties.get('pm10', 'Non disponible'),
                     'PM25': properties.get('pm25', 'Non disponible'),
                     'SO2': properties.get('so2', 'Non disponible')
-                }
-                break  # Use the first feature only
-
-            return {key: PollutionData.numeric_to_text(value) for key, value in pollution_data.items()}
+                })
+                logger.debug(f"Updated pollution_data with API values: {pollution_data}")
 
         except requests.RequestException as e:
             logger.error(f"HTTP Request failed: {e}")
         except json.JSONDecodeError as e:
             logger.error(f"Failed to decode JSON: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
 
-        return PollutionData._default_pollution_response()
+        # Convert numeric pollution data to textual descriptions
+        converted_data = {key: PollutionData.numeric_to_text(value) for key, value in pollution_data.items()}
+        logger.debug(f"Converted pollution_data to text: {converted_data}")
+
+        return converted_data
 
     @staticmethod
     def numeric_to_text(value: Any) -> str:
+        """
+        Converts numeric pollution indices to their corresponding textual descriptions.
+        
+        Args:
+            value (Any): The numeric pollution index.
+        
+        Returns:
+            str: The textual description of the pollution index.
+        """
         mapping = {
             1: 'Faible',
             2: 'Moyen',
-            3: 'Dégrade',
+            3: 'Dégradé',
             4: 'Mauvaise',
             5: 'Très mauvais',
             6: 'Extrêmement mauvais'
         }
-        return mapping.get(value, 'Extrêmement mauvais' if value not in mapping else 'Non disponible')
+        text = mapping.get(value, 'Non disponible')
+        logger.debug(f"Converted numeric value '{value}' to text '{text}'.")
+        return text
 
     @staticmethod
     def _default_pollution_response() -> Dict[str, str]:
-        return {
+        """
+        Provides a default pollution data response when API data is unavailable.
+        
+        Returns:
+            Dict[str, str]: A dictionary with default pollution metrics.
+        """
+        default_response = {
             'indice': 'Non disponible',
             'O3': 'Non disponible',
             'NO2': 'Non disponible',
@@ -190,10 +230,12 @@ class PollutionData:
             'PM25': 'Non disponible',
             'SO2': 'Non disponible'
         }
+        logger.debug("Using default pollution response.")
+        return default_response
 class PollenData:
     @staticmethod
     def get_pollen_data(lat: float, lon: float) -> Dict[str, str]:
-        api_key = '1abda428d8ab2136e2b6e8a85131ff222c3551f66c2e756202c49a27914dec09'
+        api_key = os.getenv('AMBEE_API_KEY')
         if not api_key:
             logger.error("Ambee API key is not set.")
             return {'pollen_risk': 'Non disponible'}
