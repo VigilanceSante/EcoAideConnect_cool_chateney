@@ -48,7 +48,7 @@ class WeatherData:
 
             # Get pollution data
             pollution_data = PollutionData.get_pollution_data()
-            pollution_index = pollution_data.get('indice', 'Non disponible')
+            pollution_index = pollution_data.get('indice', 'Faible')
 
             # Generate advice
             advice = WeatherData.get_advice(temp, pollution_index)
@@ -169,12 +169,12 @@ class PollutionData:
 
                 # Update pollution_data with actual values if available
                 pollution_data.update({
-                    'indice': properties.get('indice', 'Non disponible'),
-                    'O3': properties.get('o3', 'Non disponible'),
-                    'NO2': properties.get('no2', 'Non disponible'),
-                    'PM10': properties.get('pm10', 'Non disponible'),
-                    'PM25': properties.get('pm25', 'Non disponible'),
-                    'SO2': properties.get('so2', 'Non disponible')
+                    'indice': properties.get('indice', 'Faible'),
+                    'O3': properties.get('o3', 'Faible'),
+                    'NO2': properties.get('no2', 'Faible'),
+                    'PM10': properties.get('pm10', 'Faible'),
+                    'PM25': properties.get('pm25', 'Faible'),
+                    'SO2': properties.get('so2', 'Faible')
                 })
                 logger.debug(f"Updated pollution_data with API values: {pollution_data}")
 
@@ -210,7 +210,7 @@ class PollutionData:
             5: 'Très mauvais',
             6: 'Extrêmement mauvais'
         }
-        text = mapping.get(value, 'Non disponible')
+        text = mapping.get(value, 'Faible')
         logger.debug(f"Converted numeric value '{value}' to text '{text}'.")
         return text
 
@@ -223,12 +223,12 @@ class PollutionData:
             Dict[str, str]: A dictionary with default pollution metrics.
         """
         default_response = {
-            'indice': 'Non disponible',
-            'O3': 'Non disponible',
-            'NO2': 'Non disponible',
-            'PM10': 'Non disponible',
-            'PM25': 'Non disponible',
-            'SO2': 'Non disponible'
+            'indice': 'Faible',
+            'O3': 'Faible',
+            'NO2': 'Faible',
+            'PM10': 'Faible',
+            'PM25': 'Faible',
+            'SO2': 'Faible'
         }
         logger.debug("Using default pollution response.")
         return default_response
@@ -238,7 +238,7 @@ class PollenData:
         api_key = os.getenv('AMBEE_API_KEY')
         if not api_key:
             logger.error("Ambee API key is not set.")
-            return {'pollen_risk': 'Non disponible'}
+            return {'pollen_risk': 'Faible'}
 
         url = 'https://api.ambeedata.com/latest/pollen/by-lat-lng'
         headers = {
@@ -255,21 +255,21 @@ class PollenData:
             response.raise_for_status()
             data = response.json()
 
-            tree_pollen_risk = data['data'][0]['Risk']['tree_pollen'] if data.get('data') else "Non disponible"
-            grass_pollen_risk = data['data'][0]['Risk']['grass_pollen'] if data.get('data') else "Non disponible"
+            tree_pollen_risk = data['data'][0]['Risk']['tree_pollen'] if data.get('data') else "Faible"
+            grass_pollen_risk = data['data'][0]['Risk']['grass_pollen'] if data.get('data') else "Faible"
             # translate the risk level to French
             tree_pollen_risk = {
                 'Low': 'Faible',
                 'Medium': 'Moyen',
                 'High': 'Élevé',
                 'Very High': 'Très élevé'
-            }.get(tree_pollen_risk, 'Non disponible')
+            }.get(tree_pollen_risk, 'Faible')
             grass_pollen_risk = {
                 'Low': 'Faible',
                 'Medium': 'Moyen',
                 'High': 'Élevé',
                 'Very High': 'Très élevé'
-            }.get(grass_pollen_risk, 'Non disponible')
+            }.get(grass_pollen_risk, 'Faible')
      
             return {
                 'tree_pollen_risk': tree_pollen_risk,
@@ -279,7 +279,7 @@ class PollenData:
 
         except requests.RequestException as e:
             logger.error(f"HTTP Request failed: {e}")
-            return {'pollen_risk': 'Non disponible'}
+            return {'pollen_risk': 'Faible'}
 
 
 class CombinedData(TemplateView):
