@@ -65,10 +65,14 @@ INSTALLED_APPS = [
     "apps.extended_ui",
     "apps.icons",
     "apps.forms",
-    "apps.form_layouts",
+    "apps.volontaires",
     "apps.tables",
+    "apps.dashboard_volonteers",
+
+
 
 ]
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -119,15 +123,12 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    },
-    'volonteer': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'volonteer',            # Database name
-        'USER': 'mysql_volonteer',     # Database user
-        'PASSWORD': 'veryPriv@ate',    # Database password
-        'HOST': 'localhost',           # Database host
-        'PORT': '5432',                # Database port
-    }
+}, 
+"need_help": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+}
+
 }
 
 
@@ -154,7 +155,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = "en"
+LANGUAGE_CODE = "fr-fr"
 
 TIME_ZONE = "UTC"
 
@@ -168,7 +169,6 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
 
 STATICFILES_DIRS = [
     BASE_DIR / "src" / "assets",
@@ -188,7 +188,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 THEME_VARIABLES = THEME_VARIABLES
-
+OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+AIRPARIF_API_KEY = os.getenv('AIRPARIF_API_KEY')
+AMBEE_API_KEY = os.getenv('AMBEE_API_KEY')
 
 
 # Your stuff...

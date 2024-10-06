@@ -24,9 +24,7 @@ THEME_VARIABLES = {
     "more_themes": "https://themeselection.com/",
     "documentation": "https://demos.themeselection.com/sneat-bootstrap-html-admin-template/documentation/django-introduction.html",
     "changelog": "https://demos.themeselection.com/sneat-bootstrap-html-django-admin-template-free/changelog.html",
-    "git_repository": "https://github.com/themeselection/sneat-bootstrap-html-django-admin-template-free",
-    "git_repo_access": "https://tools.themeselection.com/github/github-access",
-    "product_page_free": "https://themeselection.com/item/sneat-free-bootstrap-html-django-admin-template/",
+
 }
 
 # ! Don't change THEME_LAYOUT_DIR unless it's required

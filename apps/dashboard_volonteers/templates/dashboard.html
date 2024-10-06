@@ -1,0 +1,233 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}CoolChateney Dashboard{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
+<style>
+  /* Assurez-vous que les cartes ont la même hauteur */
+  .card.equal-height {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .row {
+    margin: 0;
+  }
+
+  .card {
+    height: 100%; /* Hauteur fixe des cartes, ajustez selon vos besoins */
+  }
+
+  /* Assurez-vous que les colonnes sont bien alignées */
+  .col-lg-4 {
+    padding: 2; /* Éliminer le padding par défaut pour les colonnes */
+  }
+</style>
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/dashboards-analytics.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Contacts par Disponibilité pour une fenêtre de 14 jours
+  var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
+  var dates = {{ dates|safe }};
+  var optionsAvailability = {
+    chart: {
+      type: 'bar',
+      stacked: true,
+      height: 350
+    },
+    series: [{
+      name: 'Toute la journée',
+      data: dates.map(date => contactsByDatesSlots[date]['all_day'])
+    }, {
+      name: 'Matin',
+      data: dates.map(date => contactsByDatesSlots[date]['morning'])
+    }, {
+      name: 'Après-midi',
+      data: dates.map(date => contactsByDatesSlots[date]['afternoon'])
+    }, {
+      name: 'Soirée',
+      data: dates.map(date => contactsByDatesSlots[date]['evening'])
+    }],
+    xaxis: {
+      categories: dates
+    },
+
+  };
+  var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
+  chartAvailability.render();
+
+  // Meilleurs contributeurs
+  var optionsTopContributors = {
+    chart: {
+      type: 'bar',
+      height: 350
+    },
+    series: [{
+      name: 'Total Days',
+      data: [
+        {% for contributor in top_contributors %}
+          { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.total_days.days }} },
+        {% endfor %}
+      ]
+    }],
+    xaxis: {
+      categories: [
+        {% for contributor in top_contributors %}
+          '{{ contributor.first_name }} {{ contributor.last_name }}',
+        {% endfor %}
+      ]
+    },
+    title: {
+      text: 'Meilleurs Contributeurs'
+    }
+  };
+  var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
+  chartTopContributors.render();
+});
+</script>
+{% endblock page_js %}
+
+{% block content %}
+<div class="container">
+  <!-- Filtres -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Filtres</h5>
+          <form method="GET">
+            <div class="row">
+              <div class="col-md-4">
+                <label for="start-date-filter">Date de Début</label>
+                <input type="date" id="start-date-filter" name="start_date" class="form-control" value="{{ start_date }}">
+            </div>
+            <div class="col-md-4">
+                <label for="end-date-filter">Date de Fin</label>
+                <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ end_date }}">
+            </div>
+            
+              <div class="col-md-4">
+                <label for="availability-filter">Disponibilité</label>
+                <select id="availability-filter" name="availability" class="form-control">
+                  <option value="">Toutes</option>
+                  {% for field in availability_options %}
+                    <option value="{{ field.field }}" {% if request.GET.availability == field.field %}selected{% endif %}>{{ field.translation }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary">Appliquer</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <!-- Total Contacts Card -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nombre total de personnes disponibles</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ total_contacts }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nouveaux volontaires (Dernière Semaine) -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nouveaux volontaires (Dernière Semaine)</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ new_contacts_last_week }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nouveaux volontaires (Dernier Mois) -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nouveaux volontaires (Dernier Mois)</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ new_contacts_last_month }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart for Contacts by Availability per 14-day window -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Volontaires disponibles pour les 14 prochains jours</h5>
+          <div id="chart-availability"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart for Top Contributors -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Meilleurs Contributeurs</h5>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Prénom</th>
+                <th scope="col">Nom</th>
+                <th scope="col">Jours Totaux</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for contributor in top_contributors %}
+                <tr>
+                  <th scope="row">{{ forloop.counter }}</th>
+                  <td>{{ contributor.first_name }}</td>
+                  <td>{{ contributor.last_name }}</td>
+                  <td>{{ contributor.total_days.days }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

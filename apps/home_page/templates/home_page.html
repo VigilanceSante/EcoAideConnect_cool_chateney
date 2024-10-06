@@ -129,154 +129,90 @@
     </div>
   </div>
 
-  <!-- OpenStreetMap -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Découvrir les lieux frais </h5>
-          <div id="map" style="height: 400px;"></div>
-        </div>
+
+<!-- OpenStreetMap -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Découvrir les lieux frais</h5>
+        <div id="map" class="map-container"></div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+<style>
+  /* Improved map styling */
+  .map-container {
+    height: 500px; /* Increased height for better UX */
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+  }
+</style>
+
 <script>
-  // Initialize the map
-  var map = L.map('map').setView([48.7596, 2.2599], 13);
+  // Initialize the map without specifying center and zoom level
+  var map = L.map('map');
 
   // Add the OpenStreetMap tile layer
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
-      maxZoom: 18,
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    maxZoom: 18,
   }).addTo(map);
 
-  // Add markers for the specified locations
-  L.marker([48.7606, 2.2589]).addTo(map)
-      .bindPopup('Centre Communal d’Action Sociale (26 rue du Docteur Le Savoureux), 01 46 83 46 82')
-      .openPopup();
+  // Initialize a marker cluster group
+  var markers = L.markerClusterGroup();
 
-  L.marker([48.7616, 2.2619]).addTo(map)
-      .bindPopup('Cinéma Le Rex (364 avenue de la Division Leclerc), 01 40 83 16 85')
-      .openPopup();
+  // Function to add a marker to the cluster group
+  function addMarker(lat, lng, popupContent) {
+    L.marker([lat, lng]).bindPopup(popupContent).addTo(markers);
+  }
 
-  L.marker([48.7626, 2.2629]).addTo(map)
-      .bindPopup('Espace Séniors (291-293 avenue de la Division Leclerc), 01 46 32 46 69')
-      .openPopup();
+  // Marker data
+  const locations = [
+    { lat: 48.7606, lng: 2.2589, content: 'Centre Communal d’Action Sociale (26 rue du Docteur Le Savoureux), 01 46 83 46 82' },
+    { lat: 48.765820958051215, lng: 2.259873405997262, content: 'Cinéma Le Rex (364 avenue de la Division Leclerc), 01 40 83 16 85' },
+    { lat: 48.76464287485584, lng: 2.2799412458230184, content: 'Espace Séniors (291-293 avenue de la Division Leclerc), 01 46 32 46 69' },
+    { lat: 48.7576, lng: 2.2579, content: 'Médiathèque (7-9 rue des Vallées), 01 46 83 45 48' },
+    { lat: 48.7672137222992, lng: 2.279124161043493, content: 'Pavillon des Arts et du Patrimoine (98 rue Jean Longuet), 01 47 02 75 22' },
+    { lat: 48.7677830136355, lng: 2.2891088215439126, content: 'Coulée Verte, avenue Sully Prudhomme (point d’eau potable)' },
+    { lat: 48.77409876009363, lng: 2.2691806285229026, content: 'Jardin de l’Aigle Blanc, rue de Chateaubriand (point d’eau potable)' },
+    { lat: 48.766645965325324, lng: 2.2892076709756704, content: 'Quartier LaVallée, jardins LaVallée (point d’eau potable)' },
+    { lat: 48.769947175285594, lng: 2.2803509895275607, content: 'Centre-ville, rue Jean Longuet (fontaine publique d’eau non potable)' },
+  ];
 
-  L.marker([48.7576, 2.2579]).addTo(map)
-      .bindPopup('Médiathèque (7-9 rue des Vallées), 01 46 83 45 48')
-      .openPopup();
+  // Bounds object to calculate the extent of all markers
+  var bounds = new L.LatLngBounds();
 
-  L.marker([48.7566, 2.2569]).addTo(map)
-      .bindPopup('Pavillon des Arts et du Patrimoine (98 rue Jean Longuet), 01 47 02 75 22')
-      .openPopup();
+  // Add all markers to the map and extend bounds
+  locations.forEach(location => {
+    addMarker(location.lat, location.lng, location.content);
+    bounds.extend([location.lat, location.lng]); // Extend bounds for each marker
+  });
 
-  L.marker([48.7556, 2.2559]).addTo(map)
-      .bindPopup('Coulée Verte, avenue Sully Prudhomme (point d’eau potable)')
-      .openPopup();
+  // Add the marker cluster group to the map
+  map.addLayer(markers);
 
-  L.marker([48.7546, 2.2549]).addTo(map)
-      .bindPopup('Jardin de l’Aigle Blanc, rue de Chateaubriand (point d’eau potable)')
-      .openPopup();
-
-  L.marker([48.7636, 2.2639]).addTo(map)
-      .bindPopup('Quartier Petit Châtenay, place Allende (fontaine publique d’eau non potable)')
-      .openPopup();
-
-  L.marker([48.7646, 2.2649]).addTo(map)
-      .bindPopup('Quartier LaVallée, jardins LaVallée (point d’eau potable)')
-      .openPopup();
-
-  L.marker([48.7656, 2.2659]).addTo(map)
-      .bindPopup('Quartier LaVallée, place LaVallée (fontaine publique d’eau non potable)')
-      .openPopup();
-
-  L.marker([48.7666, 2.2669]).addTo(map)
-      .bindPopup('Centre-ville, rue Jean Longuet (fontaine publique d’eau non potable)')
-      .openPopup();
+  // Fit the map view to the bounds of all markers
+  map.fitBounds(bounds);
 </script>
 {% endblock %}
-
-
- <!-- Example Cards 
-  <div class="row">
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-      <div class="card">
-          <div class="card-body">
-              <i class="fas fa-smog text-info card-icon"></i>
-              <span class="d-block mb-2 text-muted">Indice de Pollution</span>
-              <h3 class="card-title mb-2">
-                  {% if indice %}
-                      {{ indice }}
-                  {% else %}
-                      Non disponible
-                  {% endif %}
-              </h3>
-              <p class="text-muted">Indice global de la qualité de l'air.</p>
-          </div>
-      </div>
-  </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-cloud-sun text-warning card-icon"></i>
-                <span class="d-block mb-2 text-muted">Ozone (O3)</span>
-                <h3 class="card-title mb-2">
-                    {% if O3 %}
-                        {{ O3 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration d'ozone (O3) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-cloud text-danger card-icon"></i>
-                <span class="d-block mb-2 text-muted">Dioxyde d'azote (NO2)</span>
-                <h3 class="card-title mb-2">
-                    {% if NO2 %}
-                        {{ NO2 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de dioxyde d'azote (NO2) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-smog text-success card-icon"></i>
-                <span class="d-block mb-2 text-muted">Particules PM10</span>
-                <h3 class="card-title mb-2">
-                    {% if PM10 %}
-                        {{ PM10 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de particules fines (PM10) dans l'air.</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-6 col-lg-3 mb-4">
-        <div class="card">
-            <div class="card-body">
-                <i class="fas fa-smog text-primary card-icon"></i>
-                <span class="d-block mb-2 text-muted">Particules PM2.5</span>
-                <h3 class="card-title mb-2">
-                    {% if PM25 %}
-                        {{ PM25 }}
-                    {% else %}
-                        Non disponible
-                    {% endif %}
-                </h3>
-                <p class="text-muted">Concentration de particules fines (PM2.5) dans l'air.</p>
-            </div>
