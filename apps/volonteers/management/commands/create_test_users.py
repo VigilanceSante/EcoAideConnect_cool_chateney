@@ -1,6 +1,6 @@
 import requests
 from django.core.management.base import BaseCommand
-from apps.volontaires.models import ContactForm
+from apps.volonteers.models import ContactForm
 from faker import Faker
 import random
 from datetime import timedelta

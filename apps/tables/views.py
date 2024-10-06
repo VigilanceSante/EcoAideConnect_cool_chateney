@@ -1,7 +1,7 @@
 from django.views.generic import TemplateView
 from django.utils.dateparse import parse_date
 from datetime import date, timedelta
-from apps.volontaires.models import ContactForm
+from apps.volonteers.models import ContactForm
 from web_project import TemplateLayout
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 

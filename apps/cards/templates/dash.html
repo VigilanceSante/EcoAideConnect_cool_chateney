@@ -230,9 +230,9 @@
           </span>
         </span>
       </h6>
-      <div class="weather-info">{{ temperature }}°C - {{ description }}</div>
-      <div class="weather-details">Vent : {{ wind_speed }} km/h </div>
-
+      <div class="weather-summary">
+        Aujourd'hui, le vent souffle à {{ wind_speed }} km/h. La température varie de {{ min_temp }}°C à {{ max_temp }}°C avec une température ressentie de {{ feel_like }}°C.
+      </div>
       {% if temperature >= 25 or temperature < 5 %} <div class="recommendations">
         <strong>Recommandations Météo :</strong>
         {% if temperature >= 35 %}
