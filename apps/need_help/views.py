@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView
 from django.shortcuts import redirect
-from  apps.db_users.models import ContactForm
+from django.http import HttpResponseRedirect
+from .forms import ContactFormForm
 from web_project import TemplateLayout
 
 class FormLayoutsHelp(TemplateView):
@@ -8,17 +9,22 @@ class FormLayoutsHelp(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-        context['form'] = ContactForm()
+        # Initialize the form with default values, if needed
+        form = ContactFormForm(initial={'is_volunteer': False})  # Assuming is_volunteer is a form field
+        context['form'] = form
         return context
 
     def post(self, request, *args, **kwargs):
-        form = ContactForm(request.POST)
+        form = ContactFormForm(request.POST)
         if form.is_valid():
-            form.save()  # This will save the form data to the database
-            context = self.get_context_data(**kwargs)
-            context['form'] = ContactForm()  # Reinitialize the form after successful submission
-            context['success_message'] = 'Votre formulaire a été soumis avec succès.'
-        else:
-            context = self.get_context_data(**kwargs)
-            context['form'] = form  # Re-render the form with errors
+            contact = form.save(commit=False)
+            contact.is_volunteer = False  # Explicitly set is_volunteer to False
+            contact.save()
+
+            # Redirect to prevent form resubmission issues
+            return HttpResponseRedirect(request.path_info)
+
+        # If the form is not valid, render the form with errors
+        context = self.get_context_data(**kwargs)
+        context['form'] = form
         return self.render_to_response(context)
