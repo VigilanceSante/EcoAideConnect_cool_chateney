@@ -11,3 +11,7 @@ register = template.Library()
 @register.simple_tag
 def get_theme_variables(scope):
     return mark_safe(TemplateHelper.get_theme_variables(scope))
+
+@register.filter(name='has_group')
+def has_group(user, group_name):
+    return user.groups.filter(name=group_name).exists()

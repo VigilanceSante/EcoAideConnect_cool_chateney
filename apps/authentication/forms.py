@@ -5,6 +5,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate
+from django import forms
+from .models import RegisterInvitation
 
 class RegisterForm(forms.ModelForm):
     """
@@ -58,3 +60,8 @@ class LoginForm(forms.Form):
         Return the authenticated user.
         """
         return self.user
+
+class InvitationForm(forms.ModelForm):
+    class Meta:
+        model = RegisterInvitation
+        fields = ['email', 'role']
