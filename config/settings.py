@@ -65,9 +65,11 @@ INSTALLED_APPS = [
     "apps.extended_ui",
     "apps.icons",
     "apps.forms",
-    "apps.volontaires",
+    "apps.volonteers",
     "apps.tables",
     "apps.dashboard_volonteers",
+    "apps.need_help",
+    "apps.db_users",
 
 
 
@@ -121,10 +123,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-}, 
-"need_help": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
 }
@@ -188,7 +186,9 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 THEME_VARIABLES = THEME_VARIABLES
-
+OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+AIRPARIF_API_KEY = os.getenv('AIRPARIF_API_KEY')
+AMBEE_API_KEY = os.getenv('AMBEE_API_KEY')
 
 
 # Your stuff...

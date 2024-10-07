@@ -36,6 +36,7 @@ class ContactForm(models.Model):
     sunday_morning = models.BooleanField(default=False)
     sunday_afternoon = models.BooleanField(default=False)
     sunday_evening = models.BooleanField(default=False)
+    is_volunteer = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

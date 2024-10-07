@@ -6,14 +6,14 @@
  */
 :root,
 [data-bs-theme=light] {
-  --bs-blue: #007bff;
-  --bs-indigo: #6610f2;
-  --bs-purple: #696cff;
+  --bs-blue: #004691;
+  --bs-indigo: #200055;
+  --bs-purple: #007824;
   --bs-pink: #e83e8c;
   --bs-red: #ff3e1d;
   --bs-orange: #fd7e14;
   --bs-yellow: #ffab00;
-  --bs-green: #71dd37;
+  --bs-green: #3753dd;
   --bs-teal: #20c997;
   --bs-cyan: #03c3ec;
   --bs-black: #435971;
@@ -22,9 +22,9 @@
   --bs-gray-dark: rgba(67, 89, 113, 0.8);
   --bs-gray-25: rgba(67, 89, 113, 0.025);
   --bs-gray-50: rgba(67, 89, 113, 0.05);
-  --bs-primary: #696cff;
+  --bs-primary: #033b06;
   --bs-secondary: #8592a3;
-  --bs-success: #71dd37;
+  --bs-success: #630f0f;
   --bs-info: #03c3ec;
   --bs-warning: #ffab00;
   --bs-danger: #ff3e1d;
@@ -89,10 +89,10 @@
   --bs-tertiary-bg: rgba(67, 89, 113, 0.1);
   --bs-tertiary-bg-rgb: 67, 89, 113;
   --bs-heading-color: #566a7f;
-  --bs-link-color: #696cff;
+  --bs-link-color: #8184c7;
   --bs-link-color-rgb: 105, 108, 255;
   --bs-link-decoration: none;
-  --bs-link-hover-color: #5f61e6;
+  --bs-link-hover-color: #5fe6e4;
   --bs-link-hover-color-rgb: 95, 97, 230;
   --bs-code-color: #e83e8c;
   --bs-highlight-color: #697a8d;
@@ -115,8 +115,8 @@
   --bs-focus-ring-width: 0.15rem;
   --bs-focus-ring-opacity: 0.75;
   --bs-focus-ring-color: rgba(67, 89, 113, 0.75);
-  --bs-form-valid-color: #71dd37;
-  --bs-form-valid-border-color: #71dd37;
+  --bs-form-valid-color: #3f37dd;
+  --bs-form-valid-border-color: #3f37dd;
   --bs-form-invalid-color: #ff3e1d;
   --bs-form-invalid-border-color: #ff3e1d;
 }
@@ -4363,7 +4363,7 @@ textarea.form-control-lg {
   --bs-progress-border-radius: 10rem;
   --bs-progress-box-shadow: var(--bs-box-shadow-inset);
   --bs-progress-bar-color: #fff;
-  --bs-progress-bar-bg: #696cff;
+  --bs-progress-bar-bg: #2A422B;
   --bs-progress-bar-transition: width 0.6s ease;
   display: flex;
   height: var(--bs-progress-height);
@@ -9923,7 +9923,7 @@ button.list-group-item-gray.active {
 }
 
 .border-primary {
-  border-color: #696cff !important;
+  border-color: #2A422B !important;
 }
 
 .border-secondary {

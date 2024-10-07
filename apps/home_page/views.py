@@ -1,1 +1,1 @@
-from apps.modules.fletch_api import CombinedData
+from apps.modules.streaming import CombinedData
