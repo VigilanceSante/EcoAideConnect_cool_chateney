@@ -144,7 +144,7 @@
         <li class="menu-item {% if '/invitation/' in request.path %}active{% endif %}">
             <form method="post" action="{% url 'logout' %}" class="menu-link" style="display:flex;">
                 {% csrf_token %}
-                <button type="submit" style="
+                <button type="submit" style="width: 100%;
                 background:none; border:none; color:inherit; padding:0; font: inherit; cursor:pointer; display: flex;">
                     <i class="menu-icon tf-icons bx bx-table"></i>
                     <div class="text-truncate" data-i18n="Logout">Logout</div>
