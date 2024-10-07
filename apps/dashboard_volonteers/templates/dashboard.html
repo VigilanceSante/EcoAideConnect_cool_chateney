@@ -3,13 +3,12 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}CoolChateney Dashboard{% endblock %}
+{% block title %}CoolChateney Dashboard Amélioré{% endblock %}
 
 {% block vendor_css %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'vendor/libs/apex-charts/apex-charts.css' %}" />
 <style>
-  /* Assurez-vous que les cartes ont la même hauteur */
   .card.equal-height {
     display: flex;
     flex-direction: column;
@@ -27,13 +26,13 @@
     margin: 0;
   }
 
-  .card {
-    height: 100%; /* Hauteur fixe des cartes, ajustez selon vos besoins */
+  .col-lg-4 {
+    padding: 0.5rem;
   }
 
-  /* Assurez-vous que les colonnes sont bien alignées */
-  .col-lg-4 {
-    padding: 2; /* Éliminer le padding par défaut pour les colonnes */
+  /* Modal styles */
+  .modal-content {
+      padding: 20px;
   }
 </style>
 {% endblock vendor_css %}
@@ -41,70 +40,183 @@
 {% block vendor_js %}
 {{ block.super }}
 <script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<!-- Include Bootstrap JS for modal functionality -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock vendor_js %}
 
 {% block page_js %}
 {{ block.super }}
-<script src="{% static 'js/dashboards-analytics.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Contacts par Disponibilité pour une fenêtre de 14 jours
-  var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
-  var dates = {{ dates|safe }};
-  var optionsAvailability = {
-    chart: {
-      type: 'bar',
-      stacked: true,
-      height: 350
-    },
-    series: [{
-      name: 'Toute la journée',
-      data: dates.map(date => contactsByDatesSlots[date]['all_day'])
-    }, {
-      name: 'Matin',
-      data: dates.map(date => contactsByDatesSlots[date]['morning'])
-    }, {
-      name: 'Après-midi',
-      data: dates.map(date => contactsByDatesSlots[date]['afternoon'])
-    }, {
-      name: 'Soirée',
-      data: dates.map(date => contactsByDatesSlots[date]['evening'])
-    }],
-    xaxis: {
-      categories: dates
-    },
+    // Contacts by Availability for a 14-day window
+    var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
+    var dates = {{ dates|safe }};
+    
+    var optionsAvailability = {
+        chart: {
+            type: 'bar',
+            stacked: true,
+            height: 350
+        },
+        series: [{
+            name: 'Toute la journée',
+            data: dates.map(date => contactsByDatesSlots[date]['all_day']),
+            color: '#4CAF50'
+        }, {
+            name: 'Matin',
+            data: dates.map(date => contactsByDatesSlots[date]['morning']),
+            color: '#FFC107'
+        }, {
+            name: 'Après-midi',
+            data: dates.map(date => contactsByDatesSlots[date]['afternoon']),
+            color: '#03A9F4'
+        }, {
+            name: 'Soirée',
+            data: dates.map(date => contactsByDatesSlots[date]['evening']),
+            color: '#9C27B0'
+        }],
+        xaxis: {
+            categories: dates
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " personnes";
+                }
+            }
+        }
+    };
+    var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
+    chartAvailability.render();
 
-  };
-  var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
-  chartAvailability.render();
+    // Top Contributors Chart
+    var optionsTopContributors = {
+        chart: {
+            type: 'bar',
+            height: 350
+        },
+        series: [{
+            name: 'Total Jours',
+            data: [
+                {% for contributor in top_contributors %}
+                    { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.total_days.days }} },
+                {% endfor %}
+            ]
+        }],
+        xaxis: {
+            categories: [
+                {% for contributor in top_contributors %}
+                    '{{ contributor.first_name }} {{ contributor.last_name }}',
+                {% endfor %}
+            ]
+        },
+        title: {
+            text: 'Meilleurs Contributeurs'
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " jours";
+                }
+            }
+        }
+    };
+    var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
+    chartTopContributors.render();
 
-  // Meilleurs contributeurs
-  var optionsTopContributors = {
-    chart: {
-      type: 'bar',
-      height: 350
-    },
-    series: [{
-      name: 'Total Days',
-      data: [
-        {% for contributor in top_contributors %}
-          { x: '{{ contributor.first_name }} {{ contributor.last_name }}', y: {{ contributor.total_days.days }} },
-        {% endfor %}
-      ]
-    }],
-    xaxis: {
-      categories: [
-        {% for contributor in top_contributors %}
-          '{{ contributor.first_name }} {{ contributor.last_name }}',
-        {% endfor %}
-      ]
-    },
-    title: {
-      text: 'Meilleurs Contributeurs'
+    // New Volunteers Trend Chart as a Bar Plot
+    var availabilityTrendData = JSON.parse('{{ availability_trend|escapejs }}');
+    var optionsAvailabilityTrend = {
+        chart: {
+            type: 'bar', // Change to 'bar' for a bar plot
+            height: 350
+        },
+        series: [{
+            name: 'Disponibilité',
+            data: availabilityTrendData // This now contains totals for each day of the week
+        }],
+        xaxis: {
+            categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] // Weekday labels
+        },
+        title: {
+            text: 'Tendance de la Disponibilité des Volontaires par Jour'
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " volontaires disponibles";
+                }
+            }
+        }
+    };
+    var chartAvailabilityTrend = new ApexCharts(document.querySelector("#chart-availability-trend"), optionsAvailabilityTrend);
+    chartAvailabilityTrend.render();
+
+    // Pie Chart for Weekday vs Weekend
+    var weekdayCount = {{ weekday_count }};
+    var weekendCount = {{ weekend_count }};
+    var optionsWeekdayWeekend = {
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        series: [weekdayCount, weekendCount],
+        labels: ['Semaine', 'Week-end'],
+        title: {
+            text: 'Répartition des Volontaires : Semaine vs Week-end'
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " volontaires";
+                }
+            }
+        },
+        events: {
+            dataPointSelection: function(event, chartContext, { dataPointIndex }) {
+                if (dataPointIndex === 0) {
+                    // Handle details for weekdays
+                    showWeekdayDetails();
+                } else if (dataPointIndex === 1) {
+                    // Handle weekend details
+                    showDayDetails('Weekend', weekendCount);
+                }
+            }
+        }
+    };
+    var chartWeekdayWeekend = new ApexCharts(document.querySelector("#chart-weekday-weekend"), optionsWeekdayWeekend);
+    chartWeekdayWeekend.render();
+
+    // Function to show details for weekdays in a modal
+    function showWeekdayDetails() {
+        const weekdayData = [
+            { name: 'Lundi', count: contactsByDatesSlots['2024-10-01']['all_day'] || 0 },
+            { name: 'Mardi', count: contactsByDatesSlots['2024-10-02']['all_day'] || 0 },
+            { name: 'Mercredi', count: contactsByDatesSlots['2024-10-03']['all_day'] || 0 },
+            { name: 'Jeudi', count: contactsByDatesSlots['2024-10-04']['all_day'] || 0 },
+            { name: 'Vendredi', count: contactsByDatesSlots['2024-10-05']['all_day'] || 0 },
+            { name: 'Samedi', count: contactsByDatesSlots['2024-10-06']['all_day'] || 0 },
+            { name: 'Dimanche', count: contactsByDatesSlots['2024-10-07']['all_day'] || 0 }
+        ];
+
+        let modalContent = '<ul class="list-group">';
+        weekdayData.forEach(day => {
+            modalContent += `<li class="list-group-item">${day.name}: ${day.count} volontaires disponibles</li>`;
+        });
+        modalContent += '</ul>';
+        
+        $('#dayDetailsModal .modal-title').text('Détails par Jour de la Semaine');
+        $('#dayDetailsModal .modal-body').html(modalContent);
+        $('#dayDetailsModal').modal('show');
     }
-  };
-  var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
-  chartTopContributors.render();
+
+    // Function to show details in a modal
+    function showDayDetails(dayType, count) {
+        $('#dayDetailsModal .modal-title').text(dayType + ' Details');
+        $('#dayDetailsModal .modal-body').html('<p>Nombre de volontaires: ' + count + '</p>'); // Replace with actual details
+        $('#dayDetailsModal').modal('show');
+    }
 });
 </script>
 {% endblock page_js %}
@@ -122,22 +234,12 @@ document.addEventListener('DOMContentLoaded', function () {
               <div class="col-md-4">
                 <label for="start-date-filter">Date de Début</label>
                 <input type="date" id="start-date-filter" name="start_date" class="form-control" value="{{ start_date }}">
-            </div>
-            <div class="col-md-4">
+              </div>
+              <div class="col-md-4">
                 <label for="end-date-filter">Date de Fin</label>
                 <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ end_date }}">
-            </div>
-            
-              <div class="col-md-4">
-                <label for="availability-filter">Disponibilité</label>
-                <select id="availability-filter" name="availability" class="form-control">
-                  <option value="">Toutes</option>
-                  {% for field in availability_options %}
-                    <option value="{{ field.field }}" {% if request.GET.availability == field.field %}selected{% endif %}>{{ field.translation }}</option>
-                  {% endfor %}
-                </select>
               </div>
-            </div>
+
             <div class="row mt-3">
               <div class="col-12">
                 <button type="submit" class="btn btn-primary">Appliquer</button>
@@ -150,44 +252,68 @@ document.addEventListener('DOMContentLoaded', function () {
   </div>
 
   <div class="row mb-4">
-    <!-- Total Contacts Card -->
+    <!-- Total Active Volunteers -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Nombre total de personnes disponibles</h5>
+          <h5 class="card-title text-primary">Nombre total de volontaires actifs</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ total_contacts }}</span>
+            <span class="h1 font-weight-bold">{{ total_active_volunteers }}</span>
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Nouveaux volontaires (Dernière Semaine) -->
+    <!-- Weekend Contacts Count -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Nouveaux volontaires (Dernière Semaine)</h5>
+          <h5 class="card-title text-primary">Volontaires disponibles le week-end</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ new_contacts_last_week }}</span>
+            <span class="h1 font-weight-bold">{{ weekend_contacts_count }}</span>
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Nouveaux volontaires (Dernier Mois) -->
+    <!-- Re-Registered Contacts Count -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Nouveaux volontaires (Dernier Mois)</h5>
+          <h5 class="card-title text-primary">Nombre de personnes réinscrites</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ new_contacts_last_month }}</span>
+            <span class="h1 font-weight-bold">{{ re_registered_contacts_count }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Re-Registration Percentage -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Pourcentage des personnes réinscrites</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ re_registration_percentage }}%</span>
           </p>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Chart for Contacts by Availability per 14-day window -->
+  <!-- Availability Trend Chart -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Tendance de la Disponibilité des Volontaires</h5>
+          <div id="chart-availability-trend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contacts by Availability Chart -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
@@ -199,13 +325,26 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
-  <!-- Chart for Top Contributors -->
+  <!-- Weekday vs Weekend Pie Chart -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Répartition des Volontaires : Weekday vs Weekend</h5>
+          <div id="chart-weekday-weekend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Contributors Chart -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Meilleurs Contributeurs</h5>
-          <table class="table table-striped">
+          <div id="chart-top-contributors"></div>
+          <table class="table table-striped mt-4">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -230,4 +369,25 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 </div>
+
+<!-- Modal for Day Details -->
+<div class="modal fade" id="dayDetailsModal" tabindex="-1" role="dialog" aria-labelledby="dayDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="dayDetailsModalLabel">Détails du Jour</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Aucun détail disponible.</p> <!-- This will be replaced with actual data -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
