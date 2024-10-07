@@ -194,3 +194,4 @@ AMBEE_API_KEY = os.getenv('AMBEE_API_KEY')
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000000 
