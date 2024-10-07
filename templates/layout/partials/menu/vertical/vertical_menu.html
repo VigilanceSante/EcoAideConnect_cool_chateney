@@ -48,6 +48,16 @@
       </a>
     </li>
 
+    <li
+      class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
+    >
+
+    <a href="{% url 'forcast' %}" class="menu-link">
+      <i class="menu-icon tf-icons bx bxs-calendar-event"></i>
+      <div class="text-truncate" data-i18n="Card">Demain</div>
+    </a>
+  </li>
+
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Entraide</span>
     </li>

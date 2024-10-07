@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "apps.dashboard_volonteers",
     "apps.need_help",
     "apps.db_users",
+    "apps.forcast",
 
 
 

@@ -1,0 +1,1 @@
+from apps.modules.forcast import CombinedData

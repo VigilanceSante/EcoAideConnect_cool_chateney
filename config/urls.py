@@ -61,6 +61,9 @@ urlpatterns = [
     # NeedHelp urls
     path("", include("apps.need_help.urls")),
 
+    # Forcast urls
+    path("", include("apps.forcast.urls")),
+
 
 ]
 

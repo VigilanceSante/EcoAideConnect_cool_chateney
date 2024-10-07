@@ -1,0 +1,308 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Tableau de Bord Qualité de l'air{% endblock %}
+
+{% block content %}
+<style>
+  /* General Styles */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Dashboard Container */
+  .dashboard-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+
+  /* Dashboard Header */
+  .dashboard-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 32px;
+    padding: 10px;
+    color: #007aff;
+  }
+
+  /* Info Sections */
+  .info-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+  }
+
+  /* Card Styles */
+  .card {
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    width: 48%;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    background-color: #fafafa;
+  }
+
+  .card-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-title .icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+
+  /* Info Icon Styles */
+  .info-icon {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007aff;
+    font-size: 16px;
+    border: 1px solid #007aff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  /* Tooltip Styles */
+  .tooltip {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  .info-icon:hover .tooltip,
+  .info-icon:focus .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .info-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007aff;
+    margin-bottom: 5px;
+  }
+
+  .details {
+    margin-top: 10px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+  }
+
+  /* Recommendations Section */
+  .recommendations {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #ffe5e5;
+    border-left: 5px solid #ff3b30;
+    font-size: 14px;
+    color: #c40000;
+  }
+
+  /* Air Quality and Pollen Levels */
+  .faible {
+    color: #34c759 !important;
+  }
+
+  .moyen {
+    color: #ffcc00 !important;
+  }
+
+  .degrade {
+    color: #ff9500 !important;
+  }
+
+  .mauvais {
+    color: #ff3b30 !important;
+  }
+
+  .tres-mauvais {
+    color: #c40000 !important;
+  }
+
+  /* Legend for Air Quality Levels */
+  .legend {
+    margin-top: 30px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .legend div {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: #fff;
+  }
+
+  .legend h6 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .card {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">{% trans "Prévision à Châtenay-Malabry" %}</div>
+
+  <!-- Dashboard Cards -->
+  <div class="info-sections">
+
+    <!-- Weather Card -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-sun icon"></i>
+        {% trans "Météo à venir" %}
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-weather" aria-label="{% trans 'Information sur la météo à venir' %}">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-weather">
+            {% trans "Informations sur les conditions météorologiques à venir. Une chaleur excessive peut entraîner des coups de chaleur, tandis qu'un froid extrême peut provoquer l'hypothermie." %}
+          </span>
+        </span>
+      </h6>
+      
+      <div class="details">
+        <p>{% trans "Dans 1 heure" %} : <span class="info-value">{{ plus1H.temperature }} °C</span></p>
+        <p>{% trans "Demain" %} : <span class="info-value">{{ plus24H.temperature }} °C</span></p>
+      </div>
+
+      {% if plus1H.temperature >= 25 or plus1H.temperature < 5 %}
+        <div class="recommendations">
+          <strong>{% trans "Recommandations Météo pour les Prochaines Heures" %} :</strong>
+          {% if plus1H.temperature >= 35 %}
+            <p>{% trans "Il fait extrêmement chaud. Buvez beaucoup d'eau, évitez les activités physiques et restez dans un endroit frais." %}</p>
+          {% elif plus1H.temperature >= 25 %}
+            <p>{% trans "Il fait chaud. Portez des vêtements légers et buvez régulièrement de l'eau." %}</p>
+          {% elif plus1H.temperature < 5 %}
+            <p>{% trans "Il fait froid. Habillez-vous chaudement et évitez les sorties prolongées sans protection appropriée." %}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Pollution Card (PM) -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-cloud icon"></i>
+        {% trans "Particules en suspension" %}
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-pm">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-pm">
+            {% trans "Effets sur la santé : PM10 peut irriter les voies respiratoires, surtout chez les personnes souffrant d'asthme. PM2.5 augmente le risque de maladies cardiovasculaires et respiratoires." %}
+          </span>
+        </span>
+      </h6>
+      <div class="details">
+        PM10 : <span class="{{ pm10_class }}">{{ PM10 }}</span><br>
+        PM2.5 : <span class="{{ pm25_class }}">{{ PM25 }}</span>
+      </div>
+    </div>
+
+    <!-- Gaseous Pollutants Card -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-smog icon"></i>
+        {% trans "Gaz polluants" %}
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-gaz">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-gaz">
+            {% trans "Effets sur la santé : Ozone (O₃) peut aggraver l'asthme. NO₂ contribue à l'inflammation pulmonaire. SO₂ peut irriter les yeux et les voies respiratoires." %}
+          </span>
+        </span>
+      </h6>
+      <div class="details">
+        Ozone (O<sub>3</sub>) : <span class="{{ o3_class }}">{{ O3 }}</span><br>
+        NO<sub>2</sub> : <span class="{{ no2_class }}">{{ NO2 }}</span><br>
+        SO<sub>2</sub> : <span class="{{ so2_class }}">{{ SO2 }}</span>
+      </div>
+    </div>
+
+    <!-- Pollen Card -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-leaf icon"></i>
+        {% trans "Pollens" %}
+        <span class="info-icon" tabindex="0" aria-describedby="tooltip-pollen">
+          i
+          <span class="tooltip" role="tooltip" id="tooltip-pollen">
+            {% trans "Un niveau élevé de pollen peut provoquer des réactions allergiques, surtout pour les personnes sensibles." %}
+          </span>
+        </span>
+      </h6>
+      <div class="details">
+        {% trans "Arbres" %} : <span class="{{ tree_pollen_class }}">{{ tree_pollen_risk }}</span><br>
+        {% trans "Herbacés" %} : <span class="{{ grass_pollen_class }}">{{ grass_pollen_risk }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Legend for Air Quality Levels -->
+  <div class="legend">
+    <h6>{% trans "Légende" %} :</h6>
+    <div class="faible">{% trans "Faible" %}</div>
+    <div class="moyen">{% trans "Moyen" %}</div>
+    <div class="degrade">{% trans "Dégradée" %}</div>
+    <div class="mauvais">{% trans "Mauvaise" %}</div>
+    <div class="tres-mauvais">{% trans "Très Mauvaise" %}</div>
+  </div>
+</div>
+{% endblock %}
