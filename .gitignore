@@ -1,4 +1,4 @@
 .obsidian
 .env
 *.pyc
-django_venv
+env
