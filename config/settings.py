@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     "apps.home_page",
     "apps.layouts",
     "apps.pages",
-    "apps.authentication",
     "apps.cards",
     "apps.ui",
     "apps.extended_ui",
@@ -68,11 +67,13 @@ INSTALLED_APPS = [
     "apps.volontaires",
     "apps.tables",
     "apps.dashboard_volonteers",
-
-
-
+    "apps.authentication",
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -85,6 +86,21 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'sandbox.smtp.mailtrap.io'  # Replace with your SMTP server
+EMAIL_PORT = 587  # or 465 for SSL
+EMAIL_USE_TLS = True  # or EMAIL_USE_SSL = True
+EMAIL_HOST_USER = '8b24471ba4fbf0'
+EMAIL_HOST_PASSWORD = '4c9d94d2139bc9'
+DEFAULT_FROM_EMAIL = 'jordan.toko@outlook.fr'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+CSRF_COOKIE_HTTPONLY = True
+
+SESSION_COOKIE_AGE = 3600
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 ROOT_URLCONF = "config.urls"
 

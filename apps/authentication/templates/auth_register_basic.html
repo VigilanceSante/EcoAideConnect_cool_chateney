@@ -32,7 +32,7 @@
           <h4 class="mb-2">Adventure starts here 🚀</h4>
           <p class="mb-4">Make your app management easy and fun!</p>
 
-          <form id="formAuthentication" class="mb-3" action="{% url 'register' %}" method="post">
+          <form id="formAuthentication" class="mb-3" action="{% url 'register' token=invite_token %}" method="post">
             {% csrf_token %}
             {{ form.non_field_errors }}
         
