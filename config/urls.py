@@ -18,9 +18,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from web_project.views import SystemView
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+
+    # Logout url
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
     # Dashboard urls
     path("", include("apps.home_page.urls")),

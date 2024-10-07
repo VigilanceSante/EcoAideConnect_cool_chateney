@@ -1,0 +1,40 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Register - Pages{% endblock %}
+
+{% block page_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static  'vendor/css/pages/page-auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/pages/page-auth.css' %}">
+{% endblock page_css %}
+
+
+{% block content %}
+<div class="container-xxl">
+  <div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner">
+      <h2>Inviter un utilisateur</h2>
+      <form id="formRegisterInvitation" class="mb-3" action="{% url 'invitation' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="text" id="{{form.email.id_for_label}}" name="email" class="form-control form-control-lg" value="{{ form.email.value|default_if_none:'' }}">
+          {% if form.email.errors %}
+              <div class="text-danger">
+                  {{ form.email.errors }}
+              </div>
+          {% endif %}
+        </div>
+        <select name="role" class="form-select mb-3" data-live-search="true">
+          <option value="admin_town_hall_employee">Admin employee</option>
+          <option value="town_hall_employee">Employee</option>
+        </select>
+        <button class="btn btn-primary d-grid w-100" type="submit">Send Invitation</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

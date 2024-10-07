@@ -2,7 +2,7 @@
 This module contains the URL configuration for the authentication app.
 """
 from django.urls import path
-from .views import RegisterView, LoginView
+from .views import InviteUserView, RegisterView, LoginView
 
 
 urlpatterns = [
@@ -12,7 +12,7 @@ urlpatterns = [
         name="login",
     ),
     path(
-        "auth/register/",
+        "auth/register/<str:token>/",
         RegisterView.as_view(template_name="auth_register_basic.html"),
         name="register",
     ),
@@ -21,4 +21,9 @@ urlpatterns = [
         RegisterView.as_view(template_name="auth_forgot_password_basic.html"),
         name="password-reset",
     ),
+    path(
+        "auth/invitation/",
+        InviteUserView.as_view(template_name="auth_invitation_for_registration.html"),
+        name="invitation",
+    )
 ]
