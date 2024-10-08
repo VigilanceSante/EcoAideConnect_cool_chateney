@@ -7,17 +7,18 @@ from datetime import timedelta, date
 import unidecode
 
 class Command(BaseCommand):
-    help = 'Create test users with submissions across different months, ensuring specific rules for availability'
+    help = 'Create test users with registrations across different months, ensuring specific rules for availability and re-registrations'
 
     def handle(self, *args, **kwargs):
         fake = Faker('fr_FR')
+        previous_users = []
 
         def generate_phone_number():
-            # Generate a French mobile number starting with 06 or 07
+            # Generate a French mobile number starting with 06
             return f"06{random.randint(10000000, 99999999)}"
 
         def fetch_real_address():
-            # Make the API call to get real addresses from Châtenay-Malabry
+            # Make an API call to get real addresses from Châtenay-Malabry
             response = requests.get("https://api-adresse.data.gouv.fr/search/?q=Châtenay-Malabry&postcode=92290&limit=100")
             data = response.json()
 
@@ -32,11 +33,7 @@ class Command(BaseCommand):
             else:
                 raise Exception("No addresses found in the API response")
 
-        def get_day_of_week(date_obj):
-            days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
-            return days[date_obj.weekday()]
-
-        def create_submission(first_name, last_name, email, start_date, end_date, weekend_only=False, weekday_only=False):
+        def create_submission(first_name, last_name, email, start_date, end_date, weekend_only=False, weekday_only=False, registration_date=None):
             # Initialize availability to False for all timeslots
             availability = {
                 'monday_all_day': False, 'monday_morning': False, 'monday_afternoon': False, 'monday_evening': False,
@@ -48,27 +45,25 @@ class Command(BaseCommand):
                 'sunday_all_day': False, 'sunday_morning': False, 'sunday_afternoon': False, 'sunday_evening': False,
             }
 
-            current_date = start_date
-            while current_date <= end_date:
-                day_of_week = get_day_of_week(current_date)
-                
-                if weekend_only and day_of_week in ["saturday", "sunday"]:
-                    # Randomly assign either full day or specific times for weekend availability
+            # Set availability
+            if weekend_only:
+                for day in ['saturday', 'sunday']:
                     if fake.boolean():
-                        availability[f"{day_of_week}_all_day"] = True
+                        availability[f"{day}_all_day"] = True
                     else:
-                        availability[f"{day_of_week}_morning"] = fake.boolean()
-                        availability[f"{day_of_week}_afternoon"] = fake.boolean()
-                        availability[f"{day_of_week}_evening"] = fake.boolean()
+                        availability[f"{day}_morning"] = fake.boolean()
+                        availability[f"{day}_afternoon"] = fake.boolean()
+                        availability[f"{day}_evening"] = fake.boolean()
+            elif weekday_only:
+                for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']:
+                    availability[f"{day}_all_day"] = True
+            else:
+                # Random availability
+                for day in availability.keys():
+                    availability[day] = fake.boolean()
 
-                elif weekday_only and day_of_week in ["monday", "tuesday", "wednesday", "thursday", "friday"]:
-                    # Assign availability for the entire day for weekdays
-                    availability[f"{day_of_week}_all_day"] = True
-                
-                current_date += timedelta(days=1)
-
-            # Create the ContactForm object with defined availability
-            ContactForm.objects.create(
+            # Create the ContactForm object with defined availability and registration date
+            submission = ContactForm.objects.create(
                 first_name=first_name,
                 last_name=last_name,
                 start_date=start_date,
@@ -104,13 +99,47 @@ class Command(BaseCommand):
                 sunday_morning=availability['sunday_morning'],
                 sunday_afternoon=availability['sunday_afternoon'],
                 sunday_evening=availability['sunday_evening'],
-                is_volunteer=True  # Always set to True
+                is_volunteer=True,  # Always set to True
             )
 
+            if registration_date:
+                # Manually set the registration date if provided
+                submission.created_at = registration_date
+                submission.save()
+
         # Create users and submissions for each month
-        def create_users_for_month(month, month_start, month_end, user_count, weekday_users=0, weekend_users=0):
-            # Create users with weekday availability
-            for _ in range(weekday_users):
+        def create_users_for_month(month, month_start, month_end, user_count, previous_users):
+            # Calculate the number of users who re-register (60%)
+            re_register_count = int(0.6 * len(previous_users))
+            new_user_count = user_count - re_register_count
+
+            # Create registration dates in multiple batches
+            batch_dates = [
+                month_start + timedelta(days=random.randint(0, 10)),
+                month_start + timedelta(days=random.randint(11, 20)),
+                month_start + timedelta(days=random.randint(21, 28)),
+            ]
+
+            # Select users who re-register
+            re_register_users = random.sample(previous_users, re_register_count)
+
+            # Re-register users
+            for idx, user_info in enumerate(re_register_users):
+                first_name = user_info['first_name']
+                last_name = user_info['last_name']
+                email = user_info['email']
+
+                start_date = fake.date_between_dates(date_start=month_start, date_end=month_end)
+                end_date = start_date + timedelta(days=random.randint(2, 6))
+
+                # Assign a registration date from the batches
+                registration_date = batch_dates[idx % len(batch_dates)]
+
+                create_submission(first_name, last_name, email, start_date, end_date, registration_date=registration_date)
+
+            # Create new users
+            new_users = []
+            for idx in range(new_user_count):
                 first_name = fake.first_name()
                 last_name = fake.last_name()
                 normalized_first_name = unidecode.unidecode(first_name.lower().replace(' ', '_'))
@@ -119,10 +148,56 @@ class Command(BaseCommand):
 
                 start_date = fake.date_between_dates(date_start=month_start, date_end=month_end)
                 end_date = start_date + timedelta(days=random.randint(2, 6))
-                create_submission(first_name, last_name, email, start_date, end_date, weekday_only=True)
 
-            # Create users with weekend availability
-            for _ in range(weekend_users):
+                # Assign a registration date from the batches
+                registration_date = batch_dates[idx % len(batch_dates)]
+
+                create_submission(first_name, last_name, email, start_date, end_date, registration_date=registration_date)
+
+                new_users.append({'first_name': first_name, 'last_name': last_name, 'email': email})
+
+            # Update the list of users for the next month
+            return re_register_users + new_users
+
+        # Specific handling from September onwards
+        def create_users_for_month_september_onwards(month, month_start, month_end, user_count, previous_users):
+            re_register_count = int(0.6 * len(previous_users))
+            new_user_count = user_count - re_register_count
+
+            batch_dates = [
+                month_start + timedelta(days=random.randint(0, 10)),
+                month_start + timedelta(days=random.randint(11, 20)),
+                month_start + timedelta(days=random.randint(21, 28)),
+            ]
+
+            re_register_users = random.sample(previous_users, re_register_count)
+
+            for idx, user_info in enumerate(re_register_users):
+                first_name = user_info['first_name']
+                last_name = user_info['last_name']
+                email = user_info['email']
+
+                start_date = fake.date_between_dates(date_start=month_start, date_end=month_end)
+                end_date = start_date + timedelta(days=random.randint(2, 6))
+
+                # Approximately 10 people available during weekdays; the rest on weekends
+                if idx < 10:
+                    weekday_only = True
+                    weekend_only = False
+                else:
+                    weekday_only = False
+                    weekend_only = True
+
+                registration_date = batch_dates[idx % len(batch_dates)]
+
+                create_submission(
+                    first_name, last_name, email, start_date, end_date,
+                    weekend_only=weekend_only, weekday_only=weekday_only,
+                    registration_date=registration_date
+                )
+
+            new_users = []
+            for idx in range(new_user_count):
                 first_name = fake.first_name()
                 last_name = fake.last_name()
                 normalized_first_name = unidecode.unidecode(first_name.lower().replace(' ', '_'))
@@ -131,20 +206,40 @@ class Command(BaseCommand):
 
                 start_date = fake.date_between_dates(date_start=month_start, date_end=month_end)
                 end_date = start_date + timedelta(days=random.randint(2, 6))
-                create_submission(first_name, last_name, email, start_date, end_date, weekend_only=True)
 
-        # Generate data for May
-        create_users_for_month("May", date(2024, 5, 1), date(2024, 5, 31), user_count=2000)
+                if idx < 10:
+                    weekday_only = True
+                    weekend_only = False
+                else:
+                    weekday_only = False
+                    weekend_only = True
 
-        # Generate data for June, July, and August (randomly between 2500 and 3000 users)
-        for month, start_date, end_date in [("June", date(2024, 6, 1), date(2024, 6, 30)),
-                                            ("July", date(2024, 7, 1), date(2024, 7, 31)),
-                                            ("August", date(2024, 8, 1), date(2024, 8, 31))]:
-            create_users_for_month(month, start_date, end_date, user_count=random.randint(2500, 3000))
+                registration_date = batch_dates[idx % len(batch_dates)]
 
-        # Generate data for September and October
-        # 100 users are available during weekdays; the rest (900) are for weekends
-        create_users_for_month("September", date(2024, 9, 1), date(2024, 9, 30), user_count=1000, weekday_users=100, weekend_users=900)
-        create_users_for_month("October", date(2024, 10, 1), date(2024, 10, 31), user_count=1000, weekday_users=100, weekend_users=900)
+                create_submission(
+                    first_name, last_name, email, start_date, end_date,
+                    weekend_only=weekend_only, weekday_only=weekday_only,
+                    registration_date=registration_date
+                )
 
-        self.stdout.write(self.style.SUCCESS(f'Successfully created test users with multiple submissions'))
+                new_users.append({'first_name': first_name, 'last_name': last_name, 'email': email})
+
+            return re_register_users + new_users
+
+        # Simulate months from May to October
+        months = [
+            ("May", date(2024, 5, 1), date(2024, 5, 31), 2000),
+            ("June", date(2024, 6, 1), date(2024, 6, 30), random.randint(2500, 3000)),
+            ("July", date(2024, 7, 1), date(2024, 7, 31), random.randint(2500, 3000)),
+            ("August", date(2024, 8, 1), date(2024, 8, 31), random.randint(2500, 3000)),
+            ("September", date(2024, 9, 1), date(2024, 9, 30), 1000),
+            ("October", date(2024, 10, 1), date(2024, 10, 31), 1000),
+        ]
+
+        for month_name, start_date, end_date, user_count in months:
+            if month_name in ["May", "June", "July", "August"]:
+                previous_users = create_users_for_month(month_name, start_date, end_date, user_count, previous_users)
+            else:
+                previous_users = create_users_for_month_september_onwards(month_name, start_date, end_date, user_count, previous_users)
+
+        self.stdout.write(self.style.SUCCESS('Successfully created test users with multiple batches of registration dates and re-registrations'))
