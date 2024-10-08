@@ -35,28 +35,23 @@
     </li>
 
     <li class="menu-header small text-uppercase">
-      <span class="menu-header-text">Information</span>
+      <span class="menu-header-text">Informations</span>
     </li>
 
     <!-- Fréquentations des lieux frais Information-->
-    <li
-      class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
-    >
+    <li class="menu-item {% if request.resolver_match.url_name == 'dash' %}active{% endif %}">
       <a href="{% url 'dash' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-dashboard"></i>
         <div class="text-truncate" data-i18n="Card">En direct</div>
       </a>
     </li>
-
-    <li
-      class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
-    >
-
-    <a href="{% url 'forcast' %}" class="menu-link">
-      <i class="menu-icon tf-icons bx bxs-calendar-event"></i>
-      <div class="text-truncate" data-i18n="Card">Demain</div>
-    </a>
-  </li>
+    
+    <li class="menu-item {% if request.resolver_match.url_name == 'forcast' %}active{% endif %}">
+      <a href="{% url 'forcast' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bxs-calendar-event"></i>
+        <div class="text-truncate" data-i18n="Card">Demain</div>
+      </a>
+    </li>
 
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Entraide</span>
