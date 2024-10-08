@@ -184,7 +184,7 @@
                 <span class="d-block mb-1"><i class="fas fa-thermometer-three-quarters"></i> Température maximale : <span class="{{ weather_data.max_temp_class }}">{{ weather_data.max_temp }}&deg;C</span></span>
                 <span class="d-block"><i class="fas fa-thermometer-quarter"></i> Température minimale : <span class="{{ weather_data.min_temp_class }}">{{ weather_data.min_temp }}&deg;C</span></span>
                 <!-- Indice de pollution -->
-                <span class="d-block"><i class="fas fa-smog"></i> Indice de pollution : <span class="{{ pollution_data }}">{{ pollution_data.level }}</span></span>
+                <span class="d-block"><i class="fas fa-smog"></i> Indice de pollution : <span class="{{ pollution_data }}">{{ pollution_data.overall_index }}</span></span>
               </p>
               <div class="alert alert-info mt-3" role="alert">
                 {{ weather_data.advice }}

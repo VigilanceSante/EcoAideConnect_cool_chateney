@@ -101,7 +101,7 @@ class WeatherData:
 class RecosanteAPI:
     API_URL = "https://api.recosante.beta.gouv.fr/v1/"
     
-    def __init__(self, insee_code: str = '75056'):
+    def __init__(self, insee_code: str = '92019'):
         self.params = {
             'insee': insee_code,
             'show_raep': 'true',  # Pollen data
