@@ -79,17 +79,33 @@ def find_matches_with_info(seekers, volunteers):
     return matches
 
 def match_availability(seeker, volunteer):
+    # Check if the seeker and volunteer's availability dates overlap
+    if seeker.start_date > volunteer.end_date or volunteer.start_date > seeker.end_date:
+        # No date overlap
+        return False
+
+    # Calculate the overlapping date range
+    overlap_start = max(seeker.start_date, volunteer.start_date)
+    overlap_end = min(seeker.end_date, volunteer.end_date)
+
+    # Check for overlapping availability within the overlapping date range
     days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
     time_slots = ['all_day', 'morning', 'afternoon', 'evening']
 
-    # Check for overlapping availability
+    # Iterate over the days in the overlap range and check the availability for each day
     for day in days:
-        for slot in time_slots:
-            seeker_available = getattr(seeker, f"{day}_{slot}")
-            volunteer_available = getattr(volunteer, f"{day}_{slot}")
+        # Ensure that the overlap period contains the specific day (i.e., within Monday-Sunday)
+        seeker_available_on_day = any(getattr(seeker, f"{day}_{slot}") for slot in time_slots)
+        volunteer_available_on_day = any(getattr(volunteer, f"{day}_{slot}") for slot in time_slots)
 
-            if seeker_available and volunteer_available:
-                print(f"Match found on {day} {slot} between {seeker.first_name} and {volunteer.first_name}")
-                return True
+        if seeker_available_on_day and volunteer_available_on_day:
+            # Check availability for each time slot
+            for slot in time_slots:
+                seeker_available = getattr(seeker, f"{day}_{slot}")
+                volunteer_available = getattr(volunteer, f"{day}_{slot}")
+
+                if seeker_available and volunteer_available:
+                    print(f"Match found on {day} {slot} between {seeker.first_name} and {volunteer.first_name}")
+                    return True
 
     return False

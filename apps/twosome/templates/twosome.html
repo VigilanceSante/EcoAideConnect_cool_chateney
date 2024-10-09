@@ -1,0 +1,155 @@
+{% extends layout_path %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+  <h1 class="text-center my-4">Paires de Buddy avec Filtres</h1>
+
+  <!-- Section de filtrage dédiée -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">Filtrer les résultats</h5>
+    </div>
+    <div class="card-body">
+      <form method="get" id="filter-form">
+        <div class="row g-3">
+          <!-- Sélecteur de plage de dates -->
+          <div class="col-md-4">
+            <label for="date-range" class="form-label">Plage de dates</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+              <input type="text" id="date-range" name="date_range" class="form-control" value="{{ start_date }} - {{ end_date }}">
+            </div>
+          </div>
+
+          <!-- Sélecteur multi-choix pour la disponibilité -->
+<!-- Sélecteur multi-choix pour la disponibilité -->
+<div class="col-md-6">
+  <label for="availability" class="form-label">Disponibilité</label>
+  <select id="availability" name="availability" class="form-control select2" multiple>
+    {% for day, time in availability_choices %}
+      {% with full_value=day|add:'_'|add:time %}
+        <option value="{{ full_value }}" {% if full_value in request.GET.availability %} selected{% endif %}>
+          {{ day|title }} {{ time|title }}
+        </option>
+      {% endwith %}
+    {% endfor %}
+  </select>
+</div>
+
+          <!-- Bouton de soumission -->
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Appliquer les filtres</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Affichage des paires de Buddy -->
+  <div id="buddies-list" class="row g-4">
+    {% for pair in buddy_pairs %}
+      <div class="col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <!-- Affichage pour l'AIDÉ -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="card-title mb-0">
+                {{ pair.person.first_name }} {{ pair.person.last_name }}
+                <span class="badge bg-info">Aidé</span>
+              </h5>
+            </div>
+            <p><i class="fa fa-envelope"></i> <strong>Email :</strong> {{ pair.person.email }}</p>
+            <p><i class="fa fa-phone"></i> <strong>Téléphone :</strong> {{ pair.person.phone }}</p>
+            <p><i class="fa fa-calendar-alt"></i> <strong>Disponibilité :</strong> {{ pair.person.start_date }} - {{ pair.person.end_date }}<br>
+              <strong>Plages :</strong>
+              {% if pair.person_slots %}
+                {{ pair.person_slots|join:", " }}
+              {% else %}
+                Aucune plage disponible
+              {% endif %}
+            </p>
+            <hr>
+            <!-- Affichage pour l'AIDANT -->
+            <h5 class="card-title">
+              {{ pair.buddy.first_name }} {{ pair.buddy.last_name }}
+              <span class="badge bg-success">Aidant</span>
+            </h5>
+            <p><i class="fa fa-envelope"></i> <strong>Email :</strong> {{ pair.buddy.email }}</p>
+            <p><i class="fa fa-phone"></i> <strong>Téléphone :</strong> {{ pair.buddy.phone }}</p>
+            <p><i class="fa fa-calendar-alt"></i> <strong>Disponibilité :</strong> {{ pair.buddy.start_date }} - {{ pair.buddy.end_date }}<br>
+              <strong>Plages :</strong>
+              {% if pair.buddy_slots %}
+                {{ pair.buddy_slots|join:", " }}
+              {% else %}
+                Aucune plage disponible
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if buddy_pairs.has_other_pages %}
+    <nav aria-label="Pagination des paires">
+      <ul class="pagination justify-content-center mt-4">
+        {% if buddy_pairs.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ buddy_pairs.previous_page_number }}&{{ request.GET.urlencode }}" aria-label="Précédent">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% endif %}
+
+        {% for num in buddy_pairs.paginator.page_range %}
+          {% if num >= buddy_pairs.number|add:"-2" and num <= buddy_pairs.number|add:"2" %}
+            <li class="page-item {% if buddy_pairs.number == num %}active{% endif %}">
+              <a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
+
+        {% if buddy_pairs.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ buddy_pairs.next_page_number }}&{{ request.GET.urlencode }}" aria-label="Suivant">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
+
+<!-- JavaScript pour le sélecteur de plage de dates et Select2 -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'vendor/datepicker/daterangepicker.js' %}"></script>
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+$(document).ready(function() {
+  // Initialisation du sélecteur de plage de dates
+  $('#date-range').daterangepicker({
+    opens: 'right',
+    drops: 'down',
+    locale: {
+      format: 'YYYY-MM-DD',
+      applyLabel: 'Appliquer',
+      cancelLabel: 'Annuler',
+      fromLabel: 'Du',
+      toLabel: 'Au',
+      customRangeLabel: 'Personnalisé',
+      daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
+      monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
+    }
+  });
+
+  // Initialisation du multi-sélecteur de disponibilité avec Select2
+  $('#availability').select2({
+    placeholder: "Sélectionnez la disponibilité",
+    allowClear: true
+  });
+});
+</script>
+{% endblock %}

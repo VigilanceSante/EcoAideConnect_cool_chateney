@@ -64,6 +64,9 @@ urlpatterns = [
     # Forcast urls
     path("", include("apps.forcast.urls")),
 
+    path("", include("apps.twosome.urls")),
+
+
 
 ]
 

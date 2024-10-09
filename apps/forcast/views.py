@@ -2,7 +2,6 @@ import os
 import requests
 import logging
 from typing import Dict, Any
-from datetime import datetime, timedelta
 import dotenv
 from django.views.generic import TemplateView
 from apps.modules.forcast import WeatherData, RecosanteAPI
