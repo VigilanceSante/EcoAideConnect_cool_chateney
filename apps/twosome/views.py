@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.db.models import Q
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.views.generic import TemplateView
 from apps.db_users.models import ContactForm
 from web_project import TemplateLayout
@@ -13,71 +13,63 @@ class BuddiesDashboardView(TemplateView):
         """Prépare les données pour le template."""
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
-        # Récupérer les paramètres et filtres
-        start_date, end_date = self.get_date_range()
-        availability_filters = self.request.GET.getlist('availability')
+        # Récupérer les dates de filtrage et les filtres de disponibilité
+        start_date = self.get_start_date()
+        availability_filters = self.get_availability_filters()
 
-        # Filtrer et paginer les buddies
-        filtered_buddies = self.filter_buddies_by_date_and_availability(start_date, end_date, availability_filters)
+        # Filtrer et paginer les buddies disponibles à partir de J+7
+        filtered_buddies = self.filter_buddies_from_j7(start_date, availability_filters)
         buddy_pairs_page = self.paginate_buddy_pairs(filtered_buddies)
 
         # Mise à jour du contexte
         context.update({
             'buddy_pairs': buddy_pairs_page,
             'start_date': start_date,
-            'end_date': end_date,
         })
-
         return context
 
-    def get_date_range(self):
-        """Obtenir et analyser la plage de dates depuis la requête, avec des valeurs par défaut."""
-        date_range = self.request.GET.get('date_range', f"2024-01-01 - {datetime.today().strftime('%Y-%m-%d')}")
-        try:
-            start_date, end_date = date_range.split(' - ')
-        except ValueError:
-            # Valeurs par défaut si le format est incorrect
-            start_date = '2024-01-01'
-            end_date = datetime.today().strftime('%Y-%m-%d')
-        return start_date, end_date
+    def get_start_date(self):
+        """Calculer et retourner la date de J+7."""
+        today = datetime.today()
+        j_plus_7 = today + timedelta(days=7)
+        return j_plus_7.strftime('%Y-%m-%d')
 
-    def filter_buddies_by_date_and_availability(self, start_date, end_date, availability_filters):
-        """Filtrer les buddies par plage de dates et créneaux de disponibilité."""
-        # Filtrer les buddies par la plage de dates
-        buddies = ContactForm.objects.filter(submit_at__range=[start_date, end_date])
+    def get_availability_filters(self):
+        """Obtenir les filtres de disponibilité depuis la requête."""
+        return self.request.GET.getlist('availability')
 
-        # Appliquer les filtres de disponibilité
+    def filter_buddies_from_j7(self, start_date, availability_filters):
+        """Filtrer les buddies disponibles à partir de J+7."""
+        # Filtrer par start_date >= J+7
+        buddies = ContactForm.objects.filter(submit_at__gte=start_date)
+
+        # Appliquer les filtres de disponibilité, si disponibles
         if availability_filters:
             availability_query = self.build_availability_query(availability_filters)
             buddies = buddies.filter(availability_query)
 
-        return self.get_buddy_pairs_with_availability(buddies)
+        return self.get_buddy_pairs(buddies)
 
     def build_availability_query(self, availability_filters):
         """Construire la requête Q pour filtrer par disponibilité."""
-        availability_query = Q()
-        for availability in availability_filters:
-            availability_query |= Q(**{availability: True})
-        return availability_query
+        return Q(**{f"{availability}": True for availability in availability_filters})
 
-    def get_buddy_pairs_with_availability(self, buddies):
-        """Générer des paires de buddies en incluant les créneaux de disponibilité."""
+    def get_buddy_pairs(self, buddies):
+        """Retourner les paires de buddies avec leur disponibilité respective."""
         buddy_pairs = []
         for buddy in buddies:
-            if buddy.buddy_id:
-                paired_buddy = ContactForm.objects.filter(id=buddy.buddy_id).first()
-                if paired_buddy:
-                    # Ajouter la paire de buddies avec leurs disponibilités
-                    buddy_pairs.append({
-                        'person': buddy,
-                        'buddy': paired_buddy,
-                        'person_slots': self.get_availability_slots(buddy),
-                        'buddy_slots': self.get_availability_slots(paired_buddy)
-                    })
+            paired_buddy = ContactForm.objects.filter(id=buddy.buddy_id).first()
+            if paired_buddy:
+                buddy_pairs.append({
+                    'person': buddy,
+                    'buddy': paired_buddy,
+                    'person_slots': self.get_availability_slots(buddy),
+                    'buddy_slots': self.get_availability_slots(paired_buddy)
+                })
         return buddy_pairs
 
     def get_availability_slots(self, buddy):
-        """Retourner les créneaux de disponibilité en format lisible pour un buddy."""
+        """Retourner les créneaux de disponibilité d'un buddy sous forme lisible."""
         availability_fields = [
             'monday_all_day', 'monday_morning', 'monday_afternoon', 'monday_evening',
             'tuesday_all_day', 'tuesday_morning', 'tuesday_afternoon', 'tuesday_evening',
@@ -119,12 +111,11 @@ class BuddiesDashboardView(TemplateView):
             'sunday_evening': 'Dimanche Soir',
         }
 
-        # Filtrer les créneaux de disponibilité actifs
-        slots = [slot_labels[field] for field in availability_fields if getattr(buddy, field, False)]
-        return slots
+        # Filtrer et retourner les créneaux disponibles sous forme de liste
+        return [slot_labels[field] for field in availability_fields if getattr(buddy, field, False)]
 
     def paginate_buddy_pairs(self, buddy_pairs):
-        """Paginer la liste des paires de buddies (5 par page)."""
-        paginator = Paginator(buddy_pairs, 5)
+        """Paginer la liste des paires de buddies (10 par page)."""
+        paginator = Paginator(buddy_pairs, 10)
         page_number = self.request.GET.get('page')
         return paginator.get_page(page_number)

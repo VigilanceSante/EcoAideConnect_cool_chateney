@@ -3,48 +3,7 @@
 
 {% block content %}
 <div class="container">
-  <h1 class="text-center my-4">Paires de Buddy avec Filtres</h1>
-
-  <!-- Section de filtrage dédiée -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">Filtrer les résultats</h5>
-    </div>
-    <div class="card-body">
-      <form method="get" id="filter-form">
-        <div class="row g-3">
-          <!-- Sélecteur de plage de dates -->
-          <div class="col-md-4">
-            <label for="date-range" class="form-label">Plage de dates</label>
-            <div class="input-group">
-              <span class="input-group-text"><i class="fa fa-calendar"></i></span>
-              <input type="text" id="date-range" name="date_range" class="form-control" value="{{ start_date }} - {{ end_date }}">
-            </div>
-          </div>
-
-          <!-- Sélecteur multi-choix pour la disponibilité -->
-<!-- Sélecteur multi-choix pour la disponibilité -->
-<div class="col-md-6">
-  <label for="availability" class="form-label">Disponibilité</label>
-  <select id="availability" name="availability" class="form-control select2" multiple>
-    {% for day, time in availability_choices %}
-      {% with full_value=day|add:'_'|add:time %}
-        <option value="{{ full_value }}" {% if full_value in request.GET.availability %} selected{% endif %}>
-          {{ day|title }} {{ time|title }}
-        </option>
-      {% endwith %}
-    {% endfor %}
-  </select>
-</div>
-
-          <!-- Bouton de soumission -->
-          <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Appliquer les filtres</button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
+  <h1 class="text-center my-4">Paires de Buddy</h1>
 
   <!-- Affichage des paires de Buddy -->
   <div id="buddies-list" class="row g-4">
@@ -123,33 +82,4 @@
   {% endif %}
 </div>
 
-<!-- JavaScript pour le sélecteur de plage de dates et Select2 -->
-<script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-<script src="{% static 'vendor/datepicker/daterangepicker.js' %}"></script>
-<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
-<script>
-$(document).ready(function() {
-  // Initialisation du sélecteur de plage de dates
-  $('#date-range').daterangepicker({
-    opens: 'right',
-    drops: 'down',
-    locale: {
-      format: 'YYYY-MM-DD',
-      applyLabel: 'Appliquer',
-      cancelLabel: 'Annuler',
-      fromLabel: 'Du',
-      toLabel: 'Au',
-      customRangeLabel: 'Personnalisé',
-      daysOfWeek: ['Di', 'Lu', 'Ma', 'Me', 'Je', 'Ve', 'Sa'],
-      monthNames: ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'],
-    }
-  });
-
-  // Initialisation du multi-sélecteur de disponibilité avec Select2
-  $('#availability').select2({
-    placeholder: "Sélectionnez la disponibilité",
-    allowClear: true
-  });
-});
-</script>
 {% endblock %}
