@@ -26,7 +26,7 @@ class WeatherData:
         self.lon = lon
 
     def get_weather_forecast(self) -> Dict[str, Any]:
-        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric"
+        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric&lang=fr"
         logger.debug(f"Fetching weather data from: {url}")
 
         try:
