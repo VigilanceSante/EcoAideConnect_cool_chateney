@@ -1,0 +1,373 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}Tableau de Bord Qualité de l'air{% endblock %}
+
+{% block content %}
+<style>
+  /* Styles généraux */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Conteneur du tableau de bord */
+  .dashboard-container {
+    max-width: 1400px;
+    margin: auto;
+    padding: 30px;
+    background-color: #fff;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+
+  /* En-tête du tableau de bord */
+  .dashboard-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 32px;
+    padding: 10px;
+    color: #007aff;
+  }
+
+  /* Sections d'information */
+  .info-sections {
+    display: flex;
+    flex-direction: column; /* Empile les cartes verticalement */
+    gap: 20px; /* Espace entre les cartes */
+  }
+
+  /* Styles des cartes */
+  .card {
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+    background-color: #fafafa;
+  }
+
+  /* Titre des cartes */
+  .card-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-title .icon {
+    margin-right: 8px;
+    font-size: 22px;
+  }
+
+  /* Colonnes de pollen */
+  .pollen-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Grille flexible */
+    gap: 10px;
+  }
+
+  /* Tuile de pollen */
+  .pollen-tile {
+    background-color: #f1f1f1;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+    font-weight: bold;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .pollen-tile p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .pollen-level {
+    font-size: 18px;
+    margin-top: 3px;
+    color: inherit; /* Couleur héritée pour la coloration dynamique */
+  }
+
+  /* Styles de l'icône d'information */
+  .info-icon {
+    position: relative;
+    display: inline-block;
+    margin-left: 8px;
+    cursor: pointer;
+    color: #007aff;
+    font-size: 16px;
+    border: 1px solid #007aff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    line-height: 16px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  /* Styles de la bulle d'information */
+  .tooltip {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -110px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  .info-icon:hover .tooltip,
+  .info-icon:focus .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .info-value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #007aff;
+    margin-bottom: 5px;
+  }
+
+  .details {
+    margin-top: 10px;
+    text-align: left;
+    font-size: 14px;
+    color: #555;
+  }
+
+  /* Section des recommandations */
+  .recommendations {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #ffe5e5;
+    border-left: 5px solid #ff3b30;
+    font-size: 14px;
+    color: #c40000;
+  }
+
+  /* Niveaux de qualité de l'air avec couleurs associées */
+  .risque-nul { color: #34c759 !important; } /* Couleur verte pour 'Risque Nul' */
+  .faible { color: #9ACD32 !important; }
+  .moderee { color: #FFD700 !important; }
+  .elevee { color: #FF8C00 !important; }
+  .tres-elevee { color: #FF0000 !important; } /* Couleur rouge pour 'Très Élevée' */
+  .bon { color: #34c759 !important; } /* Couleur verte pour 'Bon' */
+  
+  /* Style pour 'Pas de dépassement' */
+  .pas-de-depassement {
+      color: #34c759 !important; /* Vert pour 'Pas de dépassement' */
+  }
+  
+  /* Style pour les autres niveaux */
+  .autre-niveau {
+      color: #FF0000 !important; /* Rouge pour les autres niveaux */
+  }
+
+
+  /* Légende */
+  .legend {
+    margin-top: 30px;
+    font-size: 16px;
+    text-align: center;
+  }
+
+  .legend div {
+    display: inline-block;
+    margin: 0 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: #fff;
+  }
+
+  .legend h6 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  /* Design réactif */
+  @media (max-width: 768px) {
+    .pollen-columns {
+      grid-template-columns: repeat(2, 1fr); /* 2 colonnes sur petits écrans */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pollen-columns {
+      grid-template-columns: 1fr; /* 1 colonne sur très petits écrans */
+    }
+  }
+</style>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">{% trans "Prévision à Châtenay-Malabry" %}</div>
+
+  <!-- Sections d'information -->
+  <div class="info-sections">
+
+    <!-- Carte Météo -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-sun icon"></i>
+        {% trans "Météo" %}
+      </h6>
+      <div class="details">
+        <p>
+          {% trans "Dans 1 heure, la température sera de" %} {{ plus1H.temperature }} °C{% trans ", ressentie comme" %} {{ plus1H.feels_like }} °C.{% trans " Les conditions météorologiques seront :" %} {{ plus1H.weather }}.
+        </p>
+        <p>
+          {% trans "Demain, la température sera de" %} {{ plus24H.temperature }} °C{% trans ", ressentie comme" %} {{ plus24H.feels_like }} °C.{% trans " Les conditions météorologiques seront :t" %} {{ plus24H.weather }}.
+        </p>
+      </div>
+
+      {% if plus1H.temperature >= 25 or plus1H.temperature < 5 %}
+        <div class="recommendations">
+          <strong>{% trans "Recommandations Météo pour les Prochaines Heures" %} :</strong>
+          {% if plus1H.temperature >= 35 %}
+            <p>{% trans "Il fera extrêmement chaud. Buvez beaucoup d'eau, évitez les activités physiques et restez dans un endroit frais." %}</p>
+          {% elif plus1H.temperature >= 25 %}
+            <p>{% trans "Il fera chaud. Portez des vêtements légers et buvez régulièrement de l'eau." %}</p>
+          {% elif plus1H.temperature < 5 %}
+            <p>{% trans "Il fera froid. Habillez-vous chaudement et évitez les sorties prolongées sans protection appropriée." %}</p>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Carte des Épisode de pollution -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-cloud icon"></i>
+        {% trans "Épisodes de pollution" %}
+
+      </h6>
+      <div class="details">
+        <ul>
+          <ul>
+            {% for episode in episodde_PM10 %}
+             
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+              
+            {% empty %}
+             Aucune donnée sur les épisodes de PM10.
+            {% endfor %}
+          </ul>
+      
+          <!-- Ozone Episodes -->
+          <ul>
+            {% for episode in episodde_O3 %}
+             
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+              
+            {% empty %}
+             Aucune donnée sur les épisodes de l'ozone.
+            {% endfor %}
+          </ul>
+      
+          <!-- NO2 Episodes -->
+          <ul>
+            {% for episode in episodde_NO2 %}
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+   
+            {% empty %}
+             Aucune donnée sur les épisodes de NO2.
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+    <!-- Carte des Pollens -->
+    <div class="card">
+      <h6 class="card-title">
+        <i class="fas fa-leaf icon"></i> {% trans "Pollens" %}
+      </h6>
+      <div class="details">
+        <div class="pollen-columns">
+          <!-- Tuiles de pollen avec couleurs dynamiques -->
+          {% for pollen_type, pollen_level in pollen_data.pollen_levels.items %}
+          <div class="pollen-tile {% if pollen_level == 'Risque Nul' %}risque-nul{% else %}{{ pollen_level|lower|slugify }}{% endif %}">
+            <p>{{ pollen_type|capfirst }}</p>
+            <span class="pollen-level">{{ pollen_level }}</span>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Recommandations spécifiques basées sur le niveau de pollen -->
+        {% for pollen_type, pollen_level in pollen_data.pollen_levels.items %}
+        {% if pollen_level != 'Risque nul' %}
+          <div class="recommendations">
+            <strong>Recommandations pour {{ pollen_type|capfirst }} :</strong>
+            {% if pollen_level == 'Faible' %}
+              <p>Risque faible. Vous pouvez sortir, mais restez vigilant.</p>
+            {% elif pollen_level == 'Modérée' %}
+              <p>Risque modéré. Soyez prudent et envisagez de rester à l'intérieur pendant les heures de pointe.</p>
+            {% elif pollen_level == 'Élevée' %}
+              <p>Risque élevé. Limitez les activités extérieures, surtout si vous êtes allergique.</p>
+            {% elif pollen_level == 'Très Élevée' %}
+              <p>Risque très élevé. Évitez de sortir et prenez des traitements antiallergiques.</p>
+            {% endif %}
+          </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Légende pour les niveaux de qualité de l'air -->
+  <div class="legend">
+    <h6>{% trans "Légende" %} :</h6>
+    <div class="risque-nul">{% trans "Risque Nul" %}</div>
+    <div class="faible">{% trans "Faible" %}</div>
+    <div class="bon">{% trans "Bon" %}</div>
+    <div class="moyen">{% trans "Moyen" %}</div>
+    <div class="elevee">{% trans "Élevée" %}</div>
+    <div class="tres-elevee">{% trans "Très Élevée" %}</div>
+
+  </div>
+</div>
+{% endblock %}

@@ -2,7 +2,14 @@ import os
 import requests
 import logging
 from typing import Dict, Any
+from datetime import datetime, timedelta
+import dotenv
+from django.views.generic import TemplateView
 
+# Load environment variables from a .env file
+dotenv.load_dotenv() 
+
+# Set up logging
 logger = logging.getLogger(__name__)
 
 class WeatherData:
@@ -10,107 +17,98 @@ class WeatherData:
         self.lat = lat
         self.lon = lon
         self.api_key = os.getenv('OPENWEATHER_API_KEY')
+        if not self.api_key:
+            logger.error("OpenWeather API key is not set.")
+            raise ValueError("API key must be set in the environment variables.")
 
     def set_location(self, lat: float, lon: float):
         self.lat = lat
         self.lon = lon
 
-    def get_weather(self) -> Dict[str, Any]:
-        if not self.api_key:
-            logger.error("OpenWeather API key is not set.")
-            return self._default_weather_response()
-
-        url = (
-            f'https://api.openweathermap.org/data/2.5/weather'
-            f'?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric&lang=fr'
-        )
+    def get_weather_forecast(self) -> Dict[str, Any]:
+        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric&lang=fr"
+        logger.debug(f"Fetching weather data from: {url}")
+        
 
         try:
             response = requests.get(url)
             response.raise_for_status()
             weather_data = response.json()
+            logger.debug(f"Weather data response: {weather_data}")  # Log the entire response
 
-            # Extract and format weather data
-            temp = round(weather_data['main']['temp'], 1)
-            location = weather_data['name']
-            description = weather_data['weather'][0]['description'].capitalize()
-            max_temp = round(weather_data['main']['temp_max'], 1)
-            min_temp = round(weather_data['main']['temp_min'], 1)
-            feel_like = round(weather_data['main']['feels_like'], 1)
-            wind_speed = round(weather_data['wind']['speed'] * 3.6, 1)  # Convert m/s to km/h
-            wind_direction = weather_data['wind']['deg']
-            wind_direction_cardinal = WeatherData.deg_to_cardinal(wind_direction)
+            # Check if we have enough data
+            list_data = weather_data.get('list', [])
+            if len(list_data) < 24:
+                logger.error("Not enough forecast data available.")
+                return self._default_weather_response()
 
-            # Generate advice
-            advice = WeatherData.get_advice(temp)
+            # Get the data for +1 hour and +24 hours
+            next_hour_data = list_data[1]  # Ensure this index exists
+            next_24_hour_data = list_data[8]  # Ensure this index exists
+
+            # Extract relevant information
+            next_hour_info = self._extract_weather_info(next_hour_data)
+            next_24_hour_info = self._extract_weather_info(next_24_hour_data)
+
+            # Add min_temp and max_temp based on the day's forecast
+            min_temp = min(data['main']['temp'] for data in list_data)
+            max_temp = max(data['main']['temp'] for data in list_data)
 
             return {
-                'temperature': temp,
-                'location': location,
-                'description': description,
-                'wind_speed': wind_speed,
-                'wind_direction': wind_direction_cardinal,
-                'max_temp': max_temp,
+                'plus1H': next_hour_info,
+                'plus24H': next_24_hour_info,
                 'min_temp': min_temp,
-                'feel_like': feel_like,
-                'advice': advice
+                'max_temp': max_temp
             }
 
         except requests.RequestException as e:
             logger.error(f"HTTP Request failed: {e}")
             return self._default_weather_response()
-
-    @staticmethod
-    def deg_to_cardinal(deg: int) -> str:
-        directions = ['Nord', 'Nord-Est', 'Est', 'Sud-Est', 'Sud', 'Sud-Ouest', 'Ouest', 'Nord-Ouest']
-        deg = deg % 360
-        ix = int((deg + 22.5) / 45) % 8
-        return directions[ix]
-
-    @staticmethod
-    def get_advice(temp: float) -> str:
-        if temp < -10:
-            return "Il fait extrêmement froid aujourd'hui. Portez des vêtements très chauds et évitez les sorties prolongées."
-        elif -10 <= temp < 0:
-            return "Il fait très froid. Habillez-vous en plusieurs couches pour rester au chaud."
-        elif 0 <= temp < 10:
-            return "Il fait frais. Portez une veste chaude."
-        elif 10 <= temp < 20:
-            return "La température est agréable. Une veste légère ou un pull suffira."
-        elif 20 <= temp < 30:
-            return "Il fait chaud. Portez des vêtements légers et buvez beaucoup d'eau."
-        elif 30 <= temp < 40:
-            return "Il fait très chaud. Restez à l'ombre et buvez beaucoup d'eau."
-        else:
-            return "Il fait extrêmement chaud. Prenez des mesures pour vous protéger de la chaleur excessive."
+    def _extract_weather_info(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Helper method to extract weather information from API response."""
+        return {
+            "datetime": data.get("dt_txt", "N/A"),
+            "temperature": data["main"].get("temp", "N/A"),
+            "feels_like": data["main"].get("feels_like", "N/A"),
+            "weather": data["weather"][0].get("description", "N/A"),
+            "wind_speed": data["wind"].get("speed", "N/A"),
+        }
 
     @staticmethod
     def _default_weather_response() -> Dict[str, Any]:
         return {
-            'temperature': 'N/A',
-            'location': 'Inconnue',
-            'description': 'Aucune donnée disponible',
-            'wind_speed': 'N/A',
-            'wind_direction': 'N/A',
-            'max_temp': 'N/A',
-            'min_temp': 'N/A',
-            'feel_like': 'N/A',
-            'advice': 'Aucun conseil disponible pour le moment.'
+            'plus1H': {
+                'temperature': 'N/A',
+                'description': 'Aucune donnée disponible',
+                'wind_speed': 'N/A',
+            },
+            'plus24H': {
+                'temperature': 'N/A',
+                'description': 'Aucune donnée disponible',
+                'wind_speed': 'N/A',
+            }
         }
 
 class RecosanteAPI:
     API_URL = "https://api.recosante.beta.gouv.fr/v1/"
     
-    def __init__(self, insee_code: str = '92019'):
+    def __init__(self, insee_code: str = '75056'):
+        # Calculate J+1 date
+        j_plus_1_date = datetime.now() + timedelta(days=1)
+        self.date = j_plus_1_date.strftime('%Y-%m-%d')  # Format date as 'YYYY-MM-DD'
         self.params = {
             'insee': insee_code,
+            'date': self.date,  # Use J+1 date
+            'time': '12:00',  # Set a default time
             'show_raep': 'true',  # Pollen data
             'show_indice_uv': 'true',  # UV Index data
         }
+        
 
     def fetch_data(self) -> Dict[str, Any]:
         try:
             response = requests.get(self.API_URL, params=self.params)
+            print(response.url)
             response.raise_for_status()
             return self.parse_data(response.json())
         except requests.RequestException as e:
@@ -126,13 +124,13 @@ class RecosanteAPI:
             'raep': self.parse_raep(data.get('raep', {})),
             'vigilance_meteo': self.parse_vigilance_meteo(data.get('vigilance_meteo', {}))
         }
-
     def parse_episodes_pollution(self, pollution_data: Dict[str, Any]) -> Dict[str, Any]:
-        # Handle missing data with default values
+        """Parses pollution episode data and returns a structured dictionary."""
         details = pollution_data.get('indice', {}).get('details', [])
+        episodes = [{'label': item.get('label', 'Inconnu'), 'level': item.get('level', 'N/A')} for item in details]
         return {
             'label': pollution_data.get('indice', {}).get('label', 'Aucune donnée'),
-            'details': [{'label': item.get('label', 'Inconnu'), 'level': item.get('level', 'N/A')} for item in details],
+            'details': episodes,
             'sources': pollution_data.get('sources', []),
             'validity': pollution_data.get('validity', {}),
         }
@@ -159,6 +157,7 @@ class RecosanteAPI:
             'advice': raep_data.get('advice', {}).get('main', 'Aucun conseil lié au pollen disponible.'),
             'pollen_levels': pollen_levels
         }
+
 
     def parse_indice_uv(self, uv_data: Dict[str, Any]) -> Dict[str, Any]:
         advice = uv_data.get('advice', {}).get('main', 'Aucun conseil lié à l\'UV disponible.')

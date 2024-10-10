@@ -1,3 +1,4 @@
+<!-- contact_form_list.html -->
 {% extends layout_path %}
 {% load static %}
 {% load i18n %}
@@ -6,15 +7,15 @@
 {% block title %}Tableaux - Tableaux de Base{% endblock %}
 
 {% block content %}
-<h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Liste des volontaires</span>
-</h4>
+<h1 class="py-3 mb-4">
+  <span class="text-muted fw-light">Liste des inscrits</span>
+</h1>
 
 <!-- Total Occurrences -->
 <p><strong>Nombre total de contacts : {{ total_contacts }}</strong></p>
 
 <!-- Filter Container -->
-<div class="card mb-4" style="background-color: #ffffff;">
+<div class="card mb-4">
   <div class="card-body">
     <h5 class="card-title">Filtrer les contacts</h5>
     <form method="get" class="form-inline">
@@ -27,38 +28,10 @@
         <input type="date" class="form-control" id="end_date" name="end_date" value="{{ current_end_date }}">
       </div>
       <div class="form-group mb-2 ml-3">
-        <label for="availability" class="mr-2">Disponibilités</label>
-        <select id="availability" name="availability" class="form-control">
-          <option value="">-- Sélectionner --</option>
-          <option value="monday_all_day" {% if "monday_all_day" in current_availability %} selected {% endif %}>Lundi Toute la Journée</option>
-          <option value="monday_morning" {% if "monday_morning" in current_availability %} selected {% endif %}>Lundi Matin</option>
-          <option value="monday_afternoon" {% if "monday_afternoon" in current_availability %} selected {% endif %}>Lundi Après-midi</option>
-          <option value="monday_evening" {% if "monday_evening" in current_availability %} selected {% endif %}>Lundi Soir</option>
-          <!-- Add options for other days and times -->
-          <option value="tuesday_all_day" {% if "tuesday_all_day" in current_availability %} selected {% endif %}>Mardi Toute la Journée</option>
-          <option value="tuesday_morning" {% if "tuesday_morning" in current_availability %} selected {% endif %}>Mardi Matin</option>
-          <option value="tuesday_afternoon" {% if "tuesday_afternoon" in current_availability %} selected {% endif %}>Mardi Après-midi</option>
-          <option value="tuesday_evening" {% if "tuesday_evening" in current_availability %} selected {% endif %}>Mardi Soir</option>
-          <option value="wednesday_all_day" {% if "wednesday_all_day" in current_availability %} selected {% endif %}>Mercredi Toute la Journée</option>
-          <option value="wednesday_morning" {% if "wednesday_morning" in current_availability %} selected {% endif %}>Mercredi Matin</option>
-          <option value="wednesday_afternoon" {% if "wednesday_afternoon" in current_availability %} selected {% endif %}>Mercredi Après-midi</option>
-          <option value="wednesday_evening" {% if "wednesday_evening" in current_availability %} selected {% endif %}>Mercredi Soir</option>
-          <option value="thursday_all_day" {% if "thursday_all_day" in current_availability %} selected {% endif %}>Jeudi Toute la Journée</option>
-          <option value="thursday_morning" {% if "thursday_morning" in current_availability %} selected {% endif %}>Jeudi Matin</option>
-          <option value="thursday_afternoon" {% if "thursday_afternoon" in current_availability %} selected {% endif %}>Jeudi Après-midi</option>
-          <option value="thursday_evening" {% if "thursday_evening" in current_availability %} selected {% endif %}>Jeudi Soir</option>
-          <option value="friday_all_day" {% if "friday_all_day" in current_availability %} selected {% endif %}>Vendredi Toute la Journée</option>
-          <option value="friday_morning" {% if "friday_morning" in current_availability %} selected {% endif %}>Vendredi Matin</option>
-          <option value="friday_afternoon" {% if "friday_afternoon" in current_availability %} selected {% endif %}>Vendredi Après-midi</option>
-          <option value="friday_evening" {% if "friday_evening" in current_availability %} selected {% endif %}>Vendredi Soir</option>
-          <option value="saturday_all_day" {% if "saturday_all_day" in current_availability %} selected {% endif %}>Samedi Toute la Journée</option>
-          <option value="saturday_morning" {% if "saturday_morning" in current_availability %} selected {% endif %}>Samedi Matin</option>
-          <option value="saturday_afternoon" {% if "saturday_afternoon" in current_availability %} selected {% endif %}>Samedi Après-midi</option>
-          <option value="saturday_evening" {% if "saturday_evening" in current_availability %} selected {% endif %}>Samedi Soir</option>
-          <option value="sunday_all_day" {% if "sunday_all_day" in current_availability %} selected {% endif %}>Dimanche Toute la Journée</option>
-          <option value="sunday_morning" {% if "sunday_morning" in current_availability %} selected {% endif %}>Dimanche Matin</option>
-          <option value="sunday_afternoon" {% if "sunday_afternoon" in current_availability %} selected {% endif %}>Dimanche Après-midi</option>
-          <option value="sunday_evening" {% if "sunday_evening" in current_availability %} selected {% endif %}>Dimanche Soir</option>
+        <label for="is_volunteer" class="mr-2">Est volontaire</label>
+        <select id="is_volunteer" name="is_volunteer" class="form-control">
+          <option value="True" {% if current_is_volunteer == "True" %} selected {% endif %}>Oui</option>
+          <option value="False" {% if current_is_volunteer == "False" %} selected {% endif %}>Non</option>
         </select>
       </div>
       <button type="submit" class="btn btn-primary mb-2 ml-3">Filtrer</button>
@@ -66,47 +39,19 @@
   </div>
 </div>
 
-<!-- Tableau Bootstrap de Base -->
+<!-- Bootstrap Table -->
 <div class="card">
   <div class="table-responsive text-nowrap">
     <table class="table table-striped table-bordered">
       <thead>
         <tr>
-          <th>
-            <a href="?sort=first_name&order={% toggle_order current_order %}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:"," }}">
-              Prénom
-              {% if current_sort == 'first_name' %}
-                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
-              {% endif %}
-            </a>
-          </th>
-          <th>
-            <a href="?sort=last_name&order={% toggle_order current_order %}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:"," }}">
-              Nom
-              {% if current_sort == 'last_name' %}
-                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
-              {% endif %}
-            </a>
-          </th>
-          <th>
-            <a href="?sort=start_date&order={% toggle_order current_order %}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:"," }}">
-              Date de début
-              {% if current_sort == 'start_date' %}
-                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
-              {% endif %}
-            </a>
-          </th>
-          <th>
-            <a href="?sort=end_date&order={% toggle_order current_order %}&start_date={{ current_start_date }}&end_date={{ current_end_date }}&availability={{ current_availability|join:"," }}">
-              Date de fin
-              {% if current_sort == 'end_date' %}
-                {% if current_order == 'asc' %}▲{% else %}▼{% endif %}
-              {% endif %}
-            </a>
-          </th>
+          <th>Prénom</th>
+          <th>Nom</th>
           <th>Email</th>
           <th>Téléphone</th>
           <th>Adresse</th>
+          <th>Date de début</th>
+          <th>Date de fin</th>
           <th>Disponibilités</th>
         </tr>
       </thead>
@@ -118,37 +63,16 @@
           <td>{{ contact.email }}</td>
           <td>{{ contact.phone }}</td>
           <td>{{ contact.address }}</td>
-          <td> {{ contact.start_date }}</td>
-          <td> {{ contact.end_date }}</td>
+          <td>{{ contact.start_date }}</td>
+          <td>{{ contact.end_date }}</td>
           <td>
-            {% if contact.monday_all_day %} Lundi Toute la Journée <br> {% endif %}
-            {% if contact.monday_morning %} Lundi Matin <br> {% endif %}
-            {% if contact.monday_afternoon %} Lundi Après-midi <br> {% endif %}
-            {% if contact.monday_evening %} Lundi Soir <br> {% endif %}
-            {% if contact.tuesday_all_day %} Mardi Toute la Journée <br> {% endif %}
-            {% if contact.tuesday_morning %} Mardi Matin <br> {% endif %}
-            {% if contact.tuesday_afternoon %} Mardi Après-midi <br> {% endif %}
-            {% if contact.tuesday_evening %} Mardi Soir <br> {% endif %}
-            {% if contact.wednesday_all_day %} Mercredi Toute la Journée <br> {% endif %}
-            {% if contact.wednesday_morning %} Mercredi Matin <br> {% endif %}
-            {% if contact.wednesday_afternoon %} Mercredi Après-midi <br> {% endif %}
-            {% if contact.wednesday_evening %} Mercredi Soir <br> {% endif %}
-            {% if contact.thursday_all_day %} Jeudi Toute la Journée <br> {% endif %}
-            {% if contact.thursday_morning %} Jeudi Matin <br> {% endif %}
-            {% if contact.thursday_afternoon %} Jeudi Après-midi <br> {% endif %}
-            {% if contact.thursday_evening %} Jeudi Soir <br> {% endif %}
-            {% if contact.friday_all_day %} Vendredi Toute la Journée <br> {% endif %}
-            {% if contact.friday_morning %} Vendredi Matin <br> {% endif %}
-            {% if contact.friday_afternoon %} Vendredi Après-midi <br> {% endif %}
-            {% if contact.friday_evening %} Vendredi Soir <br> {% endif %}
-            {% if contact.saturday_all_day %} Samedi Toute la Journée <br> {% endif %}
-            {% if contact.saturday_morning %} Samedi Matin <br> {% endif %}
-            {% if contact.saturday_afternoon %} Samedi Après-midi <br> {% endif %}
-            {% if contact.saturday_evening %} Samedi Soir <br> {% endif %}
-            {% if contact.sunday_all_day %} Dimanche Toute la Journée <br> {% endif %}
-            {% if contact.sunday_morning %} Dimanche Matin <br> {% endif %}
-            {% if contact.sunday_afternoon %} Dimanche Après-midi <br> {% endif %}
-            {% if contact.sunday_evening %} Dimanche Soir <br> {% endif %}
+            {% for slot in availability_slots %}
+                {% if contact|dict_value:slot.field %}
+                    {{ slot.label }}: <strong>Disponible</strong><br>
+                {% else %}
+                    {{ slot.label }}: Pas disponible<br>
+                {% endif %}
+            {% endfor %}
           </td>
         </tr>
         {% endfor %}
@@ -157,6 +81,7 @@
   </div>
 </div>
 <br>
+
 <!-- Pagination Controls -->
 <div class="pagination-wrapper">
   <nav aria-label="Page navigation">
@@ -198,5 +123,3 @@
   </nav>
 </div>
 {% endblock %}
-
-

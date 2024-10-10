@@ -1,5 +1,5 @@
 <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-  <!-- ! Hide app brand if navbar-full -->
+  <!-- Hide app brand if navbar is full -->
   {% if not navbar_full %}
   <div class="app-brand demo">
     <a href="{% url 'index' %}" class="app-brand-link">
@@ -10,11 +10,7 @@
         {% get_theme_variables 'template_name' %}
       </span>
     </a>
-
-    <a
-      href="javascript:void(0);"
-      class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none"
-    >
+    <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
       <i class="bx bx-chevron-left bx-sm align-middle"></i>
     </a>
   </div>
@@ -23,31 +19,34 @@
   <div class="menu-inner-shadow"></div>
 
   <ul class="menu-inner py-1">
-    <li
-      class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}"
-    >
+    <!-- Home Page -->
+    <li class="menu-item {% if 'index' == request.resolver_match.url_name or '/home_page/' in request.path %}active open{% endif %}">
       <a href="{% url 'index' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-home"></i>
-        <div class="text-truncate" data-i18n="Page d'accueil">
-          Page d'accueil
-        </div>
+        <div class="text-truncate" data-i18n="Page d'accueil">Page d'accueil</div>
       </a>
     </li>
 
+    <!-- Information Section -->
     <li class="menu-header small text-uppercase">
-      <span class="menu-header-text">Information</span>
+      <span class="menu-header-text">Informations</span>
     </li>
 
-    <!-- Fréquentations des lieux frais Information-->
-    <li
-      class="menu-item {% if '/cards/basic/' in request.path %}active{% endif %}"
-    >
+    <li class="menu-item {% if request.resolver_match.url_name == 'dash' %}active{% endif %}">
       <a href="{% url 'dash' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-dashboard"></i>
         <div class="text-truncate" data-i18n="Card">En direct</div>
       </a>
     </li>
+    
+    <li class="menu-item {% if request.resolver_match.url_name == 'forcast' %}active{% endif %}">
+      <a href="{% url 'forcast' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bxs-calendar-event"></i>
+        <div class="text-truncate" data-i18n="Card">Demain</div>
+      </a>
+    </li>
 
+    <!-- Support Section -->
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Maps & Locations</span>
     </li>
@@ -80,6 +79,7 @@
         </div>
       </a>
     </li>
+<<<<<<< HEAD
 
     <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
       <a href="javascript:void(0)" class="menu-link menu-toggle">
@@ -87,31 +87,15 @@
         <div class="text-truncate" data-i18n="User interface">
           User interface
         </div>
+=======
+    <li class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}">
+      <a href="{% url 'dashboard' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-table"></i>
+        <div class="text-truncate" data-i18n="En direct">Communauté</div>
+>>>>>>> main
       </a>
-      <ul class="menu-sub">
-        <li
-          class="menu-item {% if '/accordion/' in request.path %}active{% endif %}"
-        >
-          <a href="{% url 'ui-accordion' %}" class="menu-link">
-            <div class="text-truncate" data-i18n="Accordion">Accordion</div>
-          </a>
-        </li>
-        <li
-          class="menu-item {% if '/alerts/' in request.path %}active{% endif %}"
-        >
-          <a href="{% url 'ui-alerts' %}" class="menu-link">
-            <div class="text-truncate" data-i18n="Alerts">Alerts</div>
-          </a>
-        </li>
-        <li
-          class="menu-item {% if '/badges/' in request.path %}active{% endif %}"
-        >
-          <a href="{% url 'ui-badges' %}" class="menu-link">
-            <div class="text-truncate" data-i18n="Badges">Badges</div>
-          </a>
-        </li>
-      </ul>
     </li>
+<<<<<<< HEAD
 
     <li
       class="menu-item {% if '/auth/' in request.path %}active open{% endif %}"
@@ -198,19 +182,19 @@
       </ul>
     </li>
 
+=======
+    <!-- Access Mairie Section -->
+>>>>>>> main
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Accés mairie</span>
     </li>
 
-    <li
-      class="menu-item {% if '/auth/' in request.path %}active open{% endif %}"
-    >
-      <a href="javascript:void(0);" class="menu-link menu-toggle">
-        <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
-        <div class="text-truncate" data-i18n="Authentications">
-          Authentications
-        </div>
+    <li class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}">
+      <a href="{% url 'admin:index' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-user-circle"></i>
+        <div class="text-truncate" data-i18n="Administration">Admin</div>
       </a>
+<<<<<<< HEAD
       <ul class="menu-sub">
         <li
           class="menu-item {% if '/login/' in request.path %}active{% endif %}"
@@ -240,31 +224,10 @@
           </a>
         </li>
       </ul>
+=======
+>>>>>>> main
     </li>
 
-    <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
-      <a href="javascript:void(0)" class="menu-link menu-toggle">
-        <i class="menu-icon tf-icons bx bx-box"></i>
-        <div class="text-truncate" data-i18n="User interface">Volontaires</div>
-      </a>
-      <ul class="menu-sub">
-        <li
-          class="menu-item {% if '/tables/basic/' in request.path %}active{% endif %}"
-        >
-          <a href="{% url 'tables-basic' %}" class="menu-link">
-            <i class="menu-icon tf-icons bx bx-table"></i>
-            <div class="text-truncate" data-i18n="Liste">Liste</div>
-          </a>
-        </li>
-        <li
-          class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}"
-        >
-          <a href="{% url 'dashboard' %}" class="menu-link">
-            <i class="menu-icon tf-icons bx bx-table"></i>
-            <div class="text-truncate" data-i18n="En direct">En direct</div>
-          </a>
-        </li>
-      </ul>
-    </li>
+
   </ul>
 </aside>

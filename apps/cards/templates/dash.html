@@ -212,40 +212,41 @@
 </style>
 
 <div class="dashboard-container">
-  <div class="dashboard-header">Châtenay-Malabry</div>
+  <div class="dashboard-header"> En direct de Châtenay-Malabry</div>
 
   <!-- Pollen and Pollution Sections -->
   <div class="info-sections">
-
-    <!-- Weather Section -->
-    <div class="weather-card">
-      <h6>
-        <i class="fas fa-sun icon"></i>
-        Météo Actuelle
-        <span class="info-icon" tabindex="0" aria-describedby="tooltip-weather">
-          i
-          <span class="tooltip" role="tooltip" id="tooltip-weather">
-            Informations sur les conditions météorologiques actuelles. Une chaleur excessive peut entraîner des coups de
-            chaleur, tandis qu'un froid extrême peut provoquer l'hypothermie.
+      <!-- Weather Section -->
+      <div class="info-card">
+        <h6>
+          <i class="fas fa-sun icon"></i>
+          Météo Actuelle
+          <span class="info-icon" tabindex="0" aria-describedby="tooltip-weather">
+            i
+            <span class="tooltip" role="tooltip" id="tooltip-weather">
+              Informations sur les conditions météorologiques actuelles. Une chaleur excessive peut entraîner des coups de
+              chaleur, tandis qu'un froid extrême peut provoquer l'hypothermie.
+            </span>
           </span>
-        </span>
-      </h6>
-      <div class="weather-summary">
-        Aujourd'hui, le vent souffle à {{ wind_speed }} km/h. La température varie de {{ min_temp }}°C à {{ max_temp }}°C avec une température ressentie de {{ feel_like }}°C.
-      </div>
-      {% if temperature >= 25 or temperature < 5 %} <div class="recommendations">
-        <strong>Recommandations Météo :</strong>
-        {% if temperature >= 35 %}
-        <p>Il fait extrêmement chaud. Buvez beaucoup d'eau, évitez les activités physiques et restez dans un endroit
-          frais.</p>
-        {% elif temperature >= 25 %}
-        <p>Il fait chaud. Portez des vêtements légers et buvez régulièrement de l'eau.</p>
-        {% elif temperature < 5 %} <p>Il fait froid. Habillez-vous chaudement et évitez les sorties prolongées sans
-          protection appropriée.</p>
-          {% endif %}
+        </h6>
+        
+        <div class="weather-summary">
+          Aujourd'hui, le vent souffle à {{ wind_speed }} km/h. La température varie de {{ min_temp }}°C à {{ max_temp }}°C avec une température ressentie de {{ feel_like }}°C.
+        </div>
+        
+        {% if temperature >= 25 or temperature < 5 %}
+          <div class="recommendations">
+            <strong>Recommandations Météo :</strong>
+            {% if temperature >= 35 %}
+              <p>Il fait extrêmement chaud. Buvez beaucoup d'eau, évitez les activités physiques et restez dans un endroit frais.</p>
+            {% elif temperature >= 25 %}
+              <p>Il fait chaud. Portez des vêtements légers et buvez régulièrement de l'eau.</p>
+            {% elif temperature < 5 %}
+              <p>Il fait froid. Habillez-vous chaudement et évitez les sorties prolongées sans protection appropriée.</p>
+            {% endif %}
+          </div>
+        {% endif %}
     </div>
-    {% endif %}
-  </div>
 
   <!-- Particulate Matter Pollution Tile -->
   <div class="info-card">
@@ -263,12 +264,11 @@
     </h6>
     <div class="info-value">
       <div class="pollution-category">
-        PM10 : <span class="{{ pm10_class }}">{{ PM10 }}</span><br>
-        PM2.5 : <span class="{{ pm25_class }}">{{ PM25 }}</span>
+        PM10 : <span class="{% if PM10 == 'Risque nul' %}risque-nul{% elif PM10 == 'Bon' %}bon{% elif PM10 == 'Moyen' %}moyen{% else %}{{ pm10_class }}{% endif %}">{{ PM10 }}</span><br>
+        PM2.5 : <span class="{% if PM25 == 'Risque nul' %}risque-nul{% elif PM25 == 'Bon' %}bon{% elif PM25 == 'Moyen' %}moyen{% else %}{{ pm25_class }}{% endif %}">{{ PM25 }}</span>
       </div>
     </div>
-
-    {% if PM10 != 'Faible' and PM10 != 'Moyen' or PM25 != 'Faible' and PM25 != 'Moyen' %}
+    {% if PM10 != 'Bon' and PM10 != 'Moyen' or PM25 != 'Bon' and PM25 != 'Moyen' %}
     <div class="recommendations">
       <strong>Recommandations :</strong>
       {% if PM10 == 'Dégradée' or PM25 == 'Dégradée' %}
@@ -283,6 +283,7 @@
     </div>
     {% endif %}
   </div>
+
 
   <!-- Gaseous Pollutants Pollution Tile -->
   <div class="info-card">
@@ -301,9 +302,9 @@
     </h6>
     <div class="info-value">
       <div class="pollution-category">
-        Ozone (O<sub>3</sub>) : <span class="{{ o3_class }}">{{ O3 }}</span><br>
-        NO<sub>2</sub> : <span class="{{ no2_class }}">{{ NO2 }}</span><br>
-        SO<sub>2</sub> : <span class="{{ so2_class }}">{{ SO2 }}</span>
+        Ozone (O<sub>3</sub>) : <span class="{% if O3 == 'Risque nul' %}risque-nul{% elif O3 == 'Bon' %}bon{% elif O3 == 'Moyen' %}moyen{% else %}{{ o3_class }}{% endif %}">{{ O3 }}</span><br>
+        NO<sub>2</sub> : <span class="{% if NO2 == 'Risque nul' %}risque-nul{% elif NO2 == 'Bon' %}bon{% elif NO2 == 'Moyen' %}moyen{% else %}{{ no2_class }}{% endif %}">{{ NO2 }}</span><br>
+        SO<sub>2</sub> : <span class="{% if SO2 == 'Risque nul' %}risque-nul{% elif SO2 == 'Bon' %}bon{% elif SO2 == 'Moyen' %}moyen{% else %}{{ so2_class }}{% endif %}">{{ SO2 }}</span>
       </div>
     </div>
 
@@ -327,54 +328,148 @@
     {% endif %}
   </div>
 
-  <!-- Pollen Section -->
-  <!-- Section des Pollens -->
   <div class="info-card">
     <h6>
-      <i class="fas fa-leaf icon"></i>
-      Pollens
-      <span class="info-icon" tabindex="0" aria-describedby="tooltip-pollen">
-        i
-        <span class="tooltip" role="tooltip" id="tooltip-pollen">
-          Effets sur la santé :
-          <br>Un niveau élevé de pollen peut provoquer des réactions allergiques, notamment pour les personnes sensibles
-          (asthmatiques, allergiques saisonniers).
-        </span>
-      </span>
+      <i class="fas fa-leaf icon"></i> Pollens
     </h6>
-    <div class="info-value">
-      <div class="pollen-levels">
-        Arbres : <span class="{{ tree_pollen_class|lower }}">{{ tree_pollen_risk }}</span><br>
-        Herbacés : <span class="{{ grass_pollen_class|lower }}">{{ grass_pollen_risk }}</span>
+    <div class="pollen-columns">
+      <!-- Dynamically colored tiles for each pollen type -->
+      {% for pollen_type, pollen_level in pollen_data.pollen_levels.items %}
+      <div class="pollen-tile {% if pollen_level == 'Risque nul' %}risque-nul{% else %}{{ pollen_level|lower }}{% endif %}">
+        <p>{{ pollen_type|capfirst }}</p>
+        <span class="pollen-level">{{ pollen_level }}</span>
       </div>
-    </div>
-
-    <!-- Recommandations pour les personnes vulnérables -->
-    {% if tree_pollen_risk != 'Faible' or grass_pollen_risk != 'Faible' %}
-    <div class="recommendations">
-      <strong>Recommandations :</strong>
-      {% if tree_pollen_risk == 'Modérée' or grass_pollen_risk == 'Modérée' %}
-      <p>Les niveaux de pollen sont modérés. Les personnes allergiques devraient être vigilantes, surtout lorsqu'elles
-        passent du temps à l'extérieur.</p>
-      {% elif tree_pollen_risk == 'Élevée' or grass_pollen_risk == 'Élevée' %}
-      <p>Le niveau de pollen est élevé. Limitez les activités extérieures, en particulier pendant les heures de pointe,
-        et envisagez de prendre des antihistaminiques.</p>
-      {% elif tree_pollen_risk == 'Très élevée' or grass_pollen_risk == 'Très élevée' %}
-      <p>Le niveau de pollen est très élevé. Les personnes souffrant d'allergies devraient éviter de sortir, garder les
-        fenêtres fermées, et prendre des traitements antiallergiques si nécessaire.</p>
+      
+      <!-- Specific recommendations based on pollen level -->
+      {% if pollen_level != 'Risque nul' %}
+        <div class="recommendations">
+          <strong>Recommandations pour {{ pollen_type|capfirst }} :</strong>
+          {% if pollen_level == 'Faible' %}
+            <p>Risque faible. Vous pouvez sortir, mais restez vigilant.</p>
+          {% elif pollen_level == 'Modérée' %}
+            <p>Risque modéré. Soyez prudent et envisagez de rester à l'intérieur pendant les heures de pointe.</p>
+          {% elif pollen_level == 'Élevée' %}
+            <p>Risque élevé. Limitez les activités extérieures, surtout si vous êtes allergique.</p>
+          {% elif pollen_level == 'Très élevée' %}
+            <p>Risque très élevé. Évitez de sortir et prenez des traitements antiallergiques.</p>
+          {% endif %}
+        </div>
       {% endif %}
+      {% endfor %}
     </div>
-    {% endif %}
+    
   </div>
-
-  <!-- Legend for Air Quality Levels -->
-  <div class="legend">
+  
+  <!-- Style for the 4-column pollen section -->
+  <style>
+    .pollen-columns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 columns for laptop and larger */
+      gap: 10px; /* Space between the tiles */
+    }
+  
+    .pollen-tile {
+      background-color: #f1f1f1;
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Slight shadow */
+    }
+  
+    .pollen-tile p {
+      margin: 0;
+      font-size: 14px; /* Compact font size */
+    }
+  
+    .pollen-tile .pollen-level {
+      font-size: 18px; /* Slightly reduced font size */
+      margin-top: 3px;
+    }
+  
+    /* Dynamic coloring based on pollen level */
+    .bon {
+      color: #34c759 !important; /* Green color for good air quality */
+    }
+    
+    .moyen {
+      color: #ffcc00 !important; /* Yellow color for moderate air quality */
+    }
+    
+    /* Other classes for reference */
+    .degrade {
+      color: #ff9500 !important; /* Orange color for degraded quality */
+    }
+    
+    .mauvais {
+      color: #ff3b30 !important; /* Red color for poor quality */
+    }
+    
+    .tres-mauvais {
+      color: #c40000 !important; /* Dark red for very poor quality */
+    }
+    .risque-nul {
+      color: #34c759 !important; /* Green color for null risk */
+    }
+  
+    .tres-mauvais {
+      background-color: #c40000;
+    }
+  
+    /* Style for the info card */
+    .info-card {
+      background-color: #f1f1f1;
+      border-radius: 10px;
+      padding: 10px;
+      width: 100%; /* Full width */
+      box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.05); /* Slightly smaller shadow */
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+  
+    .info-card:hover {
+      transform: translateY(-3px);
+      background-color: #fafafa;
+    }
+  
+    .recommendations {
+      margin-top: 10px;
+      padding: 8px;
+      background-color: #ffe5e5;
+      border-left: 4px solid #ff3b30;
+      font-size: 12px; /* Smaller font size for recommendations */
+      color: #c40000;
+    }
+  
+    /* Force 4 columns on laptop screens and larger */
+    @media (max-width: 1200px) {
+      .pollen-columns {
+        grid-template-columns: repeat(4, 1fr); /* Force 4 columns on laptop size */
+      }
+    }
+  
+    /* Responsive design: adjust the layout for smaller screens */
+    @media (max-width: 768px) {
+      .pollen-columns {
+        grid-template-columns: repeat(2, 1fr); /* Switch to 2 columns on smaller screens */
+      }
+    }
+  
+    @media (max-width: 480px) {
+      .pollen-columns {
+        grid-template-columns: 1fr; /* Switch to 1 column on very small screens */
+      }
+    }
+  </style>
     <h6>Légende :</h6>
+    <div class="risque-nul">Risque nul</div>
     <div class="faible">Faible</div>
     <div class="moyen">Moyen</div>
-    <div class="degrade">Dégradée</div>
+
     <div class="mauvais">Mauvaise</div>
-    <div class="tres-mauvais">Très Mauvaise</div>
+
   </div>
 </div>
+
+
 {% endblock %}
