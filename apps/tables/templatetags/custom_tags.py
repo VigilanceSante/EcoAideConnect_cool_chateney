@@ -7,3 +7,6 @@ register = template.Library()
 def toggle_order(current_order):
     """Toggle between ascending and descending order."""
     return 'desc' if current_order == 'asc' else 'asc'
+
+
+# apps/volonteers/templatetags/custom_filters.py

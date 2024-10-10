@@ -71,7 +71,9 @@ INSTALLED_APPS = [
     "apps.need_help",
     "apps.db_users",
     "apps.forcast",
-    "apps.twosome"
+    "apps.twosome", 
+        'admin_interface',
+    'colorfield',
 
 
 
@@ -194,3 +196,4 @@ OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 # Your stuff...
 # ------------------------------------------------------------------------------
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000000 
+ADMIN_INTERFACE_THEME = 'light'

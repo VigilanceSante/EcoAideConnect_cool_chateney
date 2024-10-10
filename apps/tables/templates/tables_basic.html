@@ -1,3 +1,4 @@
+<!-- contact_form_list.html -->
 {% extends layout_path %}
 {% load static %}
 {% load i18n %}
@@ -33,16 +34,6 @@
           <option value="False" {% if current_is_volunteer == "False" %} selected {% endif %}>Non</option>
         </select>
       </div>
-      <div class="form-group mb-2 ml-3">
-        <label for="availability" class="mr-2">Disponibilités</label>
-        <select id="availability" name="availability" class="form-control" multiple>
-          {% for option in availability_options %}
-            <option value="{{ option.value }}" {% if option.value in current_availability %} selected {% endif %}>
-              {{ option.label }}
-            </option>
-          {% endfor %}
-        </select>
-      </div>
       <button type="submit" class="btn btn-primary mb-2 ml-3">Filtrer</button>
     </form>
   </div>
@@ -75,8 +66,12 @@
           <td>{{ contact.start_date }}</td>
           <td>{{ contact.end_date }}</td>
           <td>
-            {% for day in contact.availability %}
-              {{ day.label }}<br>
+            {% for slot in availability_slots %}
+                {% if contact|dict_value:slot.field %}
+                    {{ slot.label }}: <strong>Disponible</strong><br>
+                {% else %}
+                    {{ slot.label }}: Pas disponible<br>
+                {% endif %}
             {% endfor %}
           </td>
         </tr>
