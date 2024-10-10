@@ -209,10 +209,16 @@
       </ul>
     </li>
 
+    <li class="menu-item {% if '/twosome/' in request.path %}active{% endif %}">
+      <a href="{% url 'twosome' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx  bx-calendar-heart"></i>
+        <div class="text-truncate" data-i18n="Je veux aider">Binômes</div>
+      </a>
+    </li>
     <li class="menu-item {% if '/ui/' in request.path %}active open{% endif %}">
       <a href="javascript:void(0)" class="menu-link menu-toggle">
         <i class="menu-icon tf-icons bx bx-box"></i>
-        <div class="text-truncate" data-i18n="User interface">Volontaires</div>
+        <div class="text-truncate" data-i18n="User interface">Contacts</div>
       </a>
       <ul class="menu-sub">
         <li
@@ -220,7 +226,7 @@
         >
           <a href="{% url 'tables-basic' %}" class="menu-link">
             <i class="menu-icon tf-icons bx bx-table"></i>
-            <div class="text-truncate" data-i18n="Liste">Liste</div>
+            <div class="text-truncate" data-i18n="Liste">Listes</div>
           </a>
         </li>
         <li

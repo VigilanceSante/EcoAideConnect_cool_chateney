@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "apps.need_help",
     "apps.db_users",
     "apps.forcast",
+    "apps.twosome"
 
 
 
@@ -188,8 +189,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 THEME_VARIABLES = THEME_VARIABLES
 OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
-AIRPARIF_API_KEY = os.getenv('AIRPARIF_API_KEY')
-AMBEE_API_KEY = os.getenv('AMBEE_API_KEY')
 
 
 # Your stuff...
