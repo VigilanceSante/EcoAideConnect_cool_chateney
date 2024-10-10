@@ -2,3 +2,4 @@ django
 python-dotenv
 requests
 whitenoise
+django-admin-interface
