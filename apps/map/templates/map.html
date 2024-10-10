@@ -1,8 +1,8 @@
-{% extends layout_path %} <!-- Use your base template here if you have one -->
+{% extends layout_path %} <!-- Utilisez votre template de base ici si vous en avez un -->
 {% load static %}
 {% load i18n %}
 
-{% block title %}Map of Châtenay-Malabry{% endblock %}
+{% block title %}Carte de Châtenay-Malabry{% endblock %}
 
 {% block content %}
 <!-- OpenStreetMap -->
@@ -10,11 +10,24 @@
   <div class="col-12">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title text-primary">Découvrir les lieux frais</h5>
+        <h5 class="card-title text-primary">Découvrir les lieux d'intérêt à Châtenay-Malabry</h5>
 
-        <!-- Address Input Field with Autocomplete Suggestions -->
+        <!-- Filtre par Type de Lieu -->
+        <div class="mb-3">
+          <label for="locationType" class="form-label">Type de lieu :</label>
+          <select id="locationType" class="form-select" aria-label="Type de lieu">
+            <option value="all">Tous</option>
+            <option value="public_places">Lieux publics climatisés</option>
+            <option value="park">Parcs</option>
+            <option value="drinking_water">Fontaines publiques (potable)</option>
+            <option value="non_drinking_water">Points d'eau non potable</option>
+            <!-- Ajouter d'autres options si nécessaire -->
+          </select>
+        </div>
+
+        <!-- Champ de Recherche d'Adresse avec Suggestions Automatiques -->
         <div class="input-group mb-3">
-          <input type="text" id="addressInput" class="form-control" placeholder="Entrez une adresse" aria-label="Entrez une adresse">
+          <input type="text" id="addressInput" class="form-control" placeholder="Entrez une adresse (facultatif)" aria-label="Entrez une adresse">
           <ul id="suggestions" class="list-group" style="position: absolute; z-index: 1000; width: 100%;"></ul>
           <button id="searchButton" class="btn btn-primary">Rechercher</button>
         </div>
@@ -25,7 +38,7 @@
   </div>
 </div>
 
-<!-- Leaflet CSS and JS -->
+<!-- Leaflet CSS et JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
@@ -54,14 +67,14 @@
 
   .input-group {
     margin-bottom: 20px;
-    position: relative; /* Ensure suggestions dropdown is positioned correctly */
+    position: relative; /* Assure que le dropdown des suggestions est positionné correctement */
   }
 
   #suggestions {
     background: white;
     border: 1px solid #ccc;
-    max-height: 200px; /* Limit height of suggestions */
-    overflow-y: auto; /* Enable scrolling if there are many suggestions */
+    max-height: 200px; /* Limite la hauteur des suggestions */
+    overflow-y: auto; /* Active le défilement s'il y a beaucoup de suggestions */
     position: absolute;
     z-index: 1000;
     width: 100%;
@@ -78,110 +91,164 @@
 </style>
 
 <script>
-  // Set default map view to Châtenay-Malabry
-  var map = L.map('map').setView([48.765, 2.266], 14); // Coordinates for Châtenay-Malabry with an appropriate zoom level
+  // Initialisation de la carte
+  var map = L.map('map').setView([48.765, 2.266], 14); // Coordonnées de Châtenay-Malabry
 
-  // Add the OpenStreetMap tile layer
+  // Ajout de la couche de tuiles OpenStreetMap
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    attribution: 'Données cartographiques &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributeurs',
     maxZoom: 18,
   }).addTo(map);
 
+  // Initialisation du groupe de clusters de marqueurs
   var markers = L.markerClusterGroup();
   map.addLayer(markers);
 
-  var geocoder = L.Control.Geocoder.nominatim();
+  // Icônes personnalisées pour chaque type de lieu
+  const icons = {
+    public_places: L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    }),
+    park: L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    }),
+    drinking_water: L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    }),
+    non_drinking_water: L.icon({
+      iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    }),
+  };
 
-  // Function to fetch fountains using Overpass API
-  function fetchFountains(lat, lng) {
-    var overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node[amenity=drinking_water](around:2000,${lat},${lng});out;`;
+  // Emplacements pré-définis (latitude, longitude, type)
+  const locations = [
+    // Lieux publics climatisés
+    { lat: 48.7639, lng: 2.3136, type: 'public_places', name: "Centre Communal d’Action Sociale", address: "26 rue du Docteur Le Savoureux", phone: "01 46 83 46 82" },
+    { lat: 48.7625, lng: 2.3123, type: 'public_places', name: "Cinéma Le Rex", address: "364 avenue de la Division Leclerc", phone: "01 40 83 16 85" },
+    { lat: 48.7620, lng: 2.3118, type: 'public_places', name: "Espace Séniors", address: "291-293 avenue de la Division Leclerc", phone: "01 46 32 46 69" },
+    { lat: 48.7615, lng: 2.3105, type: 'public_places', name: "Médiathèque", address: "7-9 rue des Vallées", phone: "01 46 83 45 48" },
+    { lat: 48.7610, lng: 2.3090, type: 'public_places', name: "Pavillon des Arts et du Patrimoine", address: "98 rue Jean Longuet", phone: "01 47 02 75 22" },
+    
+    // Fontaines publiques et points d’eau
+    { lat: 48.7675, lng: 2.2810, type: 'drinking_water', name: "Jardin de l’Aigle Blanc", address: "Rue de Chateaubriand", phone: "" },
+    { lat: 48.7680, lng: 2.2825, type: 'non_drinking_water', name: "Fontaine publique", address: "Quartier Petit Châtenay, Place Allende", phone: "" },
+    { lat: 48.7665, lng: 2.2830, type: 'drinking_water', name: "Jardins LaVallée", address: "Quartier LaVallée", phone: "" },
+    { lat: 48.7670, lng: 2.2845, type: 'non_drinking_water', name: "Fontaine publique", address: "Quartier LaVallée, Place LaVallée", phone: "" },
+    { lat: 48.7655, lng: 2.2850, type: 'non_drinking_water', name: "Fontaine publique", address: "Centre-ville, Rue Jean Longuet", phone: "" },
 
-    fetch(overpassUrl)
-      .then(response => response.json())
-      .then(data => {
-        data.elements.forEach(element => {
-          if (element.lat && element.lon) {
-            addMarker(element.lat, element.lon, "Point d'eau potable");
-          }
-        });
-        map.addLayer(markers); // Add new fountain markers to the map
-      })
-      .catch(error => {
-        console.error('Error fetching fountains:', error);
+    // Parcs
+    { lat: 48.7580, lng: 2.3000, type: 'park', name: "Parc Henri Barbusse", address: "Parc Henri Barbusse, Châtenay-Malabry", phone: "01 46 83 46 90" },
+    { lat: 48.7590, lng: 2.3015, type: 'park', name: "Parc de la Hotoie", address: "Parc de la Hotoie, Châtenay-Malabry", phone: "01 46 83 46 91" },
+    { lat: 48.7600, lng: 2.3030, type: 'park', name: "Parc des Jardins", address: "Parc des Jardins, Châtenay-Malabry", phone: "01 46 83 46 92" },
+    // Ajouter d'autres parcs pré-définis ici
+  ];
+
+  // Fonction pour ajouter un marqueur au groupe de clusters
+  function addMarker(lat, lng, name, address, phone, type) {
+    var popupContent = `<strong>${name}</strong><br>${address}`;
+    if (phone) {
+      popupContent += `<br>Téléphone: ${phone}`;
+    }
+    var marker = L.marker([lat, lng], { icon: icons[type] }).bindPopup(popupContent);
+    markers.addLayer(marker);
+  }
+
+  // Fonction pour afficher les emplacements en fonction du type sélectionné
+  function fetchLocations(amenity) {
+    markers.clearLayers(); // Efface les marqueurs existants
+
+    if (amenity === 'all') {
+      // Affiche tous les emplacements
+      locations.forEach(location => {
+        addMarker(location.lat, location.lng, location.name, location.address, location.phone, location.type);
       });
+    } else {
+      // Affiche uniquement le type sélectionné
+      locations.forEach(location => {
+        if (location.type === amenity) {
+          addMarker(location.lat, location.lng, location.name, location.address, location.phone, location.type);
+        }
+      });
+    }
   }
 
-  // Function to add a marker to the cluster group
-  function addMarker(lat, lng, popupContent) {
-    L.marker([lat, lng]).bindPopup(popupContent).addTo(markers);
-  }
-
-  // Autocomplete functionality
+  // Fonction de suggestions automatiques
   function fetchSuggestions(query) {
-    var geocodingUrl = `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=YOUR_OPENCAGE_API_KEY&limit=5`;
+    const suggestions = document.getElementById('suggestions');
+    suggestions.innerHTML = '';
 
-    fetch(geocodingUrl)
-      .then(response => response.json())
-      .then(data => {
-        var suggestions = document.getElementById('suggestions');
-        suggestions.innerHTML = '';
-
-        data.results.forEach(result => {
-          var li = document.createElement('li');
-          li.textContent = result.formatted;
-          li.addEventListener('click', function() {
-            selectSuggestion(result.geometry.lat, result.geometry.lng, result.formatted);
-          });
-          suggestions.appendChild(li);
+    // Suggestions basées sur les emplacements pré-définis
+    locations.forEach(location => {
+      if (location.name.toLowerCase().includes(query.toLowerCase())) {
+        var li = document.createElement('li');
+        li.textContent = location.name;
+        li.addEventListener('click', function() {
+          selectSuggestion(location.lat, location.lng, location.name);
         });
-      })
-      .catch(error => {
-        console.error('Error fetching suggestions:', error);
-      });
+        suggestions.appendChild(li);
+      }
+    });
   }
 
-  // Handle selecting a suggestion
+  // Gestion de la sélection d'une suggestion
   function selectSuggestion(lat, lng, name) {
     document.getElementById('addressInput').value = name;
     document.getElementById('suggestions').innerHTML = '';
-    map.setView([lat, lng], 15); // Focus the map on the selected location
-    L.marker([lat, lng]).addTo(map).bindPopup(name).openPopup();
-
-    // Fetch fountains around the selected location
-    fetchFountains(lat, lng);
+    map.setView([lat, lng], 15); // Centre la carte sur l'emplacement sélectionné
+    L.marker([lat, lng]).bindPopup(name).addTo(map).openPopup();
   }
 
-  // Add event listener for input field changes (autocomplete suggestions)
+  // Écouteur d'événement pour les changements dans le champ de recherche
   document.getElementById('addressInput').addEventListener('input', function() {
     var query = this.value;
     if (query.length > 2) {
       fetchSuggestions(query);
     } else {
-      document.getElementById('suggestions').innerHTML = ''; // Clear suggestions if query is too short
+      document.getElementById('suggestions').innerHTML = ''; // Efface les suggestions si la requête est trop courte
     }
   });
 
-  // Search button functionality
+  // Fonctionnalité du bouton de recherche
   document.getElementById('searchButton').addEventListener('click', function() {
-    var address = document.getElementById('addressInput').value;
-    if (address) {
-      geocoder.geocode(address, function(results) {
-        if (results && results.length > 0) {
-          var result = results[0];
-          map.setView(result.center, 15); // Focus the map on the result
-          L.marker(result.center).addTo(map).bindPopup(result.name).openPopup();
+    var address = document.getElementById('addressInput').value.trim();
 
-          // Fetch fountains around the searched location
-          fetchFountains(result.center.lat, result.center.lng);
-        } else {
-          alert('Adresse non trouvée.');
-        }
-      });
+    // Si une adresse est fournie, cherche-la; sinon, affiche les emplacements filtrés
+    if (address) {
+      const foundLocation = locations.find(location => location.name.toLowerCase() === address.toLowerCase());
+
+      if (foundLocation) {
+        map.setView([foundLocation.lat, foundLocation.lng], 15); // Centre la carte sur le résultat
+        L.marker([foundLocation.lat, foundLocation.lng]).bindPopup(foundLocation.name).addTo(map).openPopup();
+      } else {
+        alert('Adresse non trouvée.');
+      }
     }
+
+    // Affiche les emplacements en fonction du type sélectionné
+    var selectedType = document.getElementById('locationType').value;
+    fetchLocations(selectedType);
   });
 
-  // Initially fetch fountains for Châtenay-Malabry
-  fetchFountains(48.765, 2.266);
+  // Écouteur d'événement pour les changements de filtre
+  document.getElementById('locationType').addEventListener('change', function() {
+    var selectedType = this.value;
+    fetchLocations(selectedType);
+  });
+
+  // Affiche tous les emplacements au chargement initial
+  fetchLocations('all'); // Affiche tous les marqueurs au chargement initial
 </script>
 
 {% endblock %}
