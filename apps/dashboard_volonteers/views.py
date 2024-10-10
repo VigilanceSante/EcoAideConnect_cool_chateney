@@ -1,5 +1,5 @@
 from django.views.generic import TemplateView
-from django.db.models import Count, F, ExpressionWrapper, fields, Sum
+from django.db.models import Count, F, ExpressionWrapper, fields, Sum, Q
 from django.utils.timezone import now, timedelta
 from datetime import date
 from web_project import TemplateLayout
@@ -12,102 +12,115 @@ class DashboardView(TemplateView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
 
-        # Disponibilités et leurs traductions
-        availability_fields = [
-            'monday_all_day', 'monday_morning', 'monday_afternoon', 'monday_evening',
-            'tuesday_all_day', 'tuesday_morning', 'tuesday_afternoon', 'tuesday_evening',
-            'wednesday_all_day', 'wednesday_morning', 'wednesday_afternoon', 'wednesday_evening',
-            'thursday_all_day', 'thursday_morning', 'thursday_afternoon', 'thursday_evening',
-            'friday_all_day', 'friday_morning', 'friday_afternoon', 'friday_evening',
-            'saturday_all_day', 'saturday_morning', 'saturday_afternoon', 'saturday_evening',
-            'sunday_all_day', 'sunday_morning', 'sunday_afternoon', 'sunday_evening'
-        ]
+        # Define availability fields
+        days_of_week = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        slots = ['all_day', 'morning', 'afternoon', 'evening']
+        availability_fields = [f"{day}_{slot}" for day in days_of_week for slot in slots]
 
+        # Prepare availability translations
         availability_translations = {
-            'monday_all_day': 'Lundi - Toute la journée',
-            'monday_morning': 'Lundi - Matin',
-            'monday_afternoon': 'Lundi - Après-midi',
-            'monday_evening': 'Lundi - Soir',
-            'tuesday_all_day': 'Mardi - Toute la journée',
-            'tuesday_morning': 'Mardi - Matin',
-            'tuesday_afternoon': 'Mardi - Après-midi',
-            'tuesday_evening': 'Mardi - Soir',
-            'wednesday_all_day': 'Mercredi - Toute la journée',
-            'wednesday_morning': 'Mercredi - Matin',
-            'wednesday_afternoon': 'Mercredi - Après-midi',
-            'wednesday_evening': 'Mercredi - Soir',
-            'thursday_all_day': 'Jeudi - Toute la journée',
-            'thursday_morning': 'Jeudi - Matin',
-            'thursday_afternoon': 'Jeudi - Après-midi',
-            'thursday_evening': 'Jeudi - Soir',
-            'friday_all_day': 'Vendredi - Toute la journée',
-            'friday_morning': 'Vendredi - Matin',
-            'friday_afternoon': 'Vendredi - Après-midi',
-            'friday_evening': 'Vendredi - Soir',
-            'saturday_all_day': 'Samedi - Toute la journée',
-            'saturday_morning': 'Samedi - Matin',
-            'saturday_afternoon': 'Samedi - Après-midi',
-            'saturday_evening': 'Samedi - Soir',
-            'sunday_all_day': 'Dimanche - Toute la journée',
-            'sunday_morning': 'Dimanche - Matin',
-            'sunday_afternoon': 'Dimanche - Après-midi',
-            'sunday_evening': 'Dimanche - Soir'
+            f"{day}_{slot}": f"{day.capitalize()} - {slot.replace('_', ' ').title()}"
+            for day in days_of_week
+            for slot in slots
         }
 
-        # Préparer les options de disponibilité pour le template
+        # Prepare availability options for the template
         context['availability_options'] = [
             {'field': field, 'translation': availability_translations[field]}
             for field in availability_fields
         ]
 
-        # Dates par défaut: début et fin du mois en cours
+        # Default dates: start and end of the current month
         today = now().date()
         default_start_date = today.replace(day=1)
-        default_end_date = (today.replace(day=1) + timedelta(days=31)).replace(day=1) - timedelta(days=1)
+        default_end_date = (default_start_date + timedelta(days=31)).replace(day=1) - timedelta(days=1)
 
-        # Récupération des dates depuis les paramètres GET ou utilisation des valeurs par défaut
-        start_date_str = self.request.GET.get('start_date')
-        end_date_str = self.request.GET.get('end_date')
+        # Retrieve dates from GET parameters or use default values
+        start_date = self.request.GET.get('start_date', default_start_date.isoformat())
+        end_date = self.request.GET.get('end_date', default_end_date.isoformat())
 
-        start_date = date.fromisoformat(start_date_str) if start_date_str else default_start_date
-        end_date = date.fromisoformat(end_date_str) if end_date_str else default_end_date
+        # Convert strings to date objects
+        start_date = date.fromisoformat(start_date)
+        end_date = date.fromisoformat(end_date)
 
-        # Convert dates to string in ISO format for use in the template
         context['start_date'] = start_date.isoformat()
         context['end_date'] = end_date.isoformat()
 
-        # Filtrage des contacts
-        contacts = ContactForm.objects.filter(start_date__gte=start_date, end_date__lte=end_date)
+        # Filter contacts: only volunteers
+        contacts = ContactForm.objects.filter(
+            start_date__gte=start_date, end_date__lte=end_date, is_volunteer=True
+        )
 
         availability = self.request.GET.get('availability')
         if availability:
             contacts = contacts.filter(**{availability: True})
 
-        # Statistiques mises à jour
-        context['total_contacts'] = contacts.count()
+        # KPI Calculations
 
-        last_week = today - timedelta(days=7)
-        last_month = today - timedelta(days=30)
-        context['new_contacts_last_week'] = contacts.filter(start_date__gte=last_week).count()
-        context['new_contacts_last_month'] = contacts.filter(start_date__gte=last_month).count()
+        # 1. Weekend availability
+        weekend_contacts = contacts.filter(
+            Q(saturday_all_day=True) | Q(saturday_morning=True) | Q(saturday_afternoon=True) | Q(saturday_evening=True) |
+            Q(sunday_all_day=True) | Q(sunday_morning=True) | Q(sunday_afternoon=True) | Q(sunday_evening=True)
+        )
+        context['weekend_contacts_count'] = weekend_contacts.count()
 
-        # Contacts par disponibilité pour une fenêtre de 14 jours
-        start_date_window = now()
-        end_date_window = start_date_window + timedelta(days=13)
-        dates = [start_date_window + timedelta(days=i) for i in range(14)]
+        # 2. Re-registered volunteers
+        all_contacts = ContactForm.objects.filter(is_volunteer=True)
+        re_registered_contacts = all_contacts.values('first_name', 'last_name').annotate(
+            participation_count=Count('id')
+        ).filter(participation_count__gt=1)
+
+        context['re_registered_contacts_count'] = re_registered_contacts.count()
+
+        # 3. Re-registration percentage
+        distinct_volunteers = all_contacts.values('first_name', 'last_name').distinct().count()
+        re_registration_percentage = (
+            (re_registered_contacts.count() / distinct_volunteers) * 100 if distinct_volunteers > 0 else 0
+        )
+        context['re_registration_percentage'] = round(re_registration_percentage, 2)
+
+        # 4. Total active volunteers
+        context['total_active_volunteers'] = contacts.values('first_name', 'last_name').distinct().count()
+
+        # 5. Contacts by availability for a 14-day window
+        start_date_window = today
+        dates_window = [start_date_window + timedelta(days=i) for i in range(14)]
+
         contacts_by_dates_slots = {
             date.strftime('%Y-%m-%d'): {
-                slot: contacts.filter(**{f'{date.strftime("%A").lower()}_{slot}': True}).count()
-                for slot in ['all_day', 'morning', 'afternoon', 'evening']
+                slot: contacts.filter(**{f"{date.strftime('%A').lower()}_{slot}": True}).count()
+                for slot in slots
             }
-            for date in dates
+            for date in dates_window
         }
         context['contacts_by_dates_slots'] = json.dumps(contacts_by_dates_slots)
-        context['dates'] = [date.strftime('%Y-%m-%d') for date in dates]
+        context['dates'] = [date.strftime('%Y-%m-%d') for date in dates_window]
 
-        # Meilleurs contributeurs
+        # 6. Availability trend for the last 14 days
+        availability_trend = [
+            contacts.filter(start_date__gte=(today - timedelta(days=days))).count() for days in range(14)
+        ]
+        context['availability_trend'] = json.dumps(availability_trend)
+
+        # 7. Weekday vs Weekend contacts
+        weekday_contacts = contacts.filter(
+            Q(monday_all_day=True) | Q(monday_morning=True) | Q(monday_afternoon=True) | Q(monday_evening=True) |
+            Q(tuesday_all_day=True) | Q(tuesday_morning=True) | Q(tuesday_afternoon=True) | Q(tuesday_evening=True) |
+            Q(wednesday_all_day=True) | Q(wednesday_morning=True) | Q(wednesday_afternoon=True) | Q(wednesday_evening=True) |
+            Q(thursday_all_day=True) | Q(thursday_morning=True) | Q(thursday_afternoon=True) | Q(thursday_evening=True) |
+            Q(friday_all_day=True) | Q(friday_morning=True) | Q(friday_afternoon=True) | Q(friday_evening=True)
+        )
+        context['weekday_count'] = weekday_contacts.count()
+        context['weekend_count'] = weekend_contacts.count()
+
+        # 8. Top contributors
         date_diff = ExpressionWrapper(F('end_date') - F('start_date'), output_field=fields.DurationField())
-        top_contributors = contacts.values('first_name', 'last_name').annotate(total_days=Sum(date_diff)).order_by('-total_days')[:5]
+        top_contributors = (
+            contacts
+            .values('first_name', 'last_name')
+            .annotate(total_days=Sum(date_diff))
+            .order_by('-total_days')[:5]
+        )
         context['top_contributors'] = list(top_contributors)
 
         return context

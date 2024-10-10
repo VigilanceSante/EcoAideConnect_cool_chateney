@@ -193,4 +193,4 @@ OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
 
 # Your stuff...
 # ------------------------------------------------------------------------------
-DATA_UPLOAD_MAX_NUMBER_FIELDS = 999999999999
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000000 
