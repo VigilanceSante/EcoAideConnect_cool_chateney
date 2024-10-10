@@ -26,8 +26,9 @@ class WeatherData:
         self.lon = lon
 
     def get_weather_forecast(self) -> Dict[str, Any]:
-        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric"
+        url = f"http://api.openweathermap.org/data/2.5/forecast?lat={self.lat}&lon={self.lon}&appid={self.api_key}&units=metric&lang=fr"
         logger.debug(f"Fetching weather data from: {url}")
+        
 
         try:
             response = requests.get(url)
@@ -102,10 +103,12 @@ class RecosanteAPI:
             'show_raep': 'true',  # Pollen data
             'show_indice_uv': 'true',  # UV Index data
         }
+        
 
     def fetch_data(self) -> Dict[str, Any]:
         try:
             response = requests.get(self.API_URL, params=self.params)
+            print(response.url)
             response.raise_for_status()
             return self.parse_data(response.json())
         except requests.RequestException as e:
@@ -121,12 +124,13 @@ class RecosanteAPI:
             'raep': self.parse_raep(data.get('raep', {})),
             'vigilance_meteo': self.parse_vigilance_meteo(data.get('vigilance_meteo', {}))
         }
-
     def parse_episodes_pollution(self, pollution_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Parses pollution episode data and returns a structured dictionary."""
         details = pollution_data.get('indice', {}).get('details', [])
+        episodes = [{'label': item.get('label', 'Inconnu'), 'level': item.get('level', 'N/A')} for item in details]
         return {
             'label': pollution_data.get('indice', {}).get('label', 'Aucune donnée'),
-            'details': [{'label': item.get('label', 'Inconnu'), 'level': item.get('level', 'N/A')} for item in details],
+            'details': episodes,
             'sources': pollution_data.get('sources', []),
             'validity': pollution_data.get('validity', {}),
         }

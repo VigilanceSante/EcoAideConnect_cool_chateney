@@ -239,10 +239,10 @@
       </h6>
       <div class="details">
         <p>
-          {% trans "Dans 1 heure, la température sera de" %} {{ plus1H.temperature }} °C{% trans ", ressentie comme" %} {{ plus1H.feels_like }} °C.{% trans " Les conditions météorologiques seront" %} {{ plus1H.weather }}.
+          {% trans "Dans 1 heure, la température sera de" %} {{ plus1H.temperature }} °C{% trans ", ressentie comme" %} {{ plus1H.feels_like }} °C.{% trans " Les conditions météorologiques seront :" %} {{ plus1H.weather }}.
         </p>
         <p>
-          {% trans "Demain, la température sera de" %} {{ plus24H.temperature }} °C{% trans ", ressentie comme" %} {{ plus24H.feels_like }} °C.{% trans " Les conditions météorologiques seront" %} {{ plus24H.weather }}.
+          {% trans "Demain, la température sera de" %} {{ plus24H.temperature }} °C{% trans ", ressentie comme" %} {{ plus24H.feels_like }} °C.{% trans " Les conditions météorologiques seront :t" %} {{ plus24H.weather }}.
         </p>
       </div>
 
@@ -260,76 +260,51 @@
       {% endif %}
     </div>
 
-    <!-- Carte des Particules en Suspension -->
+    <!-- Carte des Épisode de pollution -->
     <div class="card">
       <h6 class="card-title">
         <i class="fas fa-cloud icon"></i>
-        {% trans "Particules en suspension" %}
-        <span class="info-icon" tabindex="0" aria-describedby="tooltip-pm">
-          i
-          <span class="tooltip" role="tooltip" id="tooltip-pm">
-            {% trans "Effets sur la santé : PM10 peut irriter les voies respiratoires, surtout chez les personnes souffrant d'asthme. PM2.5 augmente le risque de maladies cardiovasculaires et respiratoires." %}
-          </span>
-        </span>
+        {% trans "Épisode de pollution" %}
+
       </h6>
       <div class="details">
-        PM10 : <span class="{{ PM10|lower|slugify }}">{{ PM10 }}</span><br>
-        PM2.5 : <span class="{{ PM25|lower|slugify }}">{{ PM25 }}</span>
-      </div>
-      {% if PM10 != 'Bon' and PM10 != 'Moyen' or PM25 != 'Bon' and PM25 != 'Moyen' %}
-      <div class="recommendations">
-        <strong>Recommandations :</strong>
-        {% if PM10 == 'Dégradée' or PM25 == 'Dégradée' %}
-        <p>Les niveaux de particules sont modérés. Les personnes sensibles devraient limiter les efforts prolongés à
-          l'extérieur.</p>
-        {% elif PM10 == 'Mauvaise' or PM25 == 'Mauvaise' %}
-        <p>Limitez les activités physiques intenses en extérieur, surtout pour les personnes sensibles.</p>
-        {% elif PM10 == 'Très mauvaise' or PM25 == 'Très mauvaise' %}
-        <p>Les niveaux de particules en suspension sont extrêmement élevés. Les personnes vulnérables (enfants, personnes
-          âgées, personnes atteintes de maladies respiratoires) devraient éviter toute activité en extérieur.</p>
-        {% endif %}
-      </div>
-      {% endif %}
-
+        <ul>
+          {% for episode in episodde_PM10 %}
+              <li>
+                  <strong>{{ episode.label }}:</strong> 
+                  <span style="color: green;">{{ episode.level }}</span>
+              </li>
+          {% empty %}
+              <li>Aucune donnée sur les épisodes de PM10.</li>
+          {% endfor %}
+      </ul>    
+      
+      <ul>
+        {% for episode in episodde_O3 %}
+            <li>
+                <strong>{{ episode.label }}:</strong> 
+                <span style="color: green;">{{ episode.level }}</span>
+            </li>
+        {% empty %}
+            <li>Aucune donnée sur les épisodes de l'ozone.</li>
+        {% endfor %}
+    </ul>  
+      
+            <ul>
+        {% for episode in episodde_NO2 %}
+            <li>
+                <strong>{{ episode.label }}:</strong> 
+                <span style="color: green;">{{ episode.level }}</span>
+            </li>
+        {% empty %}
+            <li>Aucune donnée sur les épisodes de PM10.</li>
+        {% endfor %}
+    </ul>  
+      
+    
     </div>
+  </div>
 
-    <!-- Carte des Gaz Polluants -->
-    <div class="card">
-      <h6 class="card-title">
-        <i class="fas fa-smog icon"></i>
-        {% trans "Gaz polluants" %}
-        <span class="info-icon" tabindex="0" aria-describedby="tooltip-gaz">
-          i
-          <span class="tooltip" role="tooltip" id="tooltip-gaz">
-            {% trans "Effets sur la santé : Ozone (O₃) peut aggraver l'asthme. NO₂ contribue à l'inflammation pulmonaire. SO₂ peut irriter les yeux et les voies respiratoires." %}
-          </span>
-        </span>
-      </h6>
-      <div class="details">
-        Ozone (O<sub>3</sub>) : <span class="{{ O3|lower|slugify }}">{{ O3 }}</span><br>
-        NO<sub>2</sub> : <span class="{{ NO2|lower|slugify }}">{{ NO2 }}</span><br>
-        SO<sub>2</sub> : <span class="{{ SO2|lower|slugify }}">{{ SO2 }}</span>
-      </div>
-      {% if O3 != 'Faible' or NO2 != 'Faible' or SO2 != 'Faible' %}
-      <div class="recommendations">
-        <strong>Recommandations :</strong>
-        {% if O3 == 'Moyen' or NO2 == 'Moyen' or SO2 == 'Moyen' %}
-        <p>Les niveaux des gaz polluants sont modérés. Si vous avez des problèmes respiratoires, prenez des précautions en
-          limitant les efforts prolongés.</p>
-        {% elif O3 == 'Dégradée' or NO2 == 'Dégradée' or SO2 == 'Dégradée' %}
-        <p>Les niveaux de gaz sont dégradés. Si vous avez des problèmes respiratoires, évitez les efforts prolongés à
-          l'extérieur.</p>
-        {% elif O3 == 'Mauvaise' or NO2 == 'Mauvaise' or SO2 == 'Mauvaise' %}
-        <p>Les personnes vulnérables devraient limiter leurs activités extérieures, particulièrement pendant les heures de
-          pointe de pollution.</p>
-        {% elif O3 == 'Très mauvaise' or NO2 == 'Très mauvaise' or SO2 == 'Très mauvaise' %}
-        <p>Les niveaux de gaz polluants sont extrêmement élevés. Restez à l'intérieur, fermez les fenêtres, et évitez
-          toute activité en extérieur.</p>
-        {% endif %}
-      </div>
-      {% endif %}
-   
-    </div>
 
     <!-- Carte des Pollens -->
     <div class="card">
@@ -373,11 +348,11 @@
     <h6>{% trans "Légende" %} :</h6>
     <div class="risque-nul">{% trans "Risque Nul" %}</div>
     <div class="faible">{% trans "Faible" %}</div>
-    <div class="moderee">{% trans "Modérée" %}</div>
-    <div class="elevee">{% trans "Élevée" %}</div>
-    <div class="tres-elevee">{% trans "Très Élevée" %}</div>
     <div class="bon">{% trans "Bon" %}</div>
     <div class="moyen">{% trans "Moyen" %}</div>
+    <div class="elevee">{% trans "Élevée" %}</div>
+    <div class="tres-elevee">{% trans "Très Élevée" %}</div>
+
   </div>
 </div>
 {% endblock %}

@@ -55,17 +55,26 @@ class CombinedData(TemplateView):
         context['polluants'] = [{'label': key, 'niveau': value} for key, value in air_quality_levels.items()]
 
         # Extract values for each pollutant
-        context['PM10'] = air_quality_levels.get('PM10', 'N/A')
-        context['PM25'] = air_quality_levels.get('PM2,5', 'N/A')  # Corrected from 'PM2,5'
-        context['NO2'] = air_quality_levels.get('NO2', 'N/A')
-        context['O3'] = air_quality_levels.get('O3', 'N/A')
-        context['SO2'] = air_quality_levels.get('SO2', 'N/A')
+        # Pollutants (PM10, PM2.5, etc.)
+        air_quality_levels = pollution_data.get('air_quality_levels', {})
+        context['polluants'] = [{'label': key, 'niveau': value} for key, value in air_quality_levels.items()]
 
-        # Extract pollen data for trees
+        # Extract pollution episodes data
+        episodes_pollution_data = recosante_data.get('episodes_pollution', {}).get('details', [])
+        context['episodes_pollution_data'] = episodes_pollution_data
 
-
-        # Pollution episodes
-        context['episodes_pollution'] = episodes_pollution_data
+        # Extract episodes pollution data PM10
+        context['episodde_PM10'] = [
+            episode for episode in episodes_pollution_data if episode.get('label') == 'Particules PM10'
+        ]
+        # Extrat data for Ozone
+        context['episodde_O3'] = [
+            episode for episode in episodes_pollution_data if episode.get('label') == 'Ozone'
+        ]
+        # Extract data for NO2
+        context['episodde_NO2'] = [
+            episode for episode in episodes_pollution_data if episode.get('label') == 'Dioxyde d’azote'
+        ]
 
         # Add weather forecast for the next 24 hours
         context['next_24H'] = weather_data.get('plus24H', {})
