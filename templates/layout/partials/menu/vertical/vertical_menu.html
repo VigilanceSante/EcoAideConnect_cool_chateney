@@ -46,7 +46,16 @@
       </a>
     </li>
 
-    <!-- Support Section -->
+    <li
+      class="menu-item {% if 'map' == request.resolver_match.url_name %}active{% endif %}"
+    >
+      <a href="{% url 'map' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-map"></i>
+        <div class="text-truncate" data-i18n="Maps">Carte</div>
+      </a>
+    </li>
+
+
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Entraide</span>
     </li>
@@ -61,7 +70,9 @@
     <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
       <a href="{% url 'help' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-face"></i>
-        <div class="text-truncate" data-i18n="Je veux aider">J'ai besoin d'aide</div>
+        <div class="text-truncate" data-i18n="Je veux aider">
+          J'ai besoin d'aide
+        </div>
       </a>
     </li>
     <li class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}">

@@ -1,4 +1,9 @@
 .obsidian
 .env
 *.pyc
+<<<<<<< HEAD
+django_venv
+env/
+=======
 env
+>>>>>>> main
