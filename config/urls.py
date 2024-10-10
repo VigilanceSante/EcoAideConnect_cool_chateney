@@ -61,6 +61,11 @@ urlpatterns = [
     # NeedHelp urls
     path("", include("apps.need_help.urls")),
 
+     # NeedHelp urls
+    path("", include("apps.need_help.urls")),
+     
+     #maps URL
+    path("", include('apps.maps12.urls')),
 
 ]
 

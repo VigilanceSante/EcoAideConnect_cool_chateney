@@ -1,0 +1,187 @@
+{% extends "base_generic.html" %}  <!-- Use your base template here if you have one -->
+{% load static %}
+{% load i18n %}
+
+{% block title %}Map of Châtenay-Malabry{% endblock %}
+
+{% block content %}
+<!-- OpenStreetMap -->
+<div class="row">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title text-primary">Découvrir les lieux frais</h5>
+
+        <!-- Address Input Field with Autocomplete Suggestions -->
+        <div class="input-group mb-3">
+          <input type="text" id="addressInput" class="form-control" placeholder="Entrez une adresse" aria-label="Entrez une adresse">
+          <ul id="suggestions" class="list-group" style="position: absolute; z-index: 1000; width: 100%;"></ul>
+          <button id="searchButton" class="btn btn-primary">Rechercher</button>
+        </div>
+
+        <div id="map" class="map-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet CSS and JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<style>
+  .map-container {
+    height: 500px;
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+    position: relative; /* Ensure suggestions dropdown is positioned correctly */
+  }
+
+  #suggestions {
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px; /* Limit height of suggestions */
+    overflow-y: auto; /* Enable scrolling if there are many suggestions */
+    position: absolute;
+    z-index: 1000;
+    width: 100%;
+  }
+
+  #suggestions li {
+    padding: 10px;
+    cursor: pointer;
+  }
+
+  #suggestions li:hover {
+    background-color: #eee;
+  }
+</style>
+
+<script>
+  // Set default map view to Châtenay-Malabry
+  var map = L.map('map').setView([48.765, 2.266], 14); // Coordinates for Châtenay-Malabry with an appropriate zoom level
+
+  // Add the OpenStreetMap tile layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  var markers = L.markerClusterGroup();
+  map.addLayer(markers);
+
+  var geocoder = L.Control.Geocoder.nominatim();
+
+  // Function to fetch fountains using Overpass API
+  function fetchFountains(lat, lng) {
+    var overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json];node[amenity=drinking_water](around:2000,${lat},${lng});out;`;
+
+    fetch(overpassUrl)
+      .then(response => response.json())
+      .then(data => {
+        data.elements.forEach(element => {
+          if (element.lat && element.lon) {
+            addMarker(element.lat, element.lon, "Point d'eau potable");
+          }
+        });
+        map.addLayer(markers); // Add new fountain markers to the map
+      })
+      .catch(error => {
+        console.error('Error fetching fountains:', error);
+      });
+  }
+
+  // Function to add a marker to the cluster group
+  function addMarker(lat, lng, popupContent) {
+    L.marker([lat, lng]).bindPopup(popupContent).addTo(markers);
+  }
+
+  // Autocomplete functionality
+  function fetchSuggestions(query) {
+    var geocodingUrl = `https://api.opencagedata.com/geocode/v1/json?q=${query}&key=YOUR_OPENCAGE_API_KEY&limit=5`;
+
+    fetch(geocodingUrl)
+      .then(response => response.json())
+      .then(data => {
+        var suggestions = document.getElementById('suggestions');
+        suggestions.innerHTML = '';
+
+        data.results.forEach(result => {
+          var li = document.createElement('li');
+          li.textContent = result.formatted;
+          li.addEventListener('click', function() {
+            selectSuggestion(result.geometry.lat, result.geometry.lng, result.formatted);
+          });
+          suggestions.appendChild(li);
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching suggestions:', error);
+      });
+  }
+
+  // Handle selecting a suggestion
+  function selectSuggestion(lat, lng, name) {
+    document.getElementById('addressInput').value = name;
+    document.getElementById('suggestions').innerHTML = '';
+    map.setView([lat, lng], 15); // Focus the map on the selected location
+    L.marker([lat, lng]).addTo(map).bindPopup(name).openPopup();
+
+    // Fetch fountains around the selected location
+    fetchFountains(lat, lng);
+  }
+
+  // Add event listener for input field changes (autocomplete suggestions)
+  document.getElementById('addressInput').addEventListener('input', function() {
+    var query = this.value;
+    if (query.length > 2) {
+      fetchSuggestions(query);
+    } else {
+      document.getElementById('suggestions').innerHTML = ''; // Clear suggestions if query is too short
+    }
+  });
+
+  // Search button functionality
+  document.getElementById('searchButton').addEventListener('click', function() {
+    var address = document.getElementById('addressInput').value;
+    if (address) {
+      geocoder.geocode(address, function(results) {
+        if (results && results.length > 0) {
+          var result = results[0];
+          map.setView(result.center, 15); // Focus the map on the result
+          L.marker(result.center).addTo(map).bindPopup(result.name).openPopup();
+
+          // Fetch fountains around the searched location
+          fetchFountains(result.center.lat, result.center.lng);
+        } else {
+          alert('Adresse non trouvée.');
+        }
+      });
+    }
+  });
+
+  // Initially fetch fountains for Châtenay-Malabry
+  fetchFountains(48.765, 2.266);
+</script>
+
+{% endblock %}

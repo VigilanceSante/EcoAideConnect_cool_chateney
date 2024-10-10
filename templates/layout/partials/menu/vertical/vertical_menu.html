@@ -49,8 +49,21 @@
     </li>
 
     <li class="menu-header small text-uppercase">
+      <span class="menu-header-text">Maps & Locations</span>
+    </li>
+  
+    <li class="menu-item {% if 'maps12' == request.resolver_match.url_name %}active{% endif %}">
+      <a href="{% url 'maps12' %}" class="menu-link">
+        <i class="menu-icon tf-icons bx bx-map"></i>
+        <div class="text-truncate" data-i18n="Maps">Maps</div>
+      </a>
+    </li>
+
+    <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Entraide</span>
     </li>
+
+
 
     <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
       <a href="{% url 'contact_form' %}" class="menu-link">
