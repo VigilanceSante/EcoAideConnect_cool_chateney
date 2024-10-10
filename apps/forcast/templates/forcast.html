@@ -182,13 +182,23 @@
   }
 
   /* Niveaux de qualité de l'air avec couleurs associées */
-  .risque-nul { color: #34c759 !important; }
+  .risque-nul { color: #34c759 !important; } /* Couleur verte pour 'Risque Nul' */
   .faible { color: #9ACD32 !important; }
   .moderee { color: #FFD700 !important; }
   .elevee { color: #FF8C00 !important; }
-  .tres-elevee { color: #FF0000 !important; }
+  .tres-elevee { color: #FF0000 !important; } /* Couleur rouge pour 'Très Élevée' */
   .bon { color: #34c759 !important; } /* Couleur verte pour 'Bon' */
-  .moyen { color: #FFD700 !important; } /* Couleur jaune pour 'Moyen' */
+  
+  /* Style pour 'Pas de dépassement' */
+  .pas-de-depassement {
+      color: #34c759 !important; /* Vert pour 'Pas de dépassement' */
+  }
+  
+  /* Style pour les autres niveaux */
+  .autre-niveau {
+      color: #FF0000 !important; /* Rouge pour les autres niveaux */
+  }
+
 
   /* Légende */
   .legend {
@@ -264,47 +274,52 @@
     <div class="card">
       <h6 class="card-title">
         <i class="fas fa-cloud icon"></i>
-        {% trans "Épisode de pollution" %}
+        {% trans "Épisodes de pollution" %}
 
       </h6>
       <div class="details">
         <ul>
-          {% for episode in episodde_PM10 %}
-              <li>
-                  <strong>{{ episode.label }}:</strong> 
-                  <span style="color: green;">{{ episode.level }}</span>
-              </li>
-          {% empty %}
-              <li>Aucune donnée sur les épisodes de PM10.</li>
-          {% endfor %}
-      </ul>    
+          <ul>
+            {% for episode in episodde_PM10 %}
+             
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+              
+            {% empty %}
+             Aucune donnée sur les épisodes de PM10.
+            {% endfor %}
+          </ul>
       
-      <ul>
-        {% for episode in episodde_O3 %}
-            <li>
-                <strong>{{ episode.label }}:</strong> 
-                <span style="color: green;">{{ episode.level }}</span>
-            </li>
-        {% empty %}
-            <li>Aucune donnée sur les épisodes de l'ozone.</li>
-        {% endfor %}
-    </ul>  
+          <!-- Ozone Episodes -->
+          <ul>
+            {% for episode in episodde_O3 %}
+             
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+              
+            {% empty %}
+             Aucune donnée sur les épisodes de l'ozone.
+            {% endfor %}
+          </ul>
       
-            <ul>
-        {% for episode in episodde_NO2 %}
-            <li>
-                <strong>{{ episode.label }}:</strong> 
-                <span style="color: green;">{{ episode.level }}</span>
-            </li>
-        {% empty %}
-            <li>Aucune donnée sur les épisodes de PM10.</li>
-        {% endfor %}
-    </ul>  
-      
-    
-    </div>
-  </div>
-
+          <!-- NO2 Episodes -->
+          <ul>
+            {% for episode in episodde_NO2 %}
+                <strong>{{ episode.label }}:</strong>
+                <span class="{% if episode.level == 'Pas de dépassement' %}pas-de-depassement{% else %}autre-niveau{% endif %}">
+                  {{ episode.level }}
+                </span>
+   
+            {% empty %}
+             Aucune donnée sur les épisodes de NO2.
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
 
     <!-- Carte des Pollens -->
     <div class="card">
