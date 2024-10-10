@@ -41,7 +41,6 @@
 {{ block.super }}
 <script src="{% static 'vendor/libs/apex-charts/apexcharts.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Include Bootstrap JS for modal functionality -->
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock vendor_js %}
 
@@ -49,7 +48,7 @@
 {{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Contacts by Availability for a 14-day window
+    // Contacts by Availability for a 14-day window (Volunteers)
     var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
     var dates = {{ dates|safe }};
     
@@ -125,19 +124,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
     chartTopContributors.render();
 
-    // New Volunteers Trend Chart as a Bar Plot
+    // Volunteers Availability Trend Chart as a Bar Plot
     var availabilityTrendData = JSON.parse('{{ availability_trend|escapejs }}');
     var optionsAvailabilityTrend = {
         chart: {
-            type: 'bar', // Change to 'bar' for a bar plot
+            type: 'bar',
             height: 350
         },
         series: [{
             name: 'Disponibilité',
-            data: availabilityTrendData // This now contains totals for each day of the week
+            data: availabilityTrendData
         }],
         xaxis: {
-            categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] // Weekday labels
+            categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
         },
         title: {
             text: 'Tendance de la Disponibilité des Volontaires par Jour'
@@ -153,9 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
     var chartAvailabilityTrend = new ApexCharts(document.querySelector("#chart-availability-trend"), optionsAvailabilityTrend);
     chartAvailabilityTrend.render();
 
-    // Pie Chart for Weekday vs Weekend
-    var weekdayCount = {{ weekday_count }};
-    var weekendCount = {{ weekend_count }};
+    // Weekday vs Weekend Volunteers Pie Chart
+    var weekdayCount = {{ weekday_volunteers_count }};
+    var weekendCount = {{ weekend_volunteers_count }};
     var optionsWeekdayWeekend = {
         chart: {
             type: 'pie',
@@ -165,58 +164,27 @@ document.addEventListener('DOMContentLoaded', function () {
         labels: ['Semaine', 'Week-end'],
         title: {
             text: 'Répartition des Volontaires : Semaine vs Week-end'
-        },
-        tooltip: {
-            y: {
-                formatter: function (val) {
-                    return val + " volontaires";
-                }
-            }
-        },
-        events: {
-            dataPointSelection: function(event, chartContext, { dataPointIndex }) {
-                if (dataPointIndex === 0) {
-                    // Handle details for weekdays
-                    showWeekdayDetails();
-                } else if (dataPointIndex === 1) {
-                    // Handle weekend details
-                    showDayDetails('Weekend', weekendCount);
-                }
-            }
         }
     };
     var chartWeekdayWeekend = new ApexCharts(document.querySelector("#chart-weekday-weekend"), optionsWeekdayWeekend);
     chartWeekdayWeekend.render();
 
-    // Function to show details for weekdays in a modal
-    function showWeekdayDetails() {
-        const weekdayData = [
-            { name: 'Lundi', count: contactsByDatesSlots['2024-10-01']['all_day'] || 0 },
-            { name: 'Mardi', count: contactsByDatesSlots['2024-10-02']['all_day'] || 0 },
-            { name: 'Mercredi', count: contactsByDatesSlots['2024-10-03']['all_day'] || 0 },
-            { name: 'Jeudi', count: contactsByDatesSlots['2024-10-04']['all_day'] || 0 },
-            { name: 'Vendredi', count: contactsByDatesSlots['2024-10-05']['all_day'] || 0 },
-            { name: 'Samedi', count: contactsByDatesSlots['2024-10-06']['all_day'] || 0 },
-            { name: 'Dimanche', count: contactsByDatesSlots['2024-10-07']['all_day'] || 0 }
-        ];
-
-        let modalContent = '<ul class="list-group">';
-        weekdayData.forEach(day => {
-            modalContent += `<li class="list-group-item">${day.name}: ${day.count} volontaires disponibles</li>`;
-        });
-        modalContent += '</ul>';
-        
-        $('#dayDetailsModal .modal-title').text('Détails par Jour de la Semaine');
-        $('#dayDetailsModal .modal-body').html(modalContent);
-        $('#dayDetailsModal').modal('show');
-    }
-
-    // Function to show details in a modal
-    function showDayDetails(dayType, count) {
-        $('#dayDetailsModal .modal-title').text(dayType + ' Details');
-        $('#dayDetailsModal .modal-body').html('<p>Nombre de volontaires: ' + count + '</p>'); // Replace with actual details
-        $('#dayDetailsModal').modal('show');
-    }
+    // Weekday vs Weekend Seekers Pie Chart
+    var weekdaySeekersCount = {{ weekday_seekers_count }};
+    var weekendSeekersCount = {{ weekend_seekers_count }};
+    var optionsSeekersWeekdayWeekend = {
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        series: [weekdaySeekersCount, weekendSeekersCount],
+        labels: ['Semaine', 'Week-end'],
+        title: {
+            text: 'Répartition des Seekers : Semaine vs Week-end'
+        }
+    };
+    var chartSeekersWeekdayWeekend = new ApexCharts(document.querySelector("#chart-seekers-weekday-weekend"), optionsSeekersWeekdayWeekend);
+    chartSeekersWeekdayWeekend.render();
 });
 </script>
 {% endblock page_js %}
@@ -270,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="card-body">
           <h5 class="card-title text-primary">Volontaires disponibles le week-end</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ weekend_contacts_count }}</span>
+            <span class="h1 font-weight-bold">{{ weekend_volunteers_count }}</span>
           </p>
         </div>
       </div>
@@ -282,26 +250,36 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="card-body">
           <h5 class="card-title text-primary">Nombre de personnes réinscrites</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ re_registered_contacts_count }}</span>
+            <span class="h1 font-weight-bold">{{ re_registered_volunteers_count }}</span>
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Re-Registration Percentage -->
+    <!-- Total Seekers (Personnes Aidées) -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
-          <h5 class="card-title text-primary">Pourcentage des personnes réinscrites</h5>
+          <h5 class="card-title text-primary">Nombre total de Seekers</h5>
           <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ re_registration_percentage }}%</span>
+            <span class="h1 font-weight-bold">{{ total_seekers }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekend Seekers Count -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Seekers disponibles le week-end</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ weekend_seekers_count }}</span>
           </p>
         </div>
       </div>
     </div>
   </div>
-
-
 
   <!-- Contacts by Availability Chart -->
   <div class="row mb-4">
@@ -315,13 +293,25 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
-  <!-- Weekday vs Weekend Pie Chart -->
+  <!-- Weekday vs Weekend Volunteers Pie Chart -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Répartition des Volontaires : Weekday vs Weekend</h5>
           <div id="chart-weekday-weekend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekday vs Weekend Seekers Pie Chart -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Répartition des Seekers : Weekday vs Weekend</h5>
+          <div id="chart-seekers-weekday-weekend"></div>
         </div>
       </div>
     </div>
@@ -355,26 +345,6 @@ document.addEventListener('DOMContentLoaded', function () {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for Day Details -->
-<div class="modal fade" id="dayDetailsModal" tabindex="-1" role="dialog" aria-labelledby="dayDetailsModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="dayDetailsModalLabel">Détails du Jour</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Aucun détail disponible.</p> <!-- This will be replaced with actual data -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
       </div>
     </div>
   </div>
