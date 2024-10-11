@@ -14,25 +14,20 @@
     flex-direction: column;
     height: 100%;
   }
-
   .card-body {
     flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
-
   .row {
     margin: 0;
   }
-
   .col-lg-4 {
     padding: 0.5rem;
   }
-
-  /* Modal styles */
   .modal-content {
-      padding: 20px;
+    padding: 20px;
   }
 </style>
 {% endblock vendor_css %}
@@ -48,11 +43,12 @@
 {{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Contacts by Availability for a 14-day window (Volunteers)
-    var contactsByDatesSlots = JSON.parse('{{ contacts_by_dates_slots|escapejs }}');
     var dates = {{ dates|safe }};
-    
-    var optionsAvailability = {
+    var contactsByDatesSlotsVolunteers = JSON.parse('{{ contacts_by_dates_slots_volunteers|escapejs }}');
+    var contactsByDatesSlotsSeekers = JSON.parse('{{ contacts_by_dates_slots_seekers|escapejs }}');
+
+    // Graphique de disponibilité des volontaires pour les 14 prochains jours
+    var optionsAvailabilityVolunteers = {
         chart: {
             type: 'bar',
             stacked: true,
@@ -60,19 +56,19 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         series: [{
             name: 'Toute la journée',
-            data: dates.map(date => contactsByDatesSlots[date]['all_day']),
+            data: dates.map(date => contactsByDatesSlotsVolunteers[date]['all_day']),
             color: '#4CAF50'
         }, {
             name: 'Matin',
-            data: dates.map(date => contactsByDatesSlots[date]['morning']),
+            data: dates.map(date => contactsByDatesSlotsVolunteers[date]['morning']),
             color: '#FFC107'
         }, {
             name: 'Après-midi',
-            data: dates.map(date => contactsByDatesSlots[date]['afternoon']),
+            data: dates.map(date => contactsByDatesSlotsVolunteers[date]['afternoon']),
             color: '#03A9F4'
         }, {
             name: 'Soirée',
-            data: dates.map(date => contactsByDatesSlots[date]['evening']),
+            data: dates.map(date => contactsByDatesSlotsVolunteers[date]['evening']),
             color: '#9C27B0'
         }],
         xaxis: {
@@ -86,10 +82,82 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     };
-    var chartAvailability = new ApexCharts(document.querySelector("#chart-availability"), optionsAvailability);
-    chartAvailability.render();
+    var chartAvailabilityVolunteers = new ApexCharts(document.querySelector("#chart-availability-volunteers"), optionsAvailabilityVolunteers);
+    chartAvailabilityVolunteers.render();
 
-    // Top Contributors Chart
+    // Graphique de disponibilité des seekers pour les 14 prochains jours
+    var optionsAvailabilitySeekers = {
+        chart: {
+            type: 'bar',
+            stacked: true,
+            height: 350
+        },
+        series: [{
+            name: 'Toute la journée',
+            data: dates.map(date => contactsByDatesSlotsSeekers[date]['all_day']),
+            color: '#FF5722'  // Couleur différente pour les seekers
+        }, {
+            name: 'Matin',
+            data: dates.map(date => contactsByDatesSlotsSeekers[date]['morning']),
+            color: '#FFC107'
+        }, {
+            name: 'Après-midi',
+            data: dates.map(date => contactsByDatesSlotsSeekers[date]['afternoon']),
+            color: '#03A9F4'
+        }, {
+            name: 'Soirée',
+            data: dates.map(date => contactsByDatesSlotsSeekers[date]['evening']),
+            color: '#9C27B0'
+        }],
+        xaxis: {
+            categories: dates
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " personnes";
+                }
+            }
+        }
+    };
+    var chartAvailabilitySeekers = new ApexCharts(document.querySelector("#chart-availability-seekers"), optionsAvailabilitySeekers);
+    chartAvailabilitySeekers.render();
+
+    // Graphique Répartition des Volontaires : Semaine vs Week-end
+    var weekdayVolunteersCount = {{ weekday_volunteers_count }};
+    var weekendVolunteersCount = {{ weekend_volunteers_count }};
+    var optionsWeekdayWeekendVolunteers = {
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        series: [weekdayVolunteersCount, weekendVolunteersCount],
+        labels: ['Semaine', 'Week-end'],
+        title: {
+            text: 'Répartition des Volontaires : Semaine vs Week-end'
+        }
+    };
+    var chartWeekdayWeekendVolunteers = new ApexCharts(document.querySelector("#chart-weekday-weekend"), optionsWeekdayWeekendVolunteers);
+    chartWeekdayWeekendVolunteers.render();
+
+    // Graphique Répartition des Seekers : Semaine vs Week-end
+    var weekdaySeekersCount = {{ weekday_seekers_count }};
+    var weekendSeekersCount = {{ weekend_seekers_count }};
+    var optionsWeekdayWeekendSeekers = {
+        chart: {
+            type: 'pie',
+            height: 350
+        },
+        series: [weekdaySeekersCount, weekendSeekersCount],
+        labels: ['Semaine', 'Week-end'],
+        title: {
+            text: 'Répartition des Seekers : Semaine vs Week-end'
+        }
+    };
+    var chartWeekdayWeekendSeekers = new ApexCharts(document.querySelector("#chart-seekers-weekday-weekend"), optionsWeekdayWeekendSeekers);
+    chartWeekdayWeekendSeekers.render();
+
+    // Graphique Meilleurs Contributeurs
     var optionsTopContributors = {
         chart: {
             type: 'bar',
@@ -103,15 +171,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 {% endfor %}
             ]
         }],
+        title: {
+            text: 'Meilleurs Contributeurs'
+        },
         xaxis: {
             categories: [
                 {% for contributor in top_contributors %}
                     '{{ contributor.first_name }} {{ contributor.last_name }}',
                 {% endfor %}
             ]
-        },
-        title: {
-            text: 'Meilleurs Contributeurs'
         },
         tooltip: {
             y: {
@@ -123,68 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
     };
     var chartTopContributors = new ApexCharts(document.querySelector("#chart-top-contributors"), optionsTopContributors);
     chartTopContributors.render();
-
-    // Volunteers Availability Trend Chart as a Bar Plot
-    var availabilityTrendData = JSON.parse('{{ availability_trend|escapejs }}');
-    var optionsAvailabilityTrend = {
-        chart: {
-            type: 'bar',
-            height: 350
-        },
-        series: [{
-            name: 'Disponibilité',
-            data: availabilityTrendData
-        }],
-        xaxis: {
-            categories: ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']
-        },
-        title: {
-            text: 'Tendance de la Disponibilité des Volontaires par Jour'
-        },
-        tooltip: {
-            y: {
-                formatter: function (val) {
-                    return val + " volontaires disponibles";
-                }
-            }
-        }
-    };
-    var chartAvailabilityTrend = new ApexCharts(document.querySelector("#chart-availability-trend"), optionsAvailabilityTrend);
-    chartAvailabilityTrend.render();
-
-    // Weekday vs Weekend Volunteers Pie Chart
-    var weekdayCount = {{ weekday_volunteers_count }};
-    var weekendCount = {{ weekend_volunteers_count }};
-    var optionsWeekdayWeekend = {
-        chart: {
-            type: 'pie',
-            height: 350
-        },
-        series: [weekdayCount, weekendCount],
-        labels: ['Semaine', 'Week-end'],
-        title: {
-            text: 'Répartition des Volontaires : Semaine vs Week-end'
-        }
-    };
-    var chartWeekdayWeekend = new ApexCharts(document.querySelector("#chart-weekday-weekend"), optionsWeekdayWeekend);
-    chartWeekdayWeekend.render();
-
-    // Weekday vs Weekend Seekers Pie Chart
-    var weekdaySeekersCount = {{ weekday_seekers_count }};
-    var weekendSeekersCount = {{ weekend_seekers_count }};
-    var optionsSeekersWeekdayWeekend = {
-        chart: {
-            type: 'pie',
-            height: 350
-        },
-        series: [weekdaySeekersCount, weekendSeekersCount],
-        labels: ['Semaine', 'Week-end'],
-        title: {
-            text: 'Répartition des Seekers : Semaine vs Week-end'
-        }
-    };
-    var chartSeekersWeekdayWeekend = new ApexCharts(document.querySelector("#chart-seekers-weekday-weekend"), optionsSeekersWeekdayWeekend);
-    chartSeekersWeekdayWeekend.render();
 });
 </script>
 {% endblock page_js %}
@@ -207,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="end-date-filter">Date de Fin</label>
                 <input type="date" id="end-date-filter" name="end_date" class="form-control" value="{{ end_date }}">
               </div>
-
+            </div>
             <div class="row mt-3">
               <div class="col-12">
                 <button type="submit" class="btn btn-primary">Appliquer</button>
@@ -219,8 +225,9 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 
+  <!-- KPI Row -->
   <div class="row mb-4">
-    <!-- Total Active Volunteers -->
+    <!-- Nombre total de volontaires actifs -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
@@ -232,31 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
 
-    <!-- Weekend Contacts Count -->
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card equal-height">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Volontaires disponibles le week-end</h5>
-          <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ weekend_volunteers_count }}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Re-Registered Contacts Count -->
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="card equal-height">
-        <div class="card-body">
-          <h5 class="card-title text-primary">Nombre de personnes réinscrites</h5>
-          <p class="mb-3">
-            <span class="h1 font-weight-bold">{{ re_registered_volunteers_count }}</span>
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Total Seekers (Personnes Aidées) -->
+    <!-- Nombre total de Seekers -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
@@ -268,7 +251,19 @@ document.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
 
-    <!-- Weekend Seekers Count -->
+    <!-- Volontaires disponibles le week-end -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Volontaires disponibles le week-end</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ weekend_volunteers_count }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Seekers disponibles le week-end -->
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card equal-height">
         <div class="card-body">
@@ -279,45 +274,93 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
       </div>
     </div>
+
+    <!-- Nombre de personnes réinscrites -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nombre de personnes réinscrites</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ re_registered_volunteers_count }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nombre de binômes créés pendant la période -->
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card equal-height">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Nombre de binômes créés pendant la période</h5>
+          <p class="mb-3">
+            <span class="h1 font-weight-bold">{{ pairings_created_count }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Contacts by Availability Chart -->
+  <!-- Disponibilité pour les 14 prochains jours ou pendant la période -->
+  {% if not total_volunteers_available_period %}
   <div class="row mb-4">
+    <!-- Disponibilité des volontaires pour les 14 prochains jours -->
     <div class="col-12">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-primary">Volontaires disponibles pour les 14 prochains jours</h5>
-          <div id="chart-availability"></div>
+          <div id="chart-availability-volunteers"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disponibilité des seekers pour les 14 prochains jours -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Seekers disponibles pour les 14 prochains jours</h5>
+          <div id="chart-availability-seekers"></div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Weekday vs Weekend Volunteers Pie Chart -->
+  {% else %}
   <div class="row mb-4">
+    <!-- Volontaires disponibles pendant la période -->
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-primary">Répartition des Volontaires : Weekday vs Weekend</h5>
+          <h5 class="card-title text-primary">Volontaires disponibles pendant la période</h5>
+          <p class="h1 font-weight-bold">{{ total_volunteers_available_period }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Répartition des Volontaires et Seekers : Semaine vs Week-end -->
+  <div class="row mb-4">
+    <!-- Répartition des Volontaires : Semaine vs Week-end -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title text-primary">Répartition des Volontaires : Semaine vs Week-end</h5>
           <div id="chart-weekday-weekend"></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Weekday vs Weekend Seekers Pie Chart -->
-  <div class="row mb-4">
+    <!-- Répartition des Seekers : Semaine vs Week-end -->
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title text-primary">Répartition des Seekers : Weekday vs Weekend</h5>
+          <h5 class="card-title text-primary">Répartition des Seekers : Semaine vs Week-end</h5>
           <div id="chart-seekers-weekday-weekend"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Top Contributors Chart -->
+  <!-- Meilleurs Contributeurs -->
   <div class="row mb-4">
     <div class="col-12">
       <div class="card">
@@ -349,5 +392,4 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
   </div>
 </div>
-
 {% endblock %}
