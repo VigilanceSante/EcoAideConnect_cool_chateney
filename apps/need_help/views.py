@@ -17,7 +17,7 @@ class FormLayoutsHelp(TemplateView):
     def post(self, request, *args, **kwargs):
         form = ContactFormForm(request.POST)
         if form.is_valid():
-            contact = form.save(commit=False)
+            contact = form.save(commit=True)
             contact.is_volunteer = False  # Explicitly set is_volunteer to False
             contact.save()
 
@@ -28,3 +28,4 @@ class FormLayoutsHelp(TemplateView):
         context = self.get_context_data(**kwargs)
         context['form'] = form
         return self.render_to_response(context)
+    

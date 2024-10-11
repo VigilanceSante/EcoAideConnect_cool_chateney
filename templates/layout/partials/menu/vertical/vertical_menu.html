@@ -46,53 +46,50 @@
       </a>
     </li>
 
-    <li
-      class="menu-item {% if 'map' == request.resolver_match.url_name %}active{% endif %}"
-    >
+    <li class="menu-item {% if 'map' == request.resolver_match.url_name %}active{% endif %}">
       <a href="{% url 'map' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-map"></i>
         <div class="text-truncate" data-i18n="Maps">Carte</div>
       </a>
     </li>
 
-
+    <!-- Entraide Section -->
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Entraide</span>
     </li>
 
-    <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
+    <li class="menu-item {% if request.resolver_match.url_name == 'contact_form' %}active{% endif %}">
       <a href="{% url 'contact_form' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-face"></i>
         <div class="text-truncate" data-i18n="Je veux aider">Je veux aider</div>
       </a>
     </li>
 
-    <li class="menu-item {% if '/live/' in request.path %}active{% endif %}">
+    <li class="menu-item {% if request.resolver_match.url_name == 'help' %}active{% endif %}">
       <a href="{% url 'help' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bxs-face"></i>
-        <div class="text-truncate" data-i18n="Je veux aider">
-          J'ai besoin d'aide
-        </div>
+        <div class="text-truncate" data-i18n="J'ai besoin d'aide">J'ai besoin d'aide</div>
       </a>
     </li>
+
     <li class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}">
       <a href="{% url 'dashboard' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-table"></i>
         <div class="text-truncate" data-i18n="En direct">Communauté</div>
       </a>
     </li>
+
     <!-- Access Mairie Section -->
     <li class="menu-header small text-uppercase">
       <span class="menu-header-text">Accés mairie</span>
     </li>
 
-    <li class="menu-item {% if '/dashboard/' in request.path %}active{% endif %}">
+    <li class="menu-item {% if request.resolver_match.url_name == 'admin:index' %}active{% endif %}">
       <a href="{% url 'admin:index' %}" class="menu-link">
         <i class="menu-icon tf-icons bx bx-user-circle"></i>
         <div class="text-truncate" data-i18n="Administration">Admin</div>
       </a>
     </li>
-
 
   </ul>
 </aside>
