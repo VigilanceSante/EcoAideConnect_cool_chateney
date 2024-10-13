@@ -50,8 +50,12 @@ class Command(BaseCommand):
             # Initialize availability for all days as False
             availability = {f'{day}_{period}': False for day in day_names for period in ['all_day', 'morning', 'afternoon', 'evening']}
 
-            # Set availability for the selected day
-            availability[f'{selected_day_name}_all_day'] = True  # Mark the entire day as available
+            # Set random availability for the selected day
+            availability_periods = ['all_day', 'morning', 'afternoon', 'evening']
+            random_period = random.choice(availability_periods)
+
+            # Mark only the selected random period as True for the chosen day
+            availability[f'{selected_day_name}_{random_period}'] = True
 
             return availability
 

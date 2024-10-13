@@ -15,94 +15,163 @@
     <!-- Leaflet MarkerCluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
     <style>
-      /* Mobile-first approach */
+      /* Variables de couleur pour cohérence visuelle */
+      :root {
+        --primary-color: #4a90e2; /* Couleur principale */
+        --accent-color: #f5a623; /* Couleur d'accentuation */
+        --background-color: #f4f7f9; /* Fond général */
+        --text-color: #333; /* Texte principal */
+        --warning-color: #f56c42; /* Couleur alerte */
+      }
+
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f7f9;
-        color: #333;
+        background-color: var(--background-color);
+        color: var(--text-color);
         margin: 0;
         padding: 0;
       }
 
       .container {
         padding: 1rem;
-        max-width: 1200px;
         margin: 0 auto;
+        max-width: 100%;
       }
 
-      .row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-      }
-
+      /* Style de la carte météo/qualité de l'air */
       .card {
-        display: flex;
-        flex-direction: column;
-        border: 1px solid #d9dee3;
-        border-radius: 0.5rem;
-        box-shadow: 0 2px 6px rgba(67, 89, 113, 0.12);
-        background-color: #fff;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1rem;
+        padding: 1.5rem;
         transition: box-shadow 0.3s ease, transform 0.3s ease;
       }
 
       .card:hover {
-        box-shadow: 0 4px 12px rgba(67, 89, 113, 0.2);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         transform: translateY(-4px);
       }
 
-      .card-body {
-        padding: 1rem;
-        text-align: center;
-      }
-
       .card-title {
-        margin-bottom: 0.875rem;
-        color: #566a7f;
-        font-size: 1.25rem;
-      }
-
-      .card-icon {
-        font-size: 2rem;
+        font-size: 1.4rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
       }
 
       .alert {
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
+        background-color: var(--warning-color);
+        color: white;
+        font-size: 1rem;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
       }
 
-      /* Responsive Design */
-      @media (min-width: 576px) {
-        .col-md-6 {
-          flex: 0 0 50%;
-          max-width: 50%;
-        }
+      /* Bloc météo et température */
+      .weather-block {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background-color: var(--background-color);
+        border-radius: 1rem;
+        margin-bottom: 1rem;
       }
 
-      @media (min-width: 768px) {
-        .col-lg-3 {
-          flex: 0 0 25%;
-          max-width: 25%;
-        }
+      .weather-info {
+        font-size: 1.2rem;
+        font-weight: 500;
+        color: var(--primary-color);
       }
 
-      /* Improved map styling */
+      .temperature {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--accent-color);
+      }
+
+      .weather-icon {
+        font-size: 3rem;
+        color: #6bb5f2;
+      }
+
+      /* Indicateurs de qualité de l'air */
+      .air-quality {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        background-color: #f0f0f0;
+        border-radius: 1rem;
+      }
+
+      .air-index {
+        font-size: 2rem;
+        font-weight: bold;
+      }
+
+      .index-description {
+        font-size: 1rem;
+        color: var(--text-color);
+      }
+
+      /* Couleurs dynamiques selon la qualité de l'air */
+      .air-index.good {
+        color: #6bcf48;
+      }
+
+      .air-index.moderate {
+        color: #f7b500;
+      }
+
+      .air-index.bad {
+        color: #f44336;
+      }
+
+      /* Style de la carte Leaflet */
       .map-container {
-        height: 500px; /* Increased height for better UX */
+        height: 450px;
         width: 100%;
-        border-radius: 8px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         margin-top: 20px;
       }
 
-      .card {
-        border: none;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      /* Navigation fixe en bas */
+      .bottom-nav {
+        display: flex;
+        justify-content: space-around;
+        background-color: white;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        padding: 1rem 0;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
       }
 
-      .card-title {
-        font-size: 1.5rem;
-        font-weight: bold;
+      .nav-icon {
         text-align: center;
+        color: var(--primary-color);
+        font-size: 1.2rem;
+      }
+
+      .nav-icon:hover {
+        color: var(--accent-color);
+      }
+
+      /* Animation et transition */
+      .fade-in {
+        animation: fadeIn 1s ease-in-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
     </style>
 {% endblock vendor_css %}
@@ -120,93 +189,142 @@
     {{ block.super }}
     <script src="{% static 'js/dashboards-analytics.js' %}"></script>
     <script>
-      // Initialize the map without specifying center and zoom level
+      // Initialisation de la carte Leaflet
       var map = L.map('map');
 
-      // Add the OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
         maxZoom: 18,
       }).addTo(map);
 
-      // Initialize a marker cluster group
       var markers = L.markerClusterGroup();
 
-      // Function to add a marker to the cluster group
       function addMarker(lat, lng, popupContent) {
         L.marker([lat, lng]).bindPopup(popupContent).addTo(markers);
       }
 
-      // Marker data
       const locations = [
-        { lat: 48.7606, lng: 2.2589, content: 'Centre Communal d’Action Sociale (26 rue du Docteur Le Savoureux), 01 46 83 46 82' },
-        { lat: 48.765820958051215, lng: 2.259873405997262, content: 'Cinéma Le Rex (364 avenue de la Division Leclerc), 01 40 83 16 85' },
-        { lat: 48.76464287485584, lng: 2.2799412458230184, content: 'Espace Séniors (291-293 avenue de la Division Leclerc), 01 46 32 46 69' },
-        { lat: 48.7576, lng: 2.2579, content: 'Médiathèque (7-9 rue des Vallées), 01 46 83 45 48' },
-        { lat: 48.7672137222992, lng: 2.279124161043493, content: 'Pavillon des Arts et du Patrimoine (98 rue Jean Longuet), 01 47 02 75 22' },
-        { lat: 48.7677830136355, lng: 2.2891088215439126, content: 'Coulée Verte, avenue Sully Prudhomme (point d’eau potable)' },
-        { lat: 48.77409876009363, lng: 2.2691806285229026, content: 'Jardin de l’Aigle Blanc, rue de Chateaubriand (point d’eau potable)' },
-        { lat: 48.766645965325324, lng: 2.2892076709756704, content: 'Quartier LaVallée, jardins LaVallée (point d’eau potable)' },
-        { lat: 48.769947175285594, lng: 2.2803509895275607, content: 'Centre-ville, rue Jean Longuet (fontaine publique d’eau non potable)' },
+        { lat: 48.7606, lng: 2.2589, content: 'Centre Communal d’Action Sociale (26 rue du Docteur Le Savoureux)' },
+        { lat: 48.765820958051215, lng: 2.259873405997262, content: 'Cinéma Le Rex (364 avenue de la Division Leclerc)' },
+        { lat: 48.76464287485584, lng: 2.2799412458230184, content: 'Espace Séniors (291-293 avenue de la Division Leclerc)' },
+        { lat: 48.7576, lng: 2.2579, content: 'Médiathèque (7-9 rue des Vallées)' },
+        { lat: 48.7672137222992, lng: 2.279124161043493, content: 'Pavillon des Arts et du Patrimoine (98 rue Jean Longuet)' },
+        { lat: 48.7677830136355, lng: 2.2891088215439126, content: 'Coulée Verte, avenue Sully Prudhomme' },
+        { lat: 48.77409876009363, lng: 2.2691806285229026, content: 'Jardin de l’Aigle Blanc, rue de Chateaubriand' },
       ];
 
-      // Bounds object to calculate the extent of all markers
       var bounds = new L.LatLngBounds();
 
-      // Add all markers to the map and extend bounds
       locations.forEach(location => {
         addMarker(location.lat, location.lng, location.content);
-        bounds.extend([location.lat, location.lng]); // Extend bounds for each marker
+        bounds.extend([location.lat, location.lng]);
       });
 
-      // Add the marker cluster group to the map
       map.addLayer(markers);
-
-      // Fit the map view to the bounds of all markers
       map.fitBounds(bounds);
+
+      // ApexCharts pour les graphiques interactifs
+      var options = {
+        chart: {
+          type: 'line',
+          height: 350
+        },
+        series: [{
+          name: 'Qualité de l\'air',
+          data: [22, 30, 45, 55, 33, 42, 52]
+        }],
+        xaxis: {
+          categories: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
+        },
+        colors: ['#f56c42'],
+        stroke: {
+          curve: 'smooth'
+        }
+      };
+
+      var chart = new ApexCharts(document.querySelector("#air-quality-chart"), options);
+      chart.render();
     </script>
 {% endblock page_js %}
 
 {% block content %}
     <div class="container">
-      <!-- Welcome Card -->
-      <div class="row mb-4">
+      <!-- Carte de bienvenue et météo -->
+      <div class="row mb-4 fade-in">
         <div class="col-12">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title text-primary">Bienvenue sur CoolChateney !</h5>
-              <p class="mb-3">
-                <span class="h1 font-weight-bold">{{ weather_data.temperature }}&deg;C</span>
-                <br>
-                <small class="{{ weather_data.description_class }} text-muted">{{ weather_data.description }}</small>
-              </p>
+              <h5 class="card-title">Bienvenue sur CoolChateney !</h5>
+              <div class="weather-block">
+                <div class="weather-info">
+                  <i class="fas fa-sun weather-icon"></i>
+                  <p>Météo actuelle : {{ weather_data.description }}</p>
+                </div>
+                <div class="temperature">
+                  {{ weather_data.temperature }}&deg;C
+                </div>
+              </div>
               <p>
-                <span class="d-block mb-1"><i class="fas fa-thermometer-three-quarters"></i> Température maximale : <span class="{{ weather_data.max_temp_class }}">{{ weather_data.max_temp }}&deg;C</span></span>
-                <span class="d-block"><i class="fas fa-thermometer-quarter"></i> Température minimale : <span class="{{ weather_data.min_temp_class }}">{{ weather_data.min_temp }}&deg;C</span></span>
-                <!-- Indice de pollution -->
-                <span class="d-block"><i class="fas fa-smog"></i> Indice de pollution : <span class="{{ pollution_data }}">{{ pollution_data.overall_index }}</span></span>
+                <span><i class="fas fa-thermometer-three-quarters"></i> Température max : {{ weather_data.max_temp }}&deg;C</span><br>
+                <span><i class="fas fa-thermometer-quarter"></i> Température min : {{ weather_data.min_temp }}&deg;C</span><br>
+                <span><i class="fas fa-smog"></i> Indice de pollution : {{ pollution_data.overall_index }}</span>
               </p>
-              <div class="alert alert-info mt-3" role="alert">
+              <div class="alert">
                 {{ weather_data.advice }}
               </div>
-              <p class="mt-3">
-                Profitez de votre journée !
-              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- OpenStreetMap -->
-      <div class="row">
+      <!-- Qualité de l'air -->
+      <div class="row fade-in">
         <div class="col-12">
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title text-primary">Découvrir les lieux frais</h5>
+              <h5 class="card-title">Qualité de l'air</h5>
+              <div class="air-quality">
+                <div class="air-index {{ pollution_data.class }}">
+                  {{ pollution_data.overall_index }}
+                </div>
+                <div class="index-description">
+                  {{ pollution_data.description }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphique interactif de la qualité de l'air -->
+      <div class="row fade-in">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Évolution de la qualité de l'air</h5>
+              <div id="air-quality-chart"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte des lieux frais -->
+      <div class="row fade-in">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Découvrir les lieux frais</h5>
               <div id="map" class="map-container"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Barre de navigation en bas de l'écran -->
+    <nav class="bottom-nav">
+      <a href="#" class="nav-icon"><i class="fas fa-cloud-sun"></i><span>Météo</span></a>
+      <a href="#" class="nav-icon"><i class="fas fa-smog"></i><span>Qualité de l'air</span></a>
+      <a href="#" class="nav-icon"><i class="fas fa-leaf"></i><span>Pollen</span></a>
+    </nav>
 {% endblock %}
